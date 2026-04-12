@@ -4,11 +4,16 @@ public class ComponentRegistry
 {
     private readonly Dictionary<string, Type> _components = new Dictionary<string, Type>();
 
-    // TODO: Uses typeof(T).Name as the key, assuming it matches IComponent.Type.
+    // TODO: Register(string, Type) — name validation gap.
+    // Currently accepts any string as key, including empty or mismatched names.
+    // Three options under consideration:
+    //   1. Enforce type == componentType.Name — consistent with Register<T>(), but makes the string param redundant.
+    //   2. Replace with Register(Type) — cleaner API for runtime registration; key derived from componentType.Name internally.
+    //   3. Keep aliasing, add identifier-format validation — valid if aliasing is a real use case.
+    // Decision deferred until there is a concrete consumer of this overload.
+    //
+    // Register<T>() uses typeof(T).Name as the key, assuming it matches IComponent.Type.
     // This holds by convention (all components use nameof(ClassName)) but is not enforced.
-    // A component with a custom Type value (e.g. an alias) registered via this overload
-    // would be stored under the wrong key. Consider a static abstract IComponent.ComponentType
-    // to enforce the contract at compile time if aliasing becomes a requirement.
     public void Register<T>()
         where T : class, IComponent
     {
