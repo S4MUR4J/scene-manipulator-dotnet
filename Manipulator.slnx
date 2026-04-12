@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Manipulator.Core.Tests/Manipulator.Core.Tests.csproj" />
+  <Project Path="Manipulator.Core/Manipulator.Core.csproj" />
+</Solution>
