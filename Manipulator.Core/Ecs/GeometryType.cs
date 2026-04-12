@@ -8,5 +8,5 @@ public enum GeometryType
     Cylinder,
     Plane,
     Torus,
-    Pyramid
+    Pyramid,
 }

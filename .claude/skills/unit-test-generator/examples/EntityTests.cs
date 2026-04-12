@@ -12,9 +12,7 @@ public class EntityTests
     {
         // Arrange
         var transform = new Transform();
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(transform)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(transform).Build();
 
         // Act
         var result = entity.Get<Transform>();
@@ -40,9 +38,7 @@ public class EntityTests
     public void Has_Generic_ReturnsTrue_WhenComponentExists()
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Has<Transform>();
@@ -68,9 +64,7 @@ public class EntityTests
     public void Remove_Generic_RemovesComponent_AndReturnsTrue()
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var removed = entity.Remove<Transform>();
@@ -99,9 +93,7 @@ public class EntityTests
         // Arrange
         var firstTransform = new Transform(Position: new Vector3(1, 0, 0));
         var secondTransform = new Transform(Position: new Vector3(2, 0, 0));
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(firstTransform)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(firstTransform).Build();
 
         // Act
         entity.Set(secondTransform);

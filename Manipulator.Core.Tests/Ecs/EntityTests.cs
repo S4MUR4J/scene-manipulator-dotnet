@@ -57,9 +57,7 @@ public class EntityTests
     {
         // Arrange
         var transform = new Transform(Position: new Vector3(1, 2, 3));
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(transform)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(transform).Build();
 
         // Act
         var result = entity.Get<Transform>();
@@ -73,9 +71,7 @@ public class EntityTests
     {
         // Arrange
         var name = new EntityName("Player");
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(name)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(name).Build();
 
         // Act
         var result = entity.Get<EntityName>();
@@ -89,9 +85,7 @@ public class EntityTests
     {
         // Arrange
         var meshFilter = new MeshFilter(GeometryType.Sphere, null);
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(meshFilter)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(meshFilter).Build();
 
         // Act
         var result = entity.Get<MeshFilter>();
@@ -105,9 +99,7 @@ public class EntityTests
     {
         // Arrange
         var meshRenderer = new MeshRenderer(Color: "#FF0000", Opacity: 0.8f);
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(meshRenderer)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(meshRenderer).Build();
 
         // Act
         var result = entity.Get<MeshRenderer>();
@@ -138,9 +130,7 @@ public class EntityTests
     {
         // Arrange
         var transform = new Transform();
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(transform)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(transform).Build();
 
         // Act
         var result = entity.Get("Transform");
@@ -169,9 +159,7 @@ public class EntityTests
     public void Get_ByTypeName_ReturnsNull_WhenKeyIsUnknown(string typeName)
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Get(typeName);
@@ -188,9 +176,7 @@ public class EntityTests
     public void Has_Generic_ReturnsTrue_WhenComponentExists()
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Has<Transform>();
@@ -220,9 +206,7 @@ public class EntityTests
     public void Has_ByTypeName_ReturnsTrue_WhenComponentExists()
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Has("Transform");
@@ -250,9 +234,7 @@ public class EntityTests
     public void Has_ByTypeName_ReturnsFalse_WhenKeyIsUnknown(string typeName)
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Has(typeName);
@@ -292,7 +274,8 @@ public class EntityTests
         var entity = new EntityBuilder(SceneBuilder.Id(1)).Build();
 
         // Act
-        var act = () => ((IDictionary<string, IComponent>)entity.Components).Add("Transform", new Transform());
+        var act = () =>
+            ((IDictionary<string, IComponent>)entity.Components).Add("Transform", new Transform());
 
         // Assert
         act.Should().Throw<NotSupportedException>();
@@ -322,9 +305,7 @@ public class EntityTests
         // Arrange
         var firstTransform = new Transform(Position: new Vector3(1, 0, 0));
         var secondTransform = new Transform(Position: new Vector3(2, 0, 0));
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(firstTransform)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(firstTransform).Build();
 
         // Act
         entity.Set(secondTransform);
@@ -377,9 +358,7 @@ public class EntityTests
         // Arrange
         var firstTransform = new Transform(Position: new Vector3(0, 1, 0));
         var secondTransform = new Transform(Position: new Vector3(0, 2, 0));
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(firstTransform)
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(firstTransform).Build();
 
         // Act
         entity.Set("Transform", secondTransform);
@@ -396,9 +375,7 @@ public class EntityTests
     public void Remove_Generic_ExistingComponent_ReturnsTrueAndRemoves()
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Remove<Transform>();
@@ -445,9 +422,7 @@ public class EntityTests
     public void Remove_ByTypeName_ExistingComponent_ReturnsTrueAndRemoves()
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Remove("Transform");
@@ -476,9 +451,7 @@ public class EntityTests
     public void Remove_ByTypeName_UnknownKey_ReturnsFalse(string typeName)
     {
         // Arrange
-        var entity = new EntityBuilder(SceneBuilder.Id(1))
-            .WithComponent(new Transform())
-            .Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(new Transform()).Build();
 
         // Act
         var result = entity.Remove(typeName);

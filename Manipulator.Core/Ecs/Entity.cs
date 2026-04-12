@@ -3,7 +3,8 @@ namespace Manipulator.Core.Ecs;
 public class Entity
 {
     public string Id { get; }
-    private readonly Dictionary<string, IComponent> _components = new Dictionary<string, IComponent>();
+    private readonly Dictionary<string, IComponent> _components =
+        new Dictionary<string, IComponent>();
 
     public Entity(string id)
     {
@@ -17,7 +18,8 @@ public class Entity
     }
 
     // Component access
-    public T? Get<T>() where T : class, IComponent
+    public T? Get<T>()
+        where T : class, IComponent
     {
         var typeName = typeof(T).Name;
         return Get(typeName) as T;
@@ -29,7 +31,8 @@ public class Entity
         return component;
     }
 
-    public bool Has<T>() where T : class, IComponent
+    public bool Has<T>()
+        where T : class, IComponent
     {
         var typeName = typeof(T).Name;
         return Has(typeName);
@@ -43,7 +46,8 @@ public class Entity
     public IReadOnlyDictionary<string, IComponent> Components => _components.AsReadOnly();
 
     // Mutations
-    internal void Set<T>(T component) where T : class, IComponent
+    internal void Set<T>(T component)
+        where T : class, IComponent
     {
         var typeName = typeof(T).Name;
         Set(typeName, component);
@@ -54,7 +58,8 @@ public class Entity
         _components[componentType] = component;
     }
 
-    internal bool Remove<T>() where T : class, IComponent
+    internal bool Remove<T>()
+        where T : class, IComponent
     {
         var typeName = typeof(T).Name;
         return Remove(typeName);

@@ -6,7 +6,8 @@ public class EntityBuilder(string id)
 {
     private readonly Entity _entity = new Entity(id);
 
-    public EntityBuilder WithComponent<T>(T component) where T : class, IComponent
+    public EntityBuilder WithComponent<T>(T component)
+        where T : class, IComponent
     {
         _entity.Set(component);
         return this;

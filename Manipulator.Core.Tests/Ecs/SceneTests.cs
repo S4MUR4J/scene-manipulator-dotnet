@@ -61,9 +61,7 @@ public class SceneTests
     public void RemoveEntity_ExistingId_ReturnsTrueAndRemoves()
     {
         // Arrange
-        var scene = new SceneBuilder()
-            .WithEntity()
-            .Build();
+        var scene = new SceneBuilder().WithEntity().Build();
 
         // Act
         var result = scene.RemoveEntity(SceneBuilder.Id(1));
@@ -94,9 +92,7 @@ public class SceneTests
     public void Clear_RemovesAllEntities()
     {
         // Arrange
-        var scene = new SceneBuilder()
-            .WithEntities(2)
-            .Build();
+        var scene = new SceneBuilder().WithEntities(2).Build();
 
         // Act
         scene.Clear();
@@ -123,9 +119,7 @@ public class SceneTests
     public void Clear_CalledTwice_StaysEmpty()
     {
         // Arrange
-        var scene = new SceneBuilder()
-            .WithEntity()
-            .Build();
+        var scene = new SceneBuilder().WithEntity().Build();
 
         // Act
         scene.Clear();
@@ -144,9 +138,7 @@ public class SceneTests
     {
         // Arrange
         var entity = new EntityBuilder(SceneBuilder.Id(1)).Build();
-        var scene = new SceneBuilder()
-            .WithEntity()
-            .Build();
+        var scene = new SceneBuilder().WithEntity().Build();
 
         // Act
         var result = scene.GetEntity(SceneBuilder.Id(1));
@@ -172,9 +164,7 @@ public class SceneTests
     public void HasEntity_ExistingId_ReturnsTrue()
     {
         // Arrange
-        var scene = new SceneBuilder()
-            .WithEntity()
-            .Build();
+        var scene = new SceneBuilder().WithEntity().Build();
 
         // Act
         var result = scene.HasEntity(SceneBuilder.Id(1));
@@ -217,9 +207,7 @@ public class SceneTests
     public void Count_AfterAddingEntities_ReflectsTotal()
     {
         // Arrange
-        var scene = new SceneBuilder()
-            .WithEntities(3)
-            .Build();
+        var scene = new SceneBuilder().WithEntities(3).Build();
 
         // Act
         var result = scene.Count;
@@ -232,9 +220,7 @@ public class SceneTests
     public void Count_AfterRemove_Decrements()
     {
         // Arrange
-        var scene = new SceneBuilder()
-            .WithEntities(2)
-            .Build();
+        var scene = new SceneBuilder().WithEntities(2).Build();
 
         // Act
         scene.RemoveEntity(SceneBuilder.Id(1));
@@ -247,9 +233,7 @@ public class SceneTests
     public void Count_AfterClear_IsZero()
     {
         // Arrange
-        var scene = new SceneBuilder()
-            .WithEntities(2)
-            .Build();
+        var scene = new SceneBuilder().WithEntities(2).Build();
 
         // Act
         scene.Clear();

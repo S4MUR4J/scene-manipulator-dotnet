@@ -11,8 +11,8 @@ public class SceneBuilder
 
     public static string Id(int index, string tag = DefaultEntityTag) => TestUtils.Tag(tag, index);
 
-    public SceneBuilder WithEntity(Action<EntityBuilder>? configure = null)
-        => WithEntity(Id(++_entityCounter), configure);
+    public SceneBuilder WithEntity(Action<EntityBuilder>? configure = null) =>
+        WithEntity(Id(++_entityCounter), configure);
 
     public SceneBuilder WithEntity(string id, Action<EntityBuilder>? configure = null)
     {
