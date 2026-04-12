@@ -4,11 +4,15 @@ public class ComponentRegistry
 {
     private readonly Dictionary<string, Type> _components = new Dictionary<string, Type>();
 
+    // TODO: Uses typeof(T).Name as the key, assuming it matches IComponent.Type.
+    // This holds by convention (all components use nameof(ClassName)) but is not enforced.
+    // A component with a custom Type value (e.g. an alias) registered via this overload
+    // would be stored under the wrong key. Consider a static abstract IComponent.ComponentType
+    // to enforce the contract at compile time if aliasing becomes a requirement.
     public void Register<T>()
-        where T : class, IComponent, new()
+        where T : class, IComponent
     {
-        var instance = new T();
-        _components[instance.Type] = typeof(T);
+        _components[typeof(T).Name] = typeof(T);
     }
 
     public void Register(string type, Type componentType)
