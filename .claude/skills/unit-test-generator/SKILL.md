@@ -42,6 +42,10 @@ Generate xUnit tests for: $ARGUMENTS
 - No mocks — test against real objects
 - Mutations via `internal` methods require same assembly; `[assembly: InternalsVisibleTo]` is already set
 - Group related tests with `#region` only if file exceeds ~80 lines
+- **Never use `// Act & Assert`** — always keep Act and Assert as separate sections
+- **Property/getter tests must have an explicit `// Act` step**: `var result = sut.Property;` then assert on `result`, never inline the access in the assert
+- **Class name must exactly match file name**: `FooTests.cs` → `public class FooTests`
+- **Use `.Be()` for reference identity** (same object returned from a store/collection); use `.BeEquivalentTo()` only when comparing structurally distinct instances intentionally
 
 ## Builders (use these — never create entities/scenes manually)
 

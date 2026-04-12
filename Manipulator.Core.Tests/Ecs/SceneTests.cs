@@ -138,13 +138,14 @@ public class SceneTests
     {
         // Arrange
         var entity = new EntityBuilder(SceneBuilder.Id(1)).Build();
-        var scene = new SceneBuilder().WithEntity().Build();
+        var scene = new SceneBuilder().Build();
+        scene.AddEntity(entity);
 
         // Act
         var result = scene.GetEntity(SceneBuilder.Id(1));
 
         // Assert
-        result.Should().BeEquivalentTo(entity);
+        result.Should().Be(entity);
     }
 
     [Fact]
