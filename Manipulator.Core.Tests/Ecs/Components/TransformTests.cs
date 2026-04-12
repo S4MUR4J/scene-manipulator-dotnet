@@ -137,7 +137,10 @@ public class TransformTests
         var transform = new Transform(Rotation: rotation, Scale: scale);
 
         // Act
-        var updated = transform with { Position = new Vector3(5, 0, 0) };
+        var updated = transform with
+        {
+            Position = new Vector3(5, 0, 0),
+        };
 
         // Assert
         updated.Rotation.Should().Be(rotation);

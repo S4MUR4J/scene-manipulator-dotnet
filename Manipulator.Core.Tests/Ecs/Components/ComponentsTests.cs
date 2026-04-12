@@ -10,12 +10,12 @@ public class ComponentsTests
     #region Type Property
 
     public static IEnumerable<object[]> AllComponentsWithExpectedType =>
-    [
-        [new Transform(), nameof(Transform)],
-        [new EntityName(), nameof(EntityName)],
-        [new MeshFilter(GeometryType.Cube, null), nameof(MeshFilter)],
-        [new MeshRenderer(), nameof(MeshRenderer)],
-    ];
+        [
+            [new Transform(), nameof(Transform)],
+            [new EntityName(), nameof(EntityName)],
+            [new MeshFilter(GeometryType.Cube, null), nameof(MeshFilter)],
+            [new MeshRenderer(), nameof(MeshRenderer)],
+        ];
 
     [Theory]
     [MemberData(nameof(AllComponentsWithExpectedType))]
