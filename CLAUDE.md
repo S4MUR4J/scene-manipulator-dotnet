@@ -32,7 +32,7 @@ bool has = entity.Has<Transform>();
 var component = entity.Get("Transform");
 ```
 
-**ComponentRegistry** maps string type names → `Type` objects. Used for dynamic component resolution (e.g., deserialization). Register via `Register<T>()` or `Register(string, Type)`.
+**ComponentRegistry** maps string type names → `Type` objects. Used for dynamic component resolution (e.g., deserialization). Register via `Register<T>()`.
 
 **Vector3** is a `readonly record struct` — immutable, value semantics. Supports `+`, `-`, `*` operators.
 

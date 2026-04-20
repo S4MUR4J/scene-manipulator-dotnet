@@ -49,7 +49,7 @@ public class TransformTests
         var position = new Vector3(1, 2, 3);
 
         // Act
-        var transform = new Transform(Position: position);
+        var transform = new Transform { Position = position };
 
         // Assert
         transform.Position.Should().Be(position);
@@ -62,7 +62,7 @@ public class TransformTests
         var rotation = new Vector3(45, 90, 0);
 
         // Act
-        var transform = new Transform(Rotation: rotation);
+        var transform = new Transform { Rotation = rotation };
 
         // Assert
         transform.Rotation.Should().Be(rotation);
@@ -75,7 +75,7 @@ public class TransformTests
         var scale = new Vector3(2, 2, 2);
 
         // Act
-        var transform = new Transform(Scale: scale);
+        var transform = new Transform { Scale = scale };
 
         // Assert
         transform.Scale.Should().Be(scale);
@@ -88,7 +88,7 @@ public class TransformTests
         var rotation = new Vector3(45, 90, 0);
 
         // Act
-        var transform = new Transform(Rotation: rotation);
+        var transform = new Transform { Rotation = rotation };
 
         // Assert
         transform.Position.Should().Be(Vector3.Zero);
@@ -101,7 +101,7 @@ public class TransformTests
         var scale = new Vector3(2, 2, 2);
 
         // Act
-        var transform = new Transform(Scale: scale);
+        var transform = new Transform { Scale = scale };
 
         // Assert
         transform.Position.Should().Be(Vector3.Zero);
@@ -116,7 +116,12 @@ public class TransformTests
         var scale = new Vector3(2, 2, 2);
 
         // Act
-        var transform = new Transform(position, rotation, scale);
+        var transform = new Transform
+        {
+            Position = position,
+            Rotation = rotation,
+            Scale = scale,
+        };
 
         // Assert
         transform.Position.Should().Be(position);
@@ -134,7 +139,7 @@ public class TransformTests
         // Arrange
         var rotation = new Vector3(0, 45, 0);
         var scale = new Vector3(3, 3, 3);
-        var transform = new Transform(Rotation: rotation, Scale: scale);
+        var transform = new Transform { Rotation = rotation, Scale = scale };
 
         // Act
         var updated = transform with

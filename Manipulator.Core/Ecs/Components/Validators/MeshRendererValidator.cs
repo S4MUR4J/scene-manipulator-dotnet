@@ -9,6 +9,6 @@ public class MeshRendererValidator : AbstractValidator<MeshRenderer>
         RuleFor(mr => mr.Opacity).InclusiveBetween(0f, 1f);
         RuleFor(mr => mr.Metalness).InclusiveBetween(0f, 1f);
         RuleFor(mr => mr.Roughness).InclusiveBetween(0f, 1f);
-        RuleFor(mr => mr.Color).NotEmpty();
+        RuleFor(mr => mr.Color).Matches(@"^#[0-9a-fA-F]{6}$");
     }
 }

@@ -39,7 +39,7 @@ public class EntityNameTests
     public void Constructor_EmptyString_IsValid()
     {
         // Act
-        var act = () => new EntityName("");
+        var act = () => new EntityName();
 
         // Assert
         act.Should().NotThrow();

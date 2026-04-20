@@ -56,7 +56,7 @@ public class EntityTests
     public void Get_Generic_ReturnsTransform_WhenSet()
     {
         // Arrange
-        var transform = new Transform(Position: new Vector3(1, 2, 3));
+        var transform = new Transform { Position = new Vector3(1, 2, 3) };
         var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(transform).Build();
 
         // Act
@@ -303,8 +303,8 @@ public class EntityTests
     public void Set_Generic_OverwritesExistingComponent()
     {
         // Arrange
-        var firstTransform = new Transform(Position: new Vector3(1, 0, 0));
-        var secondTransform = new Transform(Position: new Vector3(2, 0, 0));
+        var firstTransform = new Transform { Position = new Vector3(1, 0, 0) };
+        var secondTransform = new Transform { Position = new Vector3(2, 0, 0) };
         var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(firstTransform).Build();
 
         // Act
@@ -356,8 +356,8 @@ public class EntityTests
     public void Set_ByTypeName_OverwritesExistingComponent()
     {
         // Arrange
-        var firstTransform = new Transform(Position: new Vector3(0, 1, 0));
-        var secondTransform = new Transform(Position: new Vector3(0, 2, 0));
+        var firstTransform = new Transform { Position = new Vector3(0, 1, 0) };
+        var secondTransform = new Transform { Position = new Vector3(0, 2, 0) };
         var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(firstTransform).Build();
 
         // Act

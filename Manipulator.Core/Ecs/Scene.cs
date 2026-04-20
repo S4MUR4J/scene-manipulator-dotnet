@@ -5,9 +5,9 @@ public class Scene
     private readonly Dictionary<string, Entity> _entities = new Dictionary<string, Entity>();
 
     // Queries
-    public Dictionary<string, Entity> Entities => _entities;
+    public IReadOnlyDictionary<string, Entity> Entities => _entities.AsReadOnly();
 
-    public object? GetEntity(string id)
+    public Entity? GetEntity(string id)
     {
         _entities.TryGetValue(id, out var entity);
         return entity;

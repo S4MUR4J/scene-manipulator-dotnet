@@ -18,7 +18,7 @@ public class ComponentRegistryTests
         registry.Register<Transform>();
 
         // Assert
-        registry.Resolve("Transform").Should().Be(typeof(Transform));
+        registry.Resolve("Transform").Should().Be<Transform>();
     }
 
     [Fact]
@@ -32,37 +32,7 @@ public class ComponentRegistryTests
         registry.Register<Transform>();
 
         // Assert
-        registry.Resolve("Transform").Should().Be(typeof(Transform));
-    }
-
-    #endregion
-
-    #region Register (string, Type)
-
-    [Fact]
-    public void Register_StringType_StoresType_WhenValidIComponent()
-    {
-        // Arrange
-        var registry = new ComponentRegistry();
-
-        // Act
-        registry.Register("MyTransform", typeof(Transform));
-
-        // Assert
-        registry.Resolve("MyTransform").Should().Be(typeof(Transform));
-    }
-
-    [Fact]
-    public void Register_StringType_ThrowsArgumentException_WhenTypeDoesNotImplementIComponent()
-    {
-        // Arrange
-        var registry = new ComponentRegistry();
-
-        // Act
-        Action act = () => registry.Register("Invalid", typeof(string));
-
-        // Assert
-        act.Should().Throw<ArgumentException>();
+        registry.Resolve("Transform").Should().Be<Transform>();
     }
 
     #endregion
@@ -80,7 +50,7 @@ public class ComponentRegistryTests
         var result = registry.Resolve("Transform");
 
         // Assert
-        result.Should().Be(typeof(Transform));
+        result.Should().Be<Transform>();
     }
 
     [Fact]
@@ -156,7 +126,7 @@ public class ComponentRegistryTests
         var result = registry.RegisteredTypes;
 
         // Assert
-        result.Should().BeEquivalentTo(["Transform", "EntityName"]);
+        result.Should().BeEquivalentTo("Transform", "EntityName");
     }
 
     #endregion
