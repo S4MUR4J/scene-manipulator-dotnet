@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path' | { read -r f; echo \"$f\" | grep -q '\\.cs$' && csharpier format \"$f\"; } 2>/dev/null || true",
+            "statusMessage": "Formatting with CSharpier..."
+          }
+        ]
+      }
+    ]
+  }
+}
