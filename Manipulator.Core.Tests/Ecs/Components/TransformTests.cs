@@ -72,7 +72,7 @@ public class TransformTests
     public void Constructor_ExplicitScale_StoresScale()
     {
         // Arrange
-        var scale = new Vector3(2, 2, 2);
+        var scale = Vector3.One * 2f;
 
         // Act
         var transform = new Transform { Scale = scale };
@@ -98,7 +98,7 @@ public class TransformTests
     public void Constructor_ExplicitScale_DoesNotAffectPosition()
     {
         // Arrange
-        var scale = new Vector3(2, 2, 2);
+        var scale = Vector3.One * 2f;
 
         // Act
         var transform = new Transform { Scale = scale };
@@ -111,9 +111,9 @@ public class TransformTests
     public void Constructor_AllExplicit_StoresAllIndependently()
     {
         // Arrange
-        var position = new Vector3(1, 0, 0);
-        var rotation = new Vector3(0, 90, 0);
-        var scale = new Vector3(2, 2, 2);
+        var position = Vector3.Right;
+        var rotation = Vector3.Up * 90f;
+        var scale = Vector3.One * 2f;
 
         // Act
         var transform = new Transform
@@ -137,14 +137,14 @@ public class TransformTests
     public void With_ChangedPosition_PreservesOtherFields()
     {
         // Arrange
-        var rotation = new Vector3(0, 45, 0);
-        var scale = new Vector3(3, 3, 3);
+        var rotation = Vector3.Up * 45f;
+        var scale = Vector3.One * 3f;
         var transform = new Transform { Rotation = rotation, Scale = scale };
 
         // Act
         var updated = transform with
         {
-            Position = new Vector3(5, 0, 0),
+            Position = Vector3.Right * 5f,
         };
 
         // Assert

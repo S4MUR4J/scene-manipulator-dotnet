@@ -48,8 +48,8 @@ public class ComponentsTests
     public void Transform_DifferentInstances_AreNotEqual()
     {
         // Arrange
-        var firstTransform = new Transform { Position = new Vector3(1, 0, 0) };
-        var secondTransform = new Transform { Position = new Vector3(0, 1, 0) };
+        var firstTransform = new Transform { Position = Vector3.Right };
+        var secondTransform = new Transform { Position = Vector3.Up };
 
         // Assert
         firstTransform.Should().NotBe(secondTransform);

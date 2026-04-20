@@ -34,7 +34,7 @@ var component = entity.Get("Transform");
 
 **ComponentRegistry** maps string type names → `Type` objects. Used for dynamic component resolution (e.g., deserialization). Register via `Register<T>()`.
 
-**Vector3** is a `readonly record struct` — immutable, value semantics. Supports `+`, `-`, `*` operators.
+**Vector3** is a `readonly record struct` — immutable, value semantics. Supports `+`, `-`, `*` operators. Direction constants: `Zero, One, Up, Down, Left, Right, Forward, Back`.
 
 ## Components
 
@@ -45,3 +45,11 @@ Built-in components in `Models/Components/`:
 - `MeshRenderer` — Color (hex string), Opacity, Metalness, Roughness
 
 `GeometryType` enum: `Cube, Sphere, Cylinder, Plane, Torus, Pyramid`
+
+## Testing
+
+**Entity ID pattern:** Use `SceneBuilder.Id(index, tag?)` for entity IDs in tests — never raw strings.
+- `SceneBuilder.Id(1)` → `"entity_1"`
+- `SceneBuilder.Id(1, "player")` → `"player_1"`
+
+`SceneBuilder.Id()` delegates to `TestUtils.Tag(tag, suffix)` in `Manipulator.Core.Tests/Helpers/`.

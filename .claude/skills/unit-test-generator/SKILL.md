@@ -45,6 +45,7 @@ Generate xUnit tests for: $ARGUMENTS
 - **Never use `// Act & Assert`** — always keep Act and Assert as separate sections
 - **Property/getter tests must have an explicit `// Act` step**: `var result = sut.Property;` then assert on `result`, never inline the access in the assert
 - **Class name must exactly match file name**: `FooTests.cs` → `public class FooTests`
+- **Vector3 literals** — use direction constants (`Vector3.Right`, `Vector3.Up`, `Vector3.One`, etc.) and scalar multiplication (`Vector3.Right * 2f`) instead of raw `new Vector3(x, y, z)` whenever the value matches a constant; keep raw literals only for unique values like `new Vector3(1, 2, 3)`
 - **Use `.Be()` for reference identity** (same object returned from a store/collection); use `.BeEquivalentTo()` only when comparing structurally distinct instances intentionally
 
 ## Builders (use these — never create entities/scenes manually)
@@ -57,7 +58,7 @@ var entity = new EntityBuilder(SceneBuilder.Id(1)).Build();
 
 // Entity with components
 var entity = new EntityBuilder(SceneBuilder.Id(1))
-    .WithComponent(new Transform(Position: new Vector3(1, 0, 0)))
+    .WithComponent(new Transform { Position = Vector3.Right })
     .WithComponent(new EntityName("Player"))
     .Build();
 

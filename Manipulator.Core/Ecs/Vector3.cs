@@ -28,4 +28,8 @@ public readonly record struct Vector3(float X, float Y, float Z)
         var result = new Vector3(a.X * b.X, a.Y * b.Y, a.Z * b.Z);
         return result;
     }
+
+    public static Vector3 operator *(Vector3 a, float b) => new Vector3(a.X * b, a.Y * b, a.Z * b);
+
+    public static Vector3 operator *(float a, Vector3 b) => new Vector3(a * b.X, a * b.Y, a * b.Z);
 }

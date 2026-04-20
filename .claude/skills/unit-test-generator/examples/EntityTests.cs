@@ -91,8 +91,8 @@ public class EntityTests
     public void Set_OverwritesExistingComponent()
     {
         // Arrange
-        var firstTransform = new Transform(Position: new Vector3(1, 0, 0));
-        var secondTransform = new Transform(Position: new Vector3(2, 0, 0));
+        var firstTransform = new Transform { Position = Vector3.Right };
+        var secondTransform = new Transform { Position = Vector3.Right * 2f };
         var entity = new EntityBuilder(SceneBuilder.Id(1)).WithComponent(firstTransform).Build();
 
         // Act
