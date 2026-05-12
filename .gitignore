@@ -483,3 +483,5 @@ $RECYCLE.BIN/
 
 # Misc
 
+# Local docs (not tracked in git)
+docs/
