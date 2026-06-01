@@ -1,8 +1,9 @@
 <Solution>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
-    <File Path=".csharpierrc.json"/>
+    <File Path=".csharpierrc.json" />
     <File Path="CLAUDE.md" />
+    <File Path="README.md" />
   </Folder>
   <Project Path="Manipulator.Core.Tests/Manipulator.Core.Tests.csproj" />
   <Project Path="Manipulator.Core/Manipulator.Core.csproj" />
