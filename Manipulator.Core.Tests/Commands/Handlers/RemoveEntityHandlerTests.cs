@@ -9,11 +9,8 @@ namespace Manipulator.Core.Tests.Commands.Handlers;
 
 public class RemoveEntityHandlerTests
 {
-    private readonly Scene _scene =
-        new SceneBuilder()
-            .WithEntity(SceneBuilder.Id(1))
-            .Build();
-    private readonly RemoveEntityHandler _handler = new();
+    private readonly Scene _scene = new SceneBuilder().WithEntity(SceneBuilder.Id(1)).Build();
+    private readonly RemoveEntityHandler _handler = new RemoveEntityHandler();
 
     [Fact]
     public void Handle_ExistingEntity_ReturnsSuccess()

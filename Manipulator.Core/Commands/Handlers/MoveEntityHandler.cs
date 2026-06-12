@@ -8,6 +8,9 @@ public class MoveEntityHandler : ICommandHandler<MoveEntityCommand>
 {
     public CommandResult Handle(Scene scene, MoveEntityCommand command)
     {
+        if (!command.Position.IsFinite())
+            return CommandResult.Fail("Position contains NaN or Infinity.");
+
         var entity = scene.GetEntity(command.EntityId);
         if (entity is null)
             return CommandResult.Fail($"Entity '{command.EntityId}' does not exist.");
@@ -16,15 +19,13 @@ public class MoveEntityHandler : ICommandHandler<MoveEntityCommand>
         var newTransform = oldTransform with { Position = command.Position };
         entity.Set(newTransform);
 
-        return CommandResult.Ok(
-            [
-                new ComponentChangedEvent(
-                    EntityId: command.EntityId,
-                    ComponentType: nameof(Transform),
-                    NewValue: newTransform,
-                    OldValue: oldTransform
-                )
-            ]
-        );
+        return CommandResult.Ok([
+            new ComponentChangedEvent(
+                EntityId: command.EntityId,
+                ComponentType: nameof(Transform),
+                NewValue: newTransform,
+                OldValue: oldTransform
+            ),
+        ]);
     }
 }

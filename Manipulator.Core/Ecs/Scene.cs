@@ -6,6 +6,7 @@ public class Scene
 
     // Queries
     public IReadOnlyDictionary<string, Entity> Entities => _entities.AsReadOnly();
+    public long Version { get; private set; }
 
     public Entity? GetEntity(string id)
     {
@@ -24,16 +25,21 @@ public class Scene
     internal Entity AddEntity(Entity entity)
     {
         _entities[entity.Id] = entity;
+        Version++;
         return entity;
     }
 
     internal bool RemoveEntity(string id)
     {
-        return _entities.Remove(id);
+        var removed = _entities.Remove(id);
+        if (removed)
+            Version++;
+        return removed;
     }
 
     internal void Clear()
     {
         _entities.Clear();
+        Version++;
     }
 }

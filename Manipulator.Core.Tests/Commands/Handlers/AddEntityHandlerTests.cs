@@ -11,7 +11,7 @@ namespace Manipulator.Core.Tests.Commands.Handlers;
 public class AddEntityHandlerTests
 {
     private readonly Scene _scene = new SceneBuilder().Build();
-    private readonly TestGuidGenerator _idGen = new();
+    private readonly TestGuidGenerator _idGen = new TestGuidGenerator();
     private readonly AddEntityHandler _handler;
 
     public AddEntityHandlerTests()
@@ -62,7 +62,10 @@ public class AddEntityHandlerTests
         var pos = new Vector3(1, 2, 3);
 
         // Act
-        var result = _handler.Handle(_scene, new AddEntityCommand(GeometryType.Cube, Position: pos));
+        var result = _handler.Handle(
+            _scene,
+            new AddEntityCommand(GeometryType.Cube, Position: pos)
+        );
 
         // Assert
         var entity = _scene.GetEntity((string)result.Data!)!;
@@ -84,7 +87,10 @@ public class AddEntityHandlerTests
     public void Handle_UsesProvidedName()
     {
         // Arrange & Act
-        var result = _handler.Handle(_scene, new AddEntityCommand(GeometryType.Cube, Name: "MyCube"));
+        var result = _handler.Handle(
+            _scene,
+            new AddEntityCommand(GeometryType.Cube, Name: "MyCube")
+        );
 
         // Assert
         var entity = _scene.GetEntity((string)result.Data!)!;
