@@ -24,9 +24,7 @@ public class Scene
     // Mutations
     internal Entity AddEntity(Entity entity)
     {
-        if (!_entities.TryAdd(entity.Id, entity))
-            throw new InvalidOperationException($"Entity '{entity.Id}' already exists.");
-
+        _entities[entity.Id] = entity;
         Version++;
         return entity;
     }
