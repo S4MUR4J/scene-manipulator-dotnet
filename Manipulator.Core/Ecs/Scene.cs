@@ -6,6 +6,7 @@ public class Scene
 
     // Queries
     public IReadOnlyDictionary<string, Entity> Entities => _entities.AsReadOnly();
+    public long Version { get; private set; }
 
     public Entity? GetEntity(string id)
     {
@@ -23,17 +24,24 @@ public class Scene
     // Mutations
     internal Entity AddEntity(Entity entity)
     {
-        _entities[entity.Id] = entity;
+        if (!_entities.TryAdd(entity.Id, entity))
+            throw new InvalidOperationException($"Entity '{entity.Id}' already exists.");
+
+        Version++;
         return entity;
     }
 
     internal bool RemoveEntity(string id)
     {
-        return _entities.Remove(id);
+        var removed = _entities.Remove(id);
+        if (removed)
+            Version++;
+        return removed;
     }
 
     internal void Clear()
     {
         _entities.Clear();
+        Version++;
     }
 }
