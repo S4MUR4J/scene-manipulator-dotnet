@@ -482,6 +482,7 @@ $RECYCLE.BIN/
 *.swp
 
 # Misc
+dev/
 
 # Local docs (not tracked in git)
 docs/
