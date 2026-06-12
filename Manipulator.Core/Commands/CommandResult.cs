@@ -17,5 +17,6 @@ public record CommandResult
             Data = data,
         };
 
-    public static CommandResult Fail(string error) => new CommandResult { IsSuccess = false, Error = error };
+    public static CommandResult Fail(string error) =>
+        new CommandResult { IsSuccess = false, Error = error };
 }
