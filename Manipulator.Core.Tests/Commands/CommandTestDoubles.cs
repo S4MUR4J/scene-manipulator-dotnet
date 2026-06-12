@@ -4,26 +4,26 @@ using Manipulator.Core.Events;
 
 namespace Manipulator.Core.Tests.Commands;
 
-internal record FakeCommand : ICommand
+record FakeCommand(long? ExpectedVersion = null) : ICommand
 {
     public string Type => "Fake";
 }
 
-internal record FakeEvent : ISceneEvent;
+record FakeEvent : ISceneEvent;
 
-internal class ThrowingHandler : ICommandHandler<FakeCommand>
+class ThrowingHandler : ICommandHandler<FakeCommand>
 {
     public CommandResult Handle(Scene scene, FakeCommand command) =>
         throw new InvalidOperationException("handler error");
 }
 
-internal class SuccessHandler : ICommandHandler<FakeCommand>
+class SuccessHandler : ICommandHandler<FakeCommand>
 {
     public CommandResult Handle(Scene scene, FakeCommand command) =>
         CommandResult.Ok([new FakeEvent()]);
 }
 
-internal class FailHandler : ICommandHandler<FakeCommand>
+class FailHandler : ICommandHandler<FakeCommand>
 {
     public CommandResult Handle(Scene scene, FakeCommand command) =>
         CommandResult.Fail("handler failure");

@@ -10,7 +10,7 @@ namespace Manipulator.Core.Tests.Commands.Handlers;
 
 public class MoveEntityHandlerTests
 {
-    private readonly MoveEntityHandler _handler = new();
+    private readonly MoveEntityHandler _handler = new MoveEntityHandler();
 
     #region Handle — success
 
@@ -46,10 +46,13 @@ public class MoveEntityHandlerTests
     public void Handle_EntityExists_PreservesRotationAndScale()
     {
         // Arrange
-        var original = new Transform { Position = Vector3.Zero, Rotation = Vector3.Right, Scale = Vector3.One * 2f };
-        var scene = new SceneBuilder()
-            .WithEntity(e => e.WithComponent(original))
-            .Build();
+        var original = new Transform
+        {
+            Position = Vector3.Zero,
+            Rotation = Vector3.Right,
+            Scale = Vector3.One * 2f,
+        };
+        var scene = new SceneBuilder().WithEntity(e => e.WithComponent(original)).Build();
 
         // Act
         _handler.Handle(scene, new MoveEntityCommand(SceneBuilder.Id(1), Vector3.Up));
@@ -110,7 +113,10 @@ public class MoveEntityHandlerTests
             .Build();
 
         // Act
-        var result = _handler.Handle(scene, new MoveEntityCommand(SceneBuilder.Id(1), Vector3.Forward));
+        var result = _handler.Handle(
+            scene,
+            new MoveEntityCommand(SceneBuilder.Id(1), Vector3.Forward)
+        );
 
         // Assert
         var ev = result.Events.Single().Should().BeOfType<ComponentChangedEvent>().Subject;
@@ -174,7 +180,10 @@ public class MoveEntityHandlerTests
         var scene = new SceneBuilder().Build();
 
         // Act
-        var result = _handler.Handle(scene, new MoveEntityCommand(SceneBuilder.Id(99), Vector3.Zero));
+        var result = _handler.Handle(
+            scene,
+            new MoveEntityCommand(SceneBuilder.Id(99), Vector3.Zero)
+        );
 
         // Assert
         result.IsSuccess.Should().BeFalse();
@@ -187,7 +196,10 @@ public class MoveEntityHandlerTests
         var scene = new SceneBuilder().Build();
 
         // Act
-        var result = _handler.Handle(scene, new MoveEntityCommand(SceneBuilder.Id(99), Vector3.Zero));
+        var result = _handler.Handle(
+            scene,
+            new MoveEntityCommand(SceneBuilder.Id(99), Vector3.Zero)
+        );
 
         // Assert
         result.Error.Should().Contain(SceneBuilder.Id(99));

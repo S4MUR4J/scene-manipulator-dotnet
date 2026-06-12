@@ -9,7 +9,7 @@ namespace Manipulator.Core.Tests.Commands;
 public class CommandDispatcherTests
 {
     private readonly Scene _scene = new SceneBuilder().Build();
-    private readonly EventBus _eventBus = new();
+    private readonly EventBus _eventBus = new EventBus();
     private readonly CommandDispatcher _dispatcher;
 
     public CommandDispatcherTests()
