@@ -4,10 +4,9 @@ using Manipulator.Core.Commands.Validation;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Events;
 using Manipulator.Core.IdGeneration;
+using Manipulator.Core.Serialization;
 
 namespace Manipulator.Examples.Programs;
-
-// TODO: Add export of serialized scene to save result.
 
 public static class BasicScene
 {
@@ -77,5 +76,14 @@ public static class BasicScene
         Console.WriteLine();
 
         Console.WriteLine($"Number of element on scene: {scene.Entities.Count}");
+        Console.WriteLine();
+
+        // Serialize and print scene as JSON
+        Console.WriteLine("Serializing scene...");
+        var serializer = new SceneSerializer();
+        var json = SceneSerializer.Serialize(scene);
+        Console.WriteLine("Scene serialized as JSON:");
+        Console.WriteLine();
+        Console.WriteLine(json);
     }
 }
