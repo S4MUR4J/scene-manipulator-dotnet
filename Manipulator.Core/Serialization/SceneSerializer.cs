@@ -8,7 +8,7 @@ public class SceneSerializer
 {
     private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
     {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower,
         WriteIndented = true,
     };
 
@@ -49,7 +49,7 @@ public class SceneSerializer
             {
                 var component = DeserializeComponent(typeName, element);
                 if (component is not null)
-                    entity.Set(typeName, component);
+                    entity.Set(component.Type, component);
             }
             scene.AddEntity(entity);
         }
@@ -61,7 +61,7 @@ public class SceneSerializer
         new EntityDto(
             Id: entity.Id,
             Components: entity.Components.ToDictionary(
-                kvp => kvp.Key,
+                kvp => JsonNamingPolicy.SnakeCaseLower.ConvertName(kvp.Key),
                 kvp => SerializeComponent(kvp.Value)
             )
         );
@@ -94,12 +94,12 @@ public class SceneSerializer
         var raw = element.GetRawText();
         return typeName switch
         {
-            "Transform" => ToTransform(JsonSerializer.Deserialize<TransformDto>(raw, Options)!),
-            "MeshFilter" => ToMeshFilter(JsonSerializer.Deserialize<MeshFilterDto>(raw, Options)!),
-            "MeshRenderer" => ToMeshRenderer(
+            "transform" => ToTransform(JsonSerializer.Deserialize<TransformDto>(raw, Options)!),
+            "mesh_filter" => ToMeshFilter(JsonSerializer.Deserialize<MeshFilterDto>(raw, Options)!),
+            "mesh_renderer" => ToMeshRenderer(
                 JsonSerializer.Deserialize<MeshRendererDto>(raw, Options)!
             ),
-            "EntityName" => ToEntityName(JsonSerializer.Deserialize<EntityNameDto>(raw, Options)!),
+            "entity_name" => ToEntityName(JsonSerializer.Deserialize<EntityNameDto>(raw, Options)!),
             var _ => null,
         };
     }

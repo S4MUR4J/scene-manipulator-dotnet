@@ -37,7 +37,7 @@ public class SceneSerializerTests
         // Assert
         var root = JsonDocument.Parse(json).RootElement;
         root.GetProperty("version").GetString().Should().Be("1.0");
-        root.GetProperty("sceneVersion").GetInt64().Should().Be(scene.Version);
+        root.GetProperty("scene_version").GetInt64().Should().Be(scene.Version);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class SceneSerializerTests
             .Parse(json)
             .RootElement.GetProperty("entities")[0]
             .GetProperty("components")
-            .GetProperty("Transform")
+            .GetProperty("transform")
             .GetProperty("position");
         position[0].GetSingle().Should().Be(1f);
         position[1].GetSingle().Should().Be(0f);
@@ -79,7 +79,7 @@ public class SceneSerializerTests
             .Parse(json)
             .RootElement.GetProperty("entities")[0]
             .GetProperty("components")
-            .GetProperty("MeshFilter")
+            .GetProperty("mesh_filter")
             .GetProperty("geometry")
             .GetString();
         geometry.Should().Be("Sphere");
@@ -110,7 +110,7 @@ public class SceneSerializerTests
             .Parse(json)
             .RootElement.GetProperty("entities")[0]
             .GetProperty("components")
-            .GetProperty("MeshRenderer");
+            .GetProperty("mesh_renderer");
         mr.GetProperty("color").GetString().Should().Be("#ff0000");
         mr.GetProperty("opacity").GetSingle().Should().Be(0.5f);
         mr.GetProperty("metalness").GetSingle().Should().Be(0.1f);
@@ -133,7 +133,7 @@ public class SceneSerializerTests
             .Parse(json)
             .RootElement.GetProperty("entities")[0]
             .GetProperty("components")
-            .GetProperty("EntityName")
+            .GetProperty("entity_name")
             .GetProperty("value")
             .GetString();
         value.Should().Be("Cube");
@@ -194,7 +194,7 @@ public class SceneSerializerTests
     public void Deserialize_EmptyScene_ReturnsEmptyScene()
     {
         // Arrange
-        var json = """{"version":"1.0","sceneVersion":0,"entities":[]}""";
+        var json = """{"version":"1.0","scene_version":0,"entities":[]}""";
 
         // Act
         var result = SceneSerializer.Deserialize(json);
@@ -210,13 +210,13 @@ public class SceneSerializerTests
         var json = """
             {
               "version": "1.0",
-              "sceneVersion": 1,
+              "scene_version": 1,
               "entities": [
                 {
                   "id": "entity_1",
                   "components": {
-                    "UnknownComponent": { "foo": "bar" },
-                    "EntityName": { "value": "Test" }
+                    "unknown_component": { "foo": "bar" },
+                    "entity_name": { "value": "Test" }
                   }
                 }
               ]
@@ -250,7 +250,7 @@ public class SceneSerializerTests
         var json = """
             {
               "version": "1.0",
-              "sceneVersion": 2,
+              "scene_version": 2,
               "entities": [
                 { "id": "entity_1", "components": {} },
                 { "id": "entity_1", "components": {} }
