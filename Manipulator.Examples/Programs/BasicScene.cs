@@ -17,14 +17,14 @@ public static class BasicScene
         var eventBus = new EventBus();
         var commandDispatcher = new CommandDispatcher(scene: scene, eventBus: eventBus);
 
-        // Register AddEntity handler
+        // Register AddEntity handler.
         commandDispatcher.Register(
             commandType: "AddEntity",
             handler: new AddEntityHandler(new GuidGenerator()),
             validators: new VersionConflictValidator()
         );
 
-        // Add a cube
+        // Add a cube.
         Console.WriteLine("Adding a cube...");
         var addCubeResult = commandDispatcher.Dispatch(
             command: new AddEntityCommand(
@@ -41,7 +41,7 @@ public static class BasicScene
         Console.WriteLine($"Cube add data: {addCubeResult.Data}.");
         Console.WriteLine();
 
-        // Add a sphere
+        // Add a sphere.
         Console.WriteLine("Adding a sphere...");
         var addSphereResult = commandDispatcher.Dispatch(
             command: new AddEntityCommand(
@@ -58,7 +58,7 @@ public static class BasicScene
         Console.WriteLine($"Sphere add data: {addSphereResult.Data}.");
         Console.WriteLine();
 
-        // Add a triangle
+        // Add a triangle.
         Console.WriteLine("Adding a triangle...");
         var addTriangleResult = commandDispatcher.Dispatch(
             command: new AddEntityCommand(
@@ -78,9 +78,8 @@ public static class BasicScene
         Console.WriteLine($"Number of element on scene: {scene.Entities.Count}");
         Console.WriteLine();
 
-        // Serialize and print scene as JSON
+        // Serialize and print scene as JSON.
         Console.WriteLine("Serializing scene...");
-        var serializer = new SceneSerializer();
         var json = SceneSerializer.Serialize(scene);
         Console.WriteLine("Scene serialized as JSON:");
         Console.WriteLine();
