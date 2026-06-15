@@ -16,9 +16,11 @@ public class MeshFilterTests
     [InlineData(GeometryType.Cube)]
     [InlineData(GeometryType.Sphere)]
     [InlineData(GeometryType.Cylinder)]
+    [InlineData(GeometryType.Cone)]
+    [InlineData(GeometryType.Capsule)]
     [InlineData(GeometryType.Plane)]
     [InlineData(GeometryType.Torus)]
-    [InlineData(GeometryType.Pyramid)]
+    [InlineData(GeometryType.Hemisphere)]
     public void Constructor_AllGeometryTypes_ConstructSuccessfully(GeometryType geometry)
     {
         // Act
@@ -77,9 +79,11 @@ public class MeshFilterTests
     [InlineData(GeometryType.Cube)]
     [InlineData(GeometryType.Sphere)]
     [InlineData(GeometryType.Cylinder)]
+    [InlineData(GeometryType.Cone)]
+    [InlineData(GeometryType.Capsule)]
     [InlineData(GeometryType.Plane)]
     [InlineData(GeometryType.Torus)]
-    [InlineData(GeometryType.Pyramid)]
+    [InlineData(GeometryType.Hemisphere)]
     public void Validate_ValidGeometry_NoErrors(GeometryType geometry)
     {
         // Arrange

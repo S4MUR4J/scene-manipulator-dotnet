@@ -62,7 +62,7 @@ public static class BasicScene
         Console.WriteLine("Adding a triangle...");
         var addTriangleResult = commandDispatcher.Dispatch(
             command: new AddEntityCommand(
-                Geometry: GeometryType.Pyramid,
+                Geometry: GeometryType.Cone,
                 Position: Vector3.Up,
                 Name: "Triangle"
             )

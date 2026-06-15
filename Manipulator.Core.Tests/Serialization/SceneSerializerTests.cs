@@ -297,18 +297,14 @@ public class SceneSerializerTests
     {
         // Arrange
         var original = new SceneBuilder()
-            .WithEntity(e => e.WithComponent(new MeshFilter(GeometryType.Pyramid, null)))
+            .WithEntity(e => e.WithComponent(new MeshFilter(GeometryType.Cone, null)))
             .Build();
 
         // Act
         var result = SceneSerializer.Deserialize(SceneSerializer.Serialize(original));
 
         // Assert
-        result
-            .Entities.Values.First()
-            .Get<MeshFilter>()!
-            .Geometry.Should()
-            .Be(GeometryType.Pyramid);
+        result.Entities.Values.First().Get<MeshFilter>()!.Geometry.Should().Be(GeometryType.Cone);
     }
 
     [Fact]

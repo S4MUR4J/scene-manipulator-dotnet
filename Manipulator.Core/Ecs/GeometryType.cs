@@ -2,11 +2,12 @@ namespace Manipulator.Core.Ecs;
 
 public enum GeometryType
 {
-    // Primitive shapes
     Cube,
     Sphere,
     Cylinder,
+    Cone,
+    Capsule,
     Plane,
     Torus,
-    Pyramid,
+    Hemisphere,
 }
