@@ -108,5 +108,30 @@ public class AddEntityHandlerTests
         entity.Get<EntityName>()!.Value.Should().BeEmpty();
     }
 
+    [Fact]
+    public void Handle_UsesProvidedColor()
+    {
+        // Arrange & Act
+        var result = _handler.Handle(
+            _scene,
+            new AddEntityCommand(GeometryType.Cube, Color: "#ff0000")
+        );
+
+        // Assert
+        var entity = _scene.GetEntity((string)result.Data!)!;
+        entity.Get<MeshRenderer>()!.Color.Should().Be("#ff0000");
+    }
+
+    [Fact]
+    public void Handle_DefaultColor_IsWhite()
+    {
+        // Arrange & Act
+        var result = _handler.Handle(_scene, new AddEntityCommand(GeometryType.Cube));
+
+        // Assert
+        var entity = _scene.GetEntity((string)result.Data!)!;
+        entity.Get<MeshRenderer>()!.Color.Should().Be("#ffffff");
+    }
+
     #endregion
 }
