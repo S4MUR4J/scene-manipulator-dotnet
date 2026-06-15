@@ -5,6 +5,7 @@ namespace Manipulator.Core.Commands;
 public record AddEntityCommand(
     GeometryType? Geometry = null,
     Vector3? Position = null,
+    string? Color = null,
     string? Name = null,
     long? ExpectedVersion = null
 ) : ICommand

@@ -16,6 +16,9 @@ public static class HelixScene
     private const float TurnsTotal = 2.0f;
     private const int DelayMs = 50;
 
+    private const string LeftStrandColor = "#aac4ff";
+    private const string RightStrandColor = "#ffaaaa";
+
     public static void Run()
     {
         // Set up a scene system.
@@ -62,6 +65,7 @@ public static class HelixScene
                 new AddEntityCommand(
                     Geometry: GeometryType.Cube,
                     Position: leftPosition,
+                    Color: LeftStrandColor,
                     Name: $"Left_{step}"
                 )
             );
@@ -77,6 +81,7 @@ public static class HelixScene
                 new AddEntityCommand(
                     Geometry: GeometryType.Cube,
                     Position: rightPosition,
+                    Color: RightStrandColor,
                     Name: $"Right_{step}"
                 )
             );

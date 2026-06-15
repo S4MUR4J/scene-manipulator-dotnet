@@ -14,7 +14,9 @@ public class AddEntityHandler(IGuidGenerator guidGenerator) : ICommandHandler<Ad
 
         entity.Set(new Transform { Position = command.Position ?? Vector3.Zero });
         entity.Set(new MeshFilter(command.Geometry ?? GeometryType.Cube, null));
-        entity.Set(new MeshRenderer());
+        entity.Set(
+            command.Color is not null ? new MeshRenderer(Color: command.Color) : new MeshRenderer()
+        );
         entity.Set(new EntityName(command.Name ?? string.Empty));
 
         scene.AddEntity(entity);
