@@ -1,0 +1,7 @@
+﻿services:
+  manipulator.api:
+    image: manipulator.api
+    build:
+      context: .
+      dockerfile: Manipulator.Api/Dockerfile
+
