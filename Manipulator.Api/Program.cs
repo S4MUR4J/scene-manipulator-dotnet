@@ -1,3 +1,4 @@
+using Manipulator.Api;
 using Manipulator.Api.Infrastructure;
 using Manipulator.Api.Presentation.Scenes;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 
 var app = builder.Build();
+
+app.UseMiddleware<ApiKeyAuthMiddleware>();
 
 app.RegisterScenesEndpoints();
 

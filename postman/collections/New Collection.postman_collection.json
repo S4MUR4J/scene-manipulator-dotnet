@@ -141,7 +141,22 @@
           "response": []
         }
       ],
-      "id": "fcad6ede-d2ee-4ffc-b27d-ea8b18b5a593"
+      "id": "fcad6ede-d2ee-4ffc-b27d-ea8b18b5a593",
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "value",
+            "value": "dev-api-key",
+            "type": "string"
+          },
+          {
+            "key": "key",
+            "value": "x-api-key",
+            "type": "string"
+          }
+        ]
+      }
     }
   ]
 }
