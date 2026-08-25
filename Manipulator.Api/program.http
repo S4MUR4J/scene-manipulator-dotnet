@@ -1,4 +1,0 @@
-### Get test
-
-GET {{base_url}}
-Accept: application/json

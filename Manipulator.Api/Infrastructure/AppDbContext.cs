@@ -1,6 +1,7 @@
+using Manipulator.Api.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Manipulator.Api;
+namespace Manipulator.Api.Infrastructure;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
