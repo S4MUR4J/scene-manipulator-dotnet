@@ -1,0 +1,35 @@
+### Get scenes
+
+GET {{base_url}}/scenes
+Accept: application/json
+
+### Get scene with id
+
+@get_id = a8741003-af42-4c19-9bfa-92c1863c936d
+GET {{base_url}}/scenes/{{get_id}}
+Accept: application/json
+
+### Create scene
+
+POST {{base_url}}/scenes
+Content-Type: application/json
+
+{
+  "name": "Jane Doe"
+}
+
+### Modify scene with id
+
+@put_id = a8741003-af42-4c19-9bfa-92c1863c936d
+PUT {{base_url}}/scenes/{{put_id}}
+Content-Type: application/json
+
+{
+  "name": "Robot Jane"
+}
+
+### Delete scene with id
+
+@delete_id = a8741003-af42-4c19-9bfa-92c1863c936d
+DELETE {{base_url}}/scenes/{{get_id}}
+Accept: application/json

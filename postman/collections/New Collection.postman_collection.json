@@ -1,0 +1,147 @@
+{
+  "info": {
+    "_postman_id": "493df088-732c-4e78-be0a-ff92374e1f65",
+    "name": "Manipulator.Api",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "scenes",
+      "item": [
+        {
+          "name": "/scenes",
+          "id": "c5b70b9b-788a-4336-8a0c-6943c4cb9b13",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/scenes",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "scenes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/scenes/id",
+          "id": "62821fea-4c97-46eb-9ffc-894308fa36bc",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/scenes/:id",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "scenes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9",
+                  "uuid": "3427f4b5-97b3-4bfe-9069-db049794e22a"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/scenes/id",
+          "id": "e7c3f566-1d1e-4d69-a09b-0246d9f2ae38",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Postman creation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/scenes",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "scenes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/scenes/id",
+          "id": "f6cbc92c-9e86-49db-8d47-344399fda66b",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Change from postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}/scenes/:id",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "scenes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9",
+                  "uuid": "3427f4b5-97b3-4bfe-9069-db049794e22a"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "/scenes/id",
+          "id": "e158f12f-f937-4b69-90d7-40f886c5878d",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/scenes/:id",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "scenes",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9",
+                  "uuid": "3427f4b5-97b3-4bfe-9069-db049794e22a"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "fcad6ede-d2ee-4ffc-b27d-ea8b18b5a593"
+    }
+  ]
+}
