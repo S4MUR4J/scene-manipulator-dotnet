@@ -1,31 +1,24 @@
-﻿services:
+services:
   manipulator.api:
     image: manipulator.api
     build:
       context: .
       dockerfile: Manipulator.Api/Dockerfile
-    depends_on:
-      manipulator.db.mongo:
-        condition: service_healthy
 
-  manipulator.db.mongo:
-    image: mongodb/mongodb-atlas-local:latest
-    hostname: mongodb
+  manipulator.db.postgres:
+    image: postgres:18.6-alpine
+    restart: always
+    hostname: postgres
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: password
-      MONGOT_LOG_FILE: /dev/stderr
-      RUNNER_LOG_FILE: /dev/stderr
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: manipulator
     ports:
-      - 27017:27017
+      - "5432:5432"
     volumes:
-      - ./init:/docker-entrypoint-initdb.d
-      - db:/data/db
-      - configdb:/data/configdb
-      - mongot:/data/mongot
+      - pgdata:/var/lib/postgresql
+
 volumes:
-  db:
-  configdb:
-  mongot:
+  pgdata:
 
 
