@@ -4,4 +4,28 @@
     build:
       context: .
       dockerfile: Manipulator.Api/Dockerfile
+    depends_on:
+      manipulator.db.mongo:
+        condition: service_healthy
+
+  manipulator.db.mongo:
+    image: mongodb/mongodb-atlas-local:latest
+    hostname: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+      MONGOT_LOG_FILE: /dev/stderr
+      RUNNER_LOG_FILE: /dev/stderr
+    ports:
+      - 27017:27017
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - db:/data/db
+      - configdb:/data/configdb
+      - mongot:/data/mongot
+volumes:
+  db:
+  configdb:
+  mongot:
+
 
