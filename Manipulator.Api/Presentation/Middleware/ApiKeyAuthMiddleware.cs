@@ -15,7 +15,7 @@ public class ApiKeyAuthMiddleware(RequestDelegate next, IConfiguration configura
         }
 
         var apiKey = configuration.GetValue<string>(ApiKeySectionName);
-        if (!apiKey?.Equals(requestedApiKey) ?? false)
+        if (apiKey is null || requestedApiKey != apiKey)
         {
             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
             await context.Response.WriteAsync("Unauthorized: Invalid API key.");
