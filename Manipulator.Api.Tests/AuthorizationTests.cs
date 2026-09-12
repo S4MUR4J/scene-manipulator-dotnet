@@ -2,8 +2,6 @@ using System.Net;
 using System.Net.Http.Json;
 using FluentAssertions;
 using Manipulator.Api.Domain;
-using Manipulator.Api.Infrastructure;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Manipulator.Api.Tests;
 
