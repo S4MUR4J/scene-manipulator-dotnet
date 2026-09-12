@@ -27,7 +27,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     # region GET /scenes
 
     [Fact]
-    public async Task GetAllScenes()
+    public async Task GetAllScenes_ScenesExist_ReturnsOkWithScenes()
     {
         // Act
         var response = await _client.GetAsync("/scenes/");
@@ -45,8 +45,10 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     #region GET /scenes/{id}
 
     [Theory]
-    [InlineData("00000000-0000-0000-0000-000000000001")]
-    public async Task GetSceneById(Guid id)
+    [InlineData(TestSceneIds.SceneOne)]
+    [InlineData(TestSceneIds.SceneTwo)]
+    [InlineData(TestSceneIds.SceneThree)]
+    public async Task GetSceneById_SceneExists_ReturnsOkWithScene(Guid id)
     {
         // Act
         var response = await _client.GetAsync($"/scenes/{id}");
@@ -60,8 +62,8 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     }
 
     [Theory]
-    [InlineData("00000000-0000-0000-0000-000000000000")]
-    public async Task GetNonExistingSceneById(Guid id)
+    [InlineData(TestSceneIds.NonExistent)]
+    public async Task GetSceneById_SceneDoesNotExist_ReturnsNotFound(Guid id)
     {
         // Act
         var response = await _client.GetAsync($"/scenes/{id}");
@@ -75,7 +77,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     #region POST /scenes
 
     [Fact]
-    public async Task CreateScene()
+    public async Task CreateScene_ValidScene_ReturnsCreated()
     {
         // Arrange
         var scene = new Scene { Name = "New Scene" };
@@ -96,8 +98,10 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     #region PUT /scenes
 
     [Theory]
-    [InlineData("00000000-0000-0000-0000-000000000001")]
-    public async Task UpdateScene(Guid id)
+    [InlineData(TestSceneIds.SceneOne)]
+    [InlineData(TestSceneIds.SceneTwo)]
+    [InlineData(TestSceneIds.SceneThree)]
+    public async Task UpdateScene_SceneExists_ReturnsNoContent(Guid id)
     {
         // Arrange
         var scene = new Scene { Id = id, Name = "Updated Scene" };
@@ -111,8 +115,8 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     }
 
     [Theory]
-    [InlineData("00000000-0000-0000-0000-000000000000")]
-    public async Task UpdateNonExistingScene(Guid id)
+    [InlineData(TestSceneIds.NonExistent)]
+    public async Task UpdateScene_SceneDoesNotExist_ReturnsNotFound(Guid id)
     {
         // Arrange
         var scene = new Scene { Id = id, Name = "Updated Scene" };
@@ -129,8 +133,10 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     #region DELETE /scenes
 
     [Theory]
-    [InlineData("00000000-0000-0000-0000-000000000001")]
-    public async Task DeleteScene(Guid id)
+    [InlineData(TestSceneIds.SceneOne)]
+    [InlineData(TestSceneIds.SceneTwo)]
+    [InlineData(TestSceneIds.SceneThree)]
+    public async Task DeleteScene_SceneExists_ReturnsNoContent(Guid id)
     {
         // Act
         var response = await _client.DeleteAsync($"/scenes/{id}");
@@ -141,8 +147,8 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     }
 
     [Theory]
-    [InlineData("00000000-0000-0000-0000-000000000000")]
-    public async Task DeleteNonExistingScene(Guid id)
+    [InlineData(TestSceneIds.NonExistent)]
+    public async Task DeleteScene_SceneDoesNotExist_ReturnsNotFound(Guid id)
     {
         // Act
         var response = await _client.DeleteAsync($"/scenes/{id}");

@@ -22,21 +22,9 @@ public static class Utilities
     {
         return new List<Scene>
         {
-            new Scene
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000001"),
-                Name = "Test Scene 1",
-            },
-            new Scene
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000002"),
-                Name = "Test Scene 2",
-            },
-            new Scene
-            {
-                Id = Guid.Parse("00000000-0000-0000-0000-000000000003"),
-                Name = "Test Scene 3",
-            },
+            new Scene { Id = Guid.Parse(TestSceneIds.SceneOne), Name = "Test Scene 1" },
+            new Scene { Id = Guid.Parse(TestSceneIds.SceneTwo), Name = "Test Scene 2" },
+            new Scene { Id = Guid.Parse(TestSceneIds.SceneThree), Name = "Test Scene 3" },
         };
     }
 }

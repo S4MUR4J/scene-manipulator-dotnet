@@ -56,7 +56,7 @@ public static class Scenes
 
         scenesGroup.MapDelete(
             "/{id:guid}",
-            async (AppDbContext appDbContext, Guid id) =>
+            async (Guid id, AppDbContext appDbContext) =>
             {
                 var scene = await appDbContext.Scenes.FindAsync(id);
                 if (scene is null)
