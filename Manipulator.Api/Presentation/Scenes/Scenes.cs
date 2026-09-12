@@ -1,3 +1,4 @@
+using FluentValidation;
 using Manipulator.Api.Domain;
 using Manipulator.Api.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +31,12 @@ public static class Scenes
 
         scenesGroup.MapPost(
             "/",
-            async (Scene scene, AppDbContext appDbContext) =>
+            async (Scene scene, IValidator<Scene> validator, AppDbContext appDbContext) =>
             {
+                var validationResult = await validator.ValidateAsync(scene);
+                if (!validationResult.IsValid)
+                    return Results.ValidationProblem(validationResult.ToDictionary());
+
                 appDbContext.Scenes.Add(scene);
                 await appDbContext.SaveChangesAsync();
                 return Results.Created($"/scenes/{scene.Id}", scene);
@@ -40,8 +45,12 @@ public static class Scenes
 
         scenesGroup.MapPut(
             "/{id:guid}",
-            async (Guid id, Scene scene, AppDbContext appDbContext) =>
+            async (Guid id, Scene scene, IValidator<Scene> validator, AppDbContext appDbContext) =>
             {
+                var validationResult = await validator.ValidateAsync(scene);
+                if (!validationResult.IsValid)
+                    return Results.ValidationProblem(validationResult.ToDictionary());
+
                 var sceneFound = await appDbContext.Scenes.FindAsync(id);
                 if (sceneFound is null)
                     return Results.NotFound();

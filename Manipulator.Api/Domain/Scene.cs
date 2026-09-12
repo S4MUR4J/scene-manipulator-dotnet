@@ -4,7 +4,7 @@ public class Scene
 {
     public Guid Id { get; init; } = Guid.NewGuid();
 
-    public string Name { get; set; } = null!;
+    public string? Name { get; set; }
 
     public DateTime Created { get; init; } = DateTime.UtcNow;
 

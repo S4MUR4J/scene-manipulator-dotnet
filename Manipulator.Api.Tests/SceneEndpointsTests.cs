@@ -93,6 +93,23 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
         content.Should().NotBeNullOrEmpty();
     }
 
+    [Theory]
+    [InlineData(TestSceneIds.SceneOne, null)]
+    [InlineData(TestSceneIds.SceneTwo, "")]
+    [InlineData(TestSceneIds.SceneThree, "   ")]
+    [InlineData(TestSceneIds.SceneOne, "TooLongNameThatCannotBeHandled")]
+    public async Task CreateScene_InvalidName_ReturnsBadRequest(Guid id, string? name)
+    {
+        // Arrange
+        var scene = new Scene { Id = id, Name = name };
+
+        // Act
+        var response = await _client.PostAsJsonAsync("/scenes/", scene);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
     #endregion
 
     #region PUT /scenes
@@ -112,6 +129,23 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
         // Assert
         response.EnsureSuccessStatusCode();
         response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Theory]
+    [InlineData(TestSceneIds.SceneOne, null)]
+    [InlineData(TestSceneIds.SceneTwo, "")]
+    [InlineData(TestSceneIds.SceneThree, "   ")]
+    [InlineData(TestSceneIds.SceneOne, "TooLongNameThatCannotBeHandled")]
+    public async Task UpdateScene_InvalidName_ReturnsBadRequest(Guid id, string? name)
+    {
+        // Arrange
+        var scene = new Scene { Id = id, Name = name };
+
+        // Act
+        var response = await _client.PutAsJsonAsync($"/scenes/{id}", scene);
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     [Theory]

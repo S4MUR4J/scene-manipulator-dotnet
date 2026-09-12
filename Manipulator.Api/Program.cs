@@ -1,4 +1,6 @@
+using FluentValidation;
 using Manipulator.Api;
+using Manipulator.Api.Domain;
 using Manipulator.Api.Infrastructure;
 using Manipulator.Api.Presentation.Scenes;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +12,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         .UseNpgsql(builder.Configuration.GetConnectionString("Postgres"))
         .UseSnakeCaseNamingConvention()
 );
+builder.Services.AddScoped<IValidator<Scene>, SceneValidator>();
 
 var app = builder.Build();
 
