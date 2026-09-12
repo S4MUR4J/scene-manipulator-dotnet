@@ -8,6 +8,7 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Manipulator.Api/Manipulator.Api.csproj", "Manipulator.Api/"]
+COPY ["Manipulator.Core/Manipulator.Core.csproj", "Manipulator.Core/"]
 RUN dotnet restore "Manipulator.Api/Manipulator.Api.csproj"
 COPY . .
 WORKDIR "/src/Manipulator.Api"
