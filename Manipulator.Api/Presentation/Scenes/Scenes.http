@@ -35,6 +35,6 @@ x-api-key: {{api_key}}
 ### Delete scene with id
 
 @delete_id = a8741003-af42-4c19-9bfa-92c1863c936d
-DELETE {{base_url}}/scenes/{{get_id}}
+DELETE {{base_url}}/scenes/{{delete_id}}
 Accept: application/json
 x-api-key: {{api_key}}
