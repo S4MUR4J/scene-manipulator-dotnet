@@ -147,7 +147,7 @@
         "apikey": [
           {
             "key": "value",
-            "value": "dev-api-key",
+            "value": "{{api_key}}",
             "type": "string"
           },
           {

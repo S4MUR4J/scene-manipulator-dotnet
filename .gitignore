@@ -5,6 +5,7 @@
 
 # dotenv files
 .env
+secrets/
 
 # User-specific files
 *.rsuser
@@ -486,3 +487,6 @@ dev/
 
 # Local docs (not tracked in git)
 docs/
+
+# Local configurations
+http-client.local.env.json
