@@ -1,0 +1,34 @@
+services:
+  manipulator.api:
+    image: manipulator.api
+    build:
+      context: .
+      dockerfile: Manipulator.Api/Dockerfile
+    ports:
+      - "8000:8080"
+    environment:
+      ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=manipulator;Username=admin;Password=password"
+    depends_on:
+      manipulator.db.postgres:
+        condition: service_healthy
+
+  manipulator.db.postgres:
+    image: postgres:18.6-alpine
+    restart: always
+    hostname: postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: manipulator
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d manipulator"]
+      interval: 3s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  pgdata:

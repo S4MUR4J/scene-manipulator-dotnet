@@ -1,0 +1,40 @@
+### Get scenes
+
+GET {{base_url}}/scenes
+Accept: application/json
+x-api-key: {{api_key}}
+
+### Get scene with id
+
+@get_id = a8741003-af42-4c19-9bfa-92c1863c936d
+GET {{base_url}}/scenes/{{get_id}}
+Accept: application/json
+x-api-key: {{api_key}}
+
+### Create scene
+
+POST {{base_url}}/scenes
+Content-Type: application/json
+x-api-key: {{api_key}}
+
+{
+  "name": "Jane Doe"
+}
+
+### Modify scene with id
+
+@put_id = a8741003-af42-4c19-9bfa-92c1863c936d
+PUT {{base_url}}/scenes/{{put_id}}
+Content-Type: application/json
+x-api-key: {{api_key}}
+
+{
+  "name": "Robot Jane"
+}
+
+### Delete scene with id
+
+@delete_id = a8741003-af42-4c19-9bfa-92c1863c936d
+DELETE {{base_url}}/scenes/{{delete_id}}
+Accept: application/json
+x-api-key: {{api_key}}
