@@ -1,4 +1,4 @@
-namespace Manipulator.Api;
+namespace Manipulator.Api.Presentation.Middleware;
 
 public class ApiKeyAuthMiddleware(RequestDelegate next, IConfiguration configuration)
 {

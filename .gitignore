@@ -489,4 +489,4 @@ dev/
 docs/
 
 # Local configurations
-http-client.local.env.json
+http-client.private.env.json

@@ -1,7 +1,7 @@
 using FluentValidation;
-using Manipulator.Api;
 using Manipulator.Api.Domain;
 using Manipulator.Api.Infrastructure;
+using Manipulator.Api.Presentation.Middleware;
 using Manipulator.Api.Presentation.Scenes;
 using Microsoft.EntityFrameworkCore;
 
