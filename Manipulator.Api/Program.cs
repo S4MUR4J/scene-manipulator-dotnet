@@ -38,7 +38,7 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ApiKeyAuthMiddleware>();
 
 var apiVersionSet = app.NewApiVersionSet().HasApiVersion(new ApiVersion(1)).Build();
-var versionGroup = app.MapGroup("api/v{apiVersion:apiVersion}").WithApiVersionSet(apiVersionSet);
+var versionGroup = app.MapGroup("api/v{version:apiVersion}").WithApiVersionSet(apiVersionSet);
 
 versionGroup.RegisterScenesEndpoints();
 
