@@ -44,8 +44,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9",
-                  "uuid": "3427f4b5-97b3-4bfe-9069-db049794e22a"
+                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9"
                 }
               ]
             }
@@ -106,8 +105,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9",
-                  "uuid": "3427f4b5-97b3-4bfe-9069-db049794e22a"
+                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9"
                 }
               ]
             }
@@ -132,8 +130,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9",
-                  "uuid": "3427f4b5-97b3-4bfe-9069-db049794e22a"
+                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9"
                 }
               ]
             }
@@ -142,6 +139,46 @@
         }
       ],
       "id": "fcad6ede-d2ee-4ffc-b27d-ea8b18b5a593",
+      "auth": {
+        "type": "apikey",
+        "apikey": [
+          {
+            "key": "value",
+            "value": "{{api_key}}",
+            "type": "string"
+          },
+          {
+            "key": "key",
+            "value": "x-api-key",
+            "type": "string"
+          }
+        ]
+      }
+    },
+    {
+      "name": "openapi",
+      "item": [
+        {
+          "name": "v1",
+          "id": "f04f22c0-bf96-4731-8fd1-fd65c87ca3fa",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}/openapi/v1.json",
+              "host": [
+                "{{url}}"
+              ],
+              "path": [
+                "openapi",
+                "v1.json"
+              ]
+            }
+          },
+          "response": []
+        }
+      ],
+      "id": "4a53ed73-47fd-4e90-bd4c-bbe461e18c92",
       "auth": {
         "type": "apikey",
         "apikey": [

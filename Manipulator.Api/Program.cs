@@ -19,7 +19,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 );
 builder.Services.AddScoped<IValidator<Scene>, SceneValidator>();
 
+builder.Services.AddOpenApi();
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+}
 
 app.UseMiddleware<ApiKeyAuthMiddleware>();
 
