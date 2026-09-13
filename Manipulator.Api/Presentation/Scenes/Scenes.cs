@@ -39,7 +39,7 @@ public static class Scenes
 
                 appDbContext.Scenes.Add(scene);
                 await appDbContext.SaveChangesAsync();
-                return Results.Created($"/scenes/{scene.Id}", scene);
+                return Results.Created(scene.Id.ToString(), scene);
             }
         );
 

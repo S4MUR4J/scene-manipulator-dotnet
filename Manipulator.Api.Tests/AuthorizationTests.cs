@@ -12,11 +12,11 @@ public class AuthorizationTests(ScenesApiFactory<Program> factory)
 
     public static IEnumerable<object[]> ProtectedRequests()
     {
-        yield return [HttpMethod.Get, "/scenes/"];
-        yield return [HttpMethod.Get, $"/scenes/{SeededSceneId}"];
-        yield return [HttpMethod.Post, "/scenes/"];
-        yield return [HttpMethod.Put, $"/scenes/{SeededSceneId}"];
-        yield return [HttpMethod.Delete, $"/scenes/{SeededSceneId}"];
+        yield return [HttpMethod.Get, $"{TestRoutes.Scenes}/"];
+        yield return [HttpMethod.Get, $"{TestRoutes.Scenes}/{SeededSceneId}"];
+        yield return [HttpMethod.Post, $"{TestRoutes.Scenes}/"];
+        yield return [HttpMethod.Put, $"{TestRoutes.Scenes}/{SeededSceneId}"];
+        yield return [HttpMethod.Delete, $"{TestRoutes.Scenes}/{SeededSceneId}"];
     }
 
     private static HttpRequestMessage BuildRequest(HttpMethod method, string url)
@@ -101,7 +101,7 @@ public class AuthorizationTests(ScenesApiFactory<Program> factory)
     {
         // Arrange
         var client = factory.CreateClient();
-        var request = new HttpRequestMessage(HttpMethod.Get, "/scenes/");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"{TestRoutes.Scenes}/");
         request.Headers.Add("x-api-key", "dev-api-key");
 
         // Act
