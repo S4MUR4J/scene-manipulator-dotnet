@@ -15,9 +15,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/scenes",
+              "raw": "{{api_url}}/scenes",
               "host": [
-                "{{url}}"
+                "{{api_url}}"
               ],
               "path": [
                 "scenes"
@@ -33,9 +33,9 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{url}}/scenes/:id",
+              "raw": "{{api_url}}/scenes/:id",
               "host": [
-                "{{url}}"
+                "{{api_url}}"
               ],
               "path": [
                 "scenes",
@@ -67,9 +67,9 @@
               }
             },
             "url": {
-              "raw": "{{url}}/scenes",
+              "raw": "{{api_url}}/scenes",
               "host": [
-                "{{url}}"
+                "{{api_url}}"
               ],
               "path": [
                 "scenes"
@@ -94,9 +94,9 @@
               }
             },
             "url": {
-              "raw": "{{url}}/scenes/:id",
+              "raw": "{{api_url}}/scenes/:id",
               "host": [
-                "{{url}}"
+                "{{api_url}}"
               ],
               "path": [
                 "scenes",
@@ -119,9 +119,9 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "{{url}}/scenes/:id",
+              "raw": "{{api_url}}/scenes/:id",
               "host": [
-                "{{url}}"
+                "{{api_url}}"
               ],
               "path": [
                 "scenes",
