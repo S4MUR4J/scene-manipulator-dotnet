@@ -9,7 +9,7 @@ public static class Scenes
 {
     public static void RegisterScenesEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var scenesGroup = endpoints.MapGroup("scenes");
+        var scenesGroup = endpoints.MapGroup("/scenes");
 
         scenesGroup.MapGet(
             "/",
@@ -39,7 +39,7 @@ public static class Scenes
 
                 appDbContext.Scenes.Add(scene);
                 await appDbContext.SaveChangesAsync();
-                return Results.Created($"/scenes/{scene.Id}", scene);
+                return Results.Created(scene.Id.ToString(), scene);
             }
         );
 

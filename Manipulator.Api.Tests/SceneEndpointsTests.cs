@@ -30,7 +30,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     public async Task GetAllScenes_ScenesExist_ReturnsOkWithScenes()
     {
         // Act
-        var response = await _client.GetAsync("/scenes/");
+        var response = await _client.GetAsync($"{TestRoutes.Scenes}/");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -51,7 +51,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     public async Task GetSceneById_SceneExists_ReturnsOkWithScene(Guid id)
     {
         // Act
-        var response = await _client.GetAsync($"/scenes/{id}");
+        var response = await _client.GetAsync($"{TestRoutes.Scenes}/{id}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -66,7 +66,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     public async Task GetSceneById_SceneDoesNotExist_ReturnsNotFound(Guid id)
     {
         // Act
-        var response = await _client.GetAsync($"/scenes/{id}");
+        var response = await _client.GetAsync($"{TestRoutes.Scenes}/{id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -83,7 +83,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
         var scene = new Scene { Name = "New Scene" };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/scenes/", scene);
+        var response = await _client.PostAsJsonAsync($"{TestRoutes.Scenes}/", scene);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -104,7 +104,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
         var scene = new Scene { Id = id, Name = name };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/scenes/", scene);
+        var response = await _client.PostAsJsonAsync($"{TestRoutes.Scenes}/", scene);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -124,7 +124,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
         var scene = new Scene { Id = id, Name = "Updated Scene" };
 
         // Act
-        var response = await _client.PutAsJsonAsync($"/scenes/{id}", scene);
+        var response = await _client.PutAsJsonAsync($"{TestRoutes.Scenes}/{id}", scene);
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -142,7 +142,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
         var scene = new Scene { Id = id, Name = name };
 
         // Act
-        var response = await _client.PutAsJsonAsync($"/scenes/{id}", scene);
+        var response = await _client.PutAsJsonAsync($"{TestRoutes.Scenes}/{id}", scene);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
@@ -156,7 +156,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
         var scene = new Scene { Id = id, Name = "Updated Scene" };
 
         // Act
-        var response = await _client.PutAsJsonAsync($"/scenes/{id}", scene);
+        var response = await _client.PutAsJsonAsync($"{TestRoutes.Scenes}/{id}", scene);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -173,7 +173,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     public async Task DeleteScene_SceneExists_ReturnsNoContent(Guid id)
     {
         // Act
-        var response = await _client.DeleteAsync($"/scenes/{id}");
+        var response = await _client.DeleteAsync($"{TestRoutes.Scenes}/{id}");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -185,7 +185,7 @@ public class SceneEndpointsTests(ScenesApiFactory<Program> factory)
     public async Task DeleteScene_SceneDoesNotExist_ReturnsNotFound(Guid id)
     {
         // Act
-        var response = await _client.DeleteAsync($"/scenes/{id}");
+        var response = await _client.DeleteAsync($"{TestRoutes.Scenes}/{id}");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);
