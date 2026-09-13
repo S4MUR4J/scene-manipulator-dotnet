@@ -6,7 +6,7 @@ x-api-key: {{api_key}}
 
 ### Get scene with id
 
-@get_id = a8741003-af42-4c19-9bfa-92c1863c936d
+@get_id = 74796a95-48cf-49da-869f-547982c1c0f2
 GET {{base_url}}/scenes/{{get_id}}
 Accept: application/json
 x-api-key: {{api_key}}
@@ -23,7 +23,7 @@ x-api-key: {{api_key}}
 
 ### Modify scene with id
 
-@put_id = a8741003-af42-4c19-9bfa-92c1863c936d
+@put_id = 191561f7-fbd2-45e8-87f4-b21f55a0658f
 PUT {{base_url}}/scenes/{{put_id}}
 Content-Type: application/json
 x-api-key: {{api_key}}
@@ -34,7 +34,7 @@ x-api-key: {{api_key}}
 
 ### Delete scene with id
 
-@delete_id = a8741003-af42-4c19-9bfa-92c1863c936d
+@delete_id = 191561f7-fbd2-45e8-87f4-b21f55a0658f
 DELETE {{base_url}}/scenes/{{delete_id}}
 Accept: application/json
 x-api-key: {{api_key}}

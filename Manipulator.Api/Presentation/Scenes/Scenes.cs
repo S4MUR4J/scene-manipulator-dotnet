@@ -9,7 +9,7 @@ public static class Scenes
 {
     public static void RegisterScenesEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        var scenesGroup = endpoints.MapGroup("scenes");
+        var scenesGroup = endpoints.MapGroup("/scenes");
 
         scenesGroup.MapGet(
             "/",
