@@ -44,7 +44,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9"
+                  "value": "{{scene_id}}"
                 }
               ]
             }
@@ -105,7 +105,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9"
+                  "value": "{{scene_id}}"
                 }
               ]
             }
@@ -130,7 +130,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "6668880e-3650-46f1-bdff-7814f8586eb9"
+                  "value": "{{scene_id}}"
                 }
               ]
             }
