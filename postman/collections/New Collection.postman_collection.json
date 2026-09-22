@@ -46,7 +46,7 @@
                 "header": [],
                 "body": {
                   "mode": "raw",
-                  "raw": "{\n    \"content\": \"Example content\"\n}",
+                  "raw": "{\n    \"content\": {{scene_content}}\n}",
                   "options": {
                     "raw": {
                       "language": "json"

@@ -12,5 +12,5 @@ x-api-key: {{api_key}}
 Content-Type: application/json
 
 {
-  "content": "Example content"
+  "content": "{{scene_content}}"
 }
