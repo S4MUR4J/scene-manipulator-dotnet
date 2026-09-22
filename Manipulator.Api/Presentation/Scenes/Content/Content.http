@@ -1,0 +1,16 @@
+### Get scene content
+
+GET {{base_url}}/scenes/{{scene_id}}/content
+Accept: application/json
+x-api-key: {{api_key}}
+
+### Update scene content
+
+PUT {{base_url}}/scenes/{{scene_id}}/content
+Accept: application/json
+x-api-key: {{api_key}}
+Content-Type: application/json
+
+{
+  "content": "Example content"
+}

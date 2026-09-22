@@ -1,6 +1,7 @@
 using FluentValidation;
 using Manipulator.Api.Domain;
 using Manipulator.Api.Infrastructure;
+using Manipulator.Api.Presentation.Scenes.Content;
 using Microsoft.EntityFrameworkCore;
 
 namespace Manipulator.Api.Presentation.Scenes;
@@ -77,5 +78,7 @@ public static class Scenes
                 return Results.NoContent();
             }
         );
+
+        scenesGroup.RegisterContentEndpoints();
     }
 }

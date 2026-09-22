@@ -9,4 +9,6 @@ public class Scene
     public DateTime Created { get; init; } = DateTime.UtcNow;
 
     public DateTime Updated { get; set; } = DateTime.UtcNow;
+
+    public string? Content { get; set; } = string.Empty;
 }
