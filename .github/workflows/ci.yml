@@ -22,3 +22,6 @@ jobs:
 
       - name: Build
         run: dotnet build Manipulator.slnx --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test Manipulator.Api.Tests --configuration Release --no-build
