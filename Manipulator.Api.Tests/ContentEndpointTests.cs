@@ -42,6 +42,19 @@ public class ContentEndpointTests(ScenesApiFactory<Program> factory)
         content.Should().Be(Utilities.ExampleContent);
     }
 
+    [Fact]
+    public async Task GetContent_SceneDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var nonExistentId = Guid.NewGuid();
+
+        // Act
+        var response = await _client.GetAsync($"{TestRoutes.Scenes}/{nonExistentId}/content");
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
     #endregion
 
     #region PUT /scenes/{id}/content
@@ -69,6 +82,24 @@ public class ContentEndpointTests(ScenesApiFactory<Program> factory)
         var scene = await dbContext.Scenes.FindAsync(id);
         scene.Should().NotBeNull();
         scene.Content.Should().Be(newContent);
+    }
+
+    [Fact]
+    public async Task UpdateContent_SceneDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange
+        var nonExistentId = Guid.NewGuid();
+        const string newContent = "Updated content";
+        var requestBody = new SceneContentReq(newContent);
+
+        // Act
+        var response = await _client.PutAsJsonAsync(
+            $"{TestRoutes.Scenes}/{nonExistentId}/content",
+            requestBody
+        );
+
+        // Assert
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     #endregion
