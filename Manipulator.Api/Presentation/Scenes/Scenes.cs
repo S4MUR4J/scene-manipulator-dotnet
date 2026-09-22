@@ -2,12 +2,15 @@ using FluentValidation;
 using Manipulator.Api.Domain;
 using Manipulator.Api.Infrastructure;
 using Manipulator.Api.Presentation.Scenes.Content;
+using Manipulator.Api.Presentation.Scenes.Contracts;
 using Microsoft.EntityFrameworkCore;
 
 namespace Manipulator.Api.Presentation.Scenes;
 
 public static class Scenes
 {
+    private static readonly Func<Scene, SceneRes> FromDomain = SceneRes.FromDomain.Compile();
+
     public static void RegisterScenesEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var scenesGroup = endpoints.MapGroup("/scenes");
@@ -16,7 +19,7 @@ public static class Scenes
             "/",
             async (AppDbContext appDbContext) =>
             {
-                var scenes = await appDbContext.Scenes.ToListAsync();
+                var scenes = await appDbContext.Scenes.Select(SceneRes.FromDomain).ToListAsync();
                 return Results.Ok(scenes);
             }
         );
@@ -26,7 +29,7 @@ public static class Scenes
             async (Guid id, AppDbContext appDbContext) =>
             {
                 var scene = await appDbContext.Scenes.FindAsync(id);
-                return scene is null ? Results.NotFound() : Results.Ok(scene);
+                return scene is null ? Results.NotFound() : Results.Ok(FromDomain(scene));
             }
         );
 
@@ -40,7 +43,7 @@ public static class Scenes
 
                 appDbContext.Scenes.Add(scene);
                 await appDbContext.SaveChangesAsync();
-                return Results.Created(scene.Id.ToString(), scene);
+                return Results.Created(scene.Id.ToString(), FromDomain(scene));
             }
         );
 
