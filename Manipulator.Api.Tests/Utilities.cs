@@ -5,6 +5,8 @@ namespace Manipulator.Api.Tests;
 
 public static class Utilities
 {
+    public const string ExampleContent = "Example content";
+
     public static void InitializeDbForTests(AppDbContext dbContext)
     {
         dbContext.Scenes.AddRange(GetSeedingScenes());
@@ -20,11 +22,28 @@ public static class Utilities
 
     private static IReadOnlyList<Scene> GetSeedingScenes()
     {
+        const string sceneName = "Test Scene";
+
         return new List<Scene>
         {
-            new Scene { Id = Guid.Parse(TestSceneIds.SceneOne), Name = "Test Scene 1" },
-            new Scene { Id = Guid.Parse(TestSceneIds.SceneTwo), Name = "Test Scene 2" },
-            new Scene { Id = Guid.Parse(TestSceneIds.SceneThree), Name = "Test Scene 3" },
+            new Scene
+            {
+                Id = Guid.Parse(TestSceneIds.SceneOne),
+                Name = $"{sceneName} 1",
+                Content = ExampleContent,
+            },
+            new Scene
+            {
+                Id = Guid.Parse(TestSceneIds.SceneTwo),
+                Name = $"{sceneName} 2",
+                Content = ExampleContent,
+            },
+            new Scene
+            {
+                Id = Guid.Parse(TestSceneIds.SceneThree),
+                Name = $"{sceneName} 3",
+                Content = ExampleContent,
+            },
         };
     }
 }

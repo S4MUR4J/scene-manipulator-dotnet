@@ -9,6 +9,75 @@
       "name": "scenes",
       "item": [
         {
+          "name": "content",
+          "item": [
+            {
+              "name": "/content",
+              "id": "67b7cb9b-52ed-4cb6-a65b-2a5b27a0d0eb",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{api_url}}/scenes/:id/content",
+                  "host": [
+                    "{{api_url}}"
+                  ],
+                  "path": [
+                    "scenes",
+                    ":id",
+                    "content"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{scene_id}}",
+                      "uuid": "16932e67-f175-44a0-bc5c-2ad3e1359d42"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "/content",
+              "id": "869ca02a-4a3a-488a-98d0-9778379f8ca2",
+              "request": {
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n    \"content\": \"{{scene_content}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{api_url}}/scenes/:id/content",
+                  "host": [
+                    "{{api_url}}"
+                  ],
+                  "path": [
+                    "scenes",
+                    ":id",
+                    "content"
+                  ],
+                  "variable": [
+                    {
+                      "key": "id",
+                      "value": "{{scene_id}}",
+                      "uuid": "16932e67-f175-44a0-bc5c-2ad3e1359d42"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ],
+          "id": "dfce55cd-1e61-4da1-8af7-99fb0ed3074b"
+        },
+        {
           "name": "/scenes",
           "id": "c5b70b9b-788a-4336-8a0c-6943c4cb9b13",
           "request": {
@@ -52,7 +121,7 @@
           "response": []
         },
         {
-          "name": "/scenes/id",
+          "name": "/scenes",
           "id": "e7c3f566-1d1e-4d69-a09b-0246d9f2ae38",
           "request": {
             "method": "POST",
