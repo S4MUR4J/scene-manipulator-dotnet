@@ -22,4 +22,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Manipulator.Core\Manipulator.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None
+      Include="..\schemas\fixtures\scene.sample.json"
+      Link="Fixtures\scene.sample.json"
+      CopyToOutputDirectory="PreserveNewest"
+    />
+  </ItemGroup>
 </Project>

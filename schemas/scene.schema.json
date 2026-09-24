@@ -1,0 +1,103 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://scene-keeper.com/scene.schema.json",
+	"title": "Scene",
+	"description": "A scene described in program format",
+	"type": "object",
+	"properties": {
+		"version": {
+			"type": "string",
+			"description": "Schema version"
+		},
+		"scene_version": {
+			"type": "integer",
+			"description": "Monotonically increasing version counter, incremented on each mutation"
+		},
+		"entities": {
+			"type": "array",
+			"items": { "$ref": "#/$defs/entity" }
+		}
+	},
+	"required": ["version", "scene_version", "entities"],
+	"$defs": {
+		"entity": {
+			"type": "object",
+			"properties": {
+				"id": { "type": "string", "minLength": 1 },
+				"components": {
+					"type": "object",
+					"properties": {
+						"transform": { "$ref": "#/$defs/transform" },
+						"mesh_filter": { "$ref": "#/$defs/mesh_filter" },
+						"mesh_renderer": { "$ref": "#/$defs/mesh_renderer" },
+						"entity_name": { "$ref": "#/$defs/entity_name" }
+					},
+					"additionalProperties": { "type": "object" }
+				}
+			},
+			"required": ["id", "components"]
+		},
+		"vector3": {
+			"type": "array",
+			"items": { "type": "number" },
+			"minItems": 3,
+			"maxItems": 3
+		},
+		"transform": {
+			"type": "object",
+			"description": "Position, rotation and scale. Any omitted field defaults to Zero (Scale defaults to One).",
+			"properties": {
+				"position": { "$ref": "#/$defs/vector3" },
+				"rotation": { "$ref": "#/$defs/vector3" },
+				"scale": { "$ref": "#/$defs/vector3" }
+			},
+			"additionalProperties": false
+		},
+		"mesh_filter": {
+			"type": "object",
+			"properties": {
+				"geometry": {
+					"type": "string",
+					"description": "Case-insensitive geometry name.",
+					"enum": [
+						"Cube",
+						"Sphere",
+						"Cylinder",
+						"Cone",
+						"Capsule",
+						"Plane",
+						"Torus",
+						"Hemisphere"
+					]
+				},
+				"parameters": {
+					"type": "object",
+					"description": "Optional geometry-specific parameters, passed through as-is."
+				}
+			},
+			"required": ["geometry"],
+			"additionalProperties": false
+		},
+		"mesh_renderer": {
+			"type": "object",
+			"description": "All fields are optional; omitted fields default to MeshRenderer's built-in defaults (color #ffffff, opacity 1, metalness 0, roughness 0.5).",
+			"properties": {
+				"color": {
+					"type": "string",
+					"pattern": "^#[0-9a-fA-F]{6}$"
+				},
+				"opacity": { "type": "number", "minimum": 0, "maximum": 1 },
+				"metalness": { "type": "number", "minimum": 0, "maximum": 1 },
+				"roughness": { "type": "number", "minimum": 0, "maximum": 1 }
+			},
+			"additionalProperties": false
+		},
+		"entity_name": {
+			"type": "object",
+			"properties": {
+				"value": { "type": "string" }
+			},
+			"additionalProperties": false
+		}
+	}
+}
