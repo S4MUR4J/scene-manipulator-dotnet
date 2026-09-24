@@ -2,14 +2,14 @@ using System.Text.Json;
 
 namespace Manipulator.Core.Serialization;
 
-record SceneDto(string Version, long SceneVersion, List<EntityDto> Entities);
+record SceneDto(string? Version, long SceneVersion, List<EntityDto>? Entities);
 
-record EntityDto(string Id, Dictionary<string, JsonElement> Components);
+record EntityDto(string? Id, Dictionary<string, JsonElement>? Components);
 
-record TransformDto(float[] Position, float[] Rotation, float[] Scale);
+record TransformDto(float[]? Position, float[]? Rotation, float[]? Scale);
 
-record MeshFilterDto(string Geometry);
+record MeshFilterDto(string? Geometry, Dictionary<string, object>? Parameters);
 
-record MeshRendererDto(string Color, float Opacity, float Metalness, float Roughness);
+record MeshRendererDto(string? Color, float? Opacity, float? Metalness, float? Roughness);
 
-record EntityNameDto(string Value);
+record EntityNameDto(string? Value);

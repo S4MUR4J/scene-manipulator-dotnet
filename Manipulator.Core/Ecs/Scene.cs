@@ -42,4 +42,9 @@ public class Scene
         _entities.Clear();
         Version++;
     }
+
+    internal void RestoreVersion(long version)
+    {
+        Version = version;
+    }
 }
