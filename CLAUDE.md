@@ -38,13 +38,26 @@ var component = entity.Get("Transform");
 
 ## Components
 
-Built-in components in `Models/Components/`:
+Built-in components in `Manipulator.Core/Ecs/Components/`:
 - `Transform` — Position, Rotation, Scale (all `Vector3`, default to Zero/Zero/One)
 - `EntityName` — string label for an entity
 - `MeshFilter` — geometry type (`GeometryType` enum) + optional parameters dict
 - `MeshRenderer` — Color (hex string), Opacity, Metalness, Roughness
 
-`GeometryType` enum: `Cube, Sphere, Cylinder, Plane, Torus, Pyramid`
+`GeometryType` enum: `Cube, Sphere, Cylinder, Cone, Capsule, Plane, Torus, Hemisphere`
+
+## Command layer
+
+Commands live in `Manipulator.Core/Commands/`. `CommandDispatcher.Register<T>` wires a command's string `Type` to an `ICommandHandler<T>` plus a list of `ICommandValidator`s. `Dispatch`:
+
+1. Looks up the handler by `command.Type` (string-keyed, not CLR type, so commands can arrive from JSON with no compile-time coupling).
+2. Runs validators in order (`VersionConflictValidator` checks `ICommand.ExpectedVersion` against `Scene.Version`, `EntityExistsValidator` checks the target entity exists); the first failure short-circuits with a failed `CommandResult` and the handler never runs.
+3. Invokes the handler, catching exceptions into a failed `CommandResult` so callers never see an unhandled exception.
+4. On success, publishes each event in `CommandResult.Events` to the `EventBus`; events are never published for a failed result.
+
+To add a command: define an `ICommand` record with a `Type` string, add an `ICommandHandler<T>` in `Commands/Handlers/`, add any `ICommandValidator`s it needs in `Commands/Validation/`, and register all three via `CommandDispatcher.Register<T>`.
+
+`EventBus` (`Manipulator.Core/Events/EventBus.cs`) is a simple pub/sub keyed by event `Type` (matches subtypes too via `IsInstanceOfType`). Subscriber exceptions are swallowed so one broken subscriber can't block delivery to others.
 
 ## Testing
 
