@@ -35,7 +35,7 @@ jobs:
         run: dotnet format Manipulator.slnx --verify-no-changes --no-restore
 
       - name: Test
-        run: dotnet test Manipulator.Api.Tests --configuration Release --no-build
+        run: dotnet test Manipulator.slnx --configuration Release --no-build
 
       - name: Docker build
         run: docker build -f Manipulator.Api/Dockerfile -t manipulator.api:ci .
