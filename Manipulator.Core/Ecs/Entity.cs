@@ -5,6 +5,7 @@ public class Entity
     public string Id { get; }
     private readonly Dictionary<string, IComponent> _components =
         new Dictionary<string, IComponent>();
+    private Action? _onComponentChanged;
 
     public Entity(string id)
     {
@@ -46,6 +47,12 @@ public class Entity
     public IReadOnlyDictionary<string, IComponent> Components => _components.AsReadOnly();
 
     // Mutations
+
+    internal void AttachToScene(Action onComponentChanged)
+    {
+        _onComponentChanged = onComponentChanged;
+    }
+
     internal void Set<T>(T component)
         where T : class, IComponent
     {
@@ -56,6 +63,7 @@ public class Entity
     internal void Set(string componentType, IComponent component)
     {
         _components[componentType] = component;
+        _onComponentChanged?.Invoke();
     }
 
     internal bool Remove<T>()
@@ -67,6 +75,9 @@ public class Entity
 
     internal bool Remove(string componentType)
     {
-        return _components.Remove(componentType);
+        var removed = _components.Remove(componentType);
+        if (removed)
+            _onComponentChanged?.Invoke();
+        return removed;
     }
 }

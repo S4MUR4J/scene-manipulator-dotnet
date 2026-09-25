@@ -24,6 +24,7 @@ public class Scene
     // Mutations
     internal Entity AddEntity(Entity entity)
     {
+        entity.AttachToScene(BumpVersion);
         _entities[entity.Id] = entity;
         Version++;
         return entity;
@@ -46,5 +47,10 @@ public class Scene
     internal void RestoreVersion(long version)
     {
         Version = version;
+    }
+
+    internal void BumpVersion()
+    {
+        Version++;
     }
 }

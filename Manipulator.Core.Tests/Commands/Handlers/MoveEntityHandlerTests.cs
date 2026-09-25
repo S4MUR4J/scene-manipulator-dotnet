@@ -205,5 +205,37 @@ public class MoveEntityHandlerTests
         result.Error.Should().Contain(SceneBuilder.Id(99));
     }
 
+    [Fact]
+    public void Handle_MissingEntity_DoesNotBumpSceneVersion()
+    {
+        // Arrange
+        var scene = new SceneBuilder().Build();
+        var versionBeforeChange = scene.Version;
+
+        // Act
+        _handler.Handle(scene, new MoveEntityCommand(SceneBuilder.Id(99), Vector3.Zero));
+
+        // Assert
+        scene.Version.Should().Be(versionBeforeChange);
+    }
+
+    #endregion
+
+    #region Handle — version bump
+
+    [Fact]
+    public void Handle_EntityExists_BumpsSceneVersionExactlyOnce()
+    {
+        // Arrange
+        var scene = new SceneBuilder().WithEntity().Build();
+        var versionBeforeChange = scene.Version;
+
+        // Act
+        _handler.Handle(scene, new MoveEntityCommand(SceneBuilder.Id(1), Vector3.Up));
+
+        // Assert
+        scene.Version.Should().Be(versionBeforeChange + 1);
+    }
+
     #endregion
 }
