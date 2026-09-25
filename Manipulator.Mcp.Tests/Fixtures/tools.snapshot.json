@@ -1,0 +1,280 @@
+[
+  {
+    "name": "add_entity",
+    "description": "Add a new object to the scene and return its generated entity id. Every primitive is 1 unit wide and 1 unit deep at scale [1, 1, 1] and is centred on its position; heights are 1 unit except Capsule (1.5), Plane (0), Torus (0.3) and Hemisphere (0.5). Fields you omit fall back to their defaults.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "geometry": {
+          "description": "Shape of the object. One of: Cube, Sphere, Cylinder, Cone, Capsule, Plane, Torus, Hemisphere.",
+          "type": "string"
+        },
+        "position": {
+          "description": "World position of the object\u0027s centre as [x, y, z]. Y is up. Defaults to [0, 0, 0].",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "default": null
+        },
+        "rotation": {
+          "description": "Rotation in degrees as [x, y, z]. Defaults to [0, 0, 0].",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "default": null
+        },
+        "scale": {
+          "description": "Scale factor per axis as [x, y, z]. Every value must be greater than 0. Defaults to [1, 1, 1].",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "number"
+          },
+          "default": null
+        },
+        "color": {
+          "description": "Colour as a hex string in #rrggbb form. Defaults to #ffffff.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "opacity": {
+          "description": "Opacity from 0 (fully transparent) to 1 (fully solid). Defaults to 1.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        },
+        "metalness": {
+          "description": "Metalness from 0 (non-metal) to 1 (metal). Defaults to 0.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        },
+        "roughness": {
+          "description": "Surface roughness from 0 (mirror-like) to 1 (fully diffuse). Defaults to 0.5.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        },
+        "name": {
+          "description": "Human-readable label for the object, for example \u0022table top\u0022. Defaults to an empty label.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "geometry"
+      ]
+    }
+  },
+  {
+    "name": "finish",
+    "description": "Call this when the scene is complete and there is nothing left to do. It ends the session; any tool call made after it is rejected.",
+    "input_schema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "get_entity",
+    "description": "Return one entity as JSON, by id. Use it to check a single object without reading the whole scene.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "description": "Id of the entity, as returned by add_entity or listed by get_scene.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entityId"
+      ]
+    }
+  },
+  {
+    "name": "get_scene",
+    "description": "Return the whole scene as JSON: the current scene version and every entity with its id and its components (transform, mesh_filter, mesh_renderer, entity_name). Use it to check the current state before deciding what to change.",
+    "input_schema": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "move_entity",
+    "description": "Move an existing entity to an absolute world position. The position replaces the current one, it is not added to it.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "description": "Id of the entity, as returned by add_entity or listed by get_scene.",
+          "type": "string"
+        },
+        "position": {
+          "description": "Target world position of the object\u0027s centre as [x, y, z]. Y is up.",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "entityId",
+        "position"
+      ]
+    }
+  },
+  {
+    "name": "remove_entity",
+    "description": "Delete an entity from the scene. This cannot be undone.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "description": "Id of the entity, as returned by add_entity or listed by get_scene.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entityId"
+      ]
+    }
+  },
+  {
+    "name": "rename_entity",
+    "description": "Change an existing entity\u0027s label. The entity id stays the same.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "description": "Id of the entity, as returned by add_entity or listed by get_scene.",
+          "type": "string"
+        },
+        "name": {
+          "description": "New human-readable label for the entity.",
+          "type": "string"
+        }
+      },
+      "required": [
+        "entityId",
+        "name"
+      ]
+    }
+  },
+  {
+    "name": "rotate_entity",
+    "description": "Set an existing entity\u0027s rotation, in degrees. The rotation replaces the current one, it is not added to it.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "description": "Id of the entity, as returned by add_entity or listed by get_scene.",
+          "type": "string"
+        },
+        "rotation": {
+          "description": "Rotation in degrees as [x, y, z].",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "entityId",
+        "rotation"
+      ]
+    }
+  },
+  {
+    "name": "scale_entity",
+    "description": "Set an existing entity\u0027s scale factors. The scale replaces the current one, it is not multiplied by it.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "description": "Id of the entity, as returned by add_entity or listed by get_scene.",
+          "type": "string"
+        },
+        "scale": {
+          "description": "Scale factor per axis as [x, y, z]. Every value must be greater than 0.",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        }
+      },
+      "required": [
+        "entityId",
+        "scale"
+      ]
+    }
+  },
+  {
+    "name": "set_material",
+    "description": "Change how an existing entity looks. Only the fields you pass are changed; every field you omit keeps its current value.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "entityId": {
+          "description": "Id of the entity, as returned by add_entity or listed by get_scene.",
+          "type": "string"
+        },
+        "color": {
+          "description": "New colour as a hex string in #rrggbb form. Omit to keep the current colour.",
+          "type": [
+            "string",
+            "null"
+          ],
+          "default": null
+        },
+        "opacity": {
+          "description": "New opacity from 0 (fully transparent) to 1 (fully solid). Omit to keep the current opacity.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        },
+        "metalness": {
+          "description": "New metalness from 0 (non-metal) to 1 (metal). Omit to keep the current metalness.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        },
+        "roughness": {
+          "description": "New surface roughness from 0 (mirror-like) to 1 (fully diffuse). Omit to keep the current roughness.",
+          "type": [
+            "number",
+            "null"
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "entityId"
+      ]
+    }
+  }
+]

@@ -37,6 +37,15 @@ public class SceneSerializer
         return JsonSerializer.Serialize(dto, Options);
     }
 
+    /// <summary>
+    /// Serializes a single entity in the same shape it has inside a serialized scene, so that
+    /// per-entity reads and full-scene reads can never drift apart.
+    /// </summary>
+    public static string SerializeEntity(Entity entity)
+    {
+        return JsonSerializer.Serialize(ToEntityDto(entity), Options);
+    }
+
     public static SceneDeserializationResult Deserialize(string json)
     {
         SceneDto dto;

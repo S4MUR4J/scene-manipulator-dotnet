@@ -59,6 +59,43 @@ To add a command: define an `ICommand` record with a `Type` string, add an `ICom
 
 `EventBus` (`Manipulator.Core/Events/EventBus.cs`) is a simple pub/sub keyed by event `Type` (matches subtypes too via `IsInstanceOfType`). Subscriber exceptions are swallowed so one broken subscriber can't block delivery to others.
 
+## MCP server
+
+`Manipulator.Mcp` exposes the command set to an LLM agent as MCP tools over streamable HTTP
+(official C# SDK, `ModelContextProtocol.AspNetCore`). It holds an in-memory `Scene` and
+`CommandDispatcher` and touches no database — `Manipulator.Api` still owns Postgres.
+
+```bash
+dotnet run --project Manipulator.Mcp -- \
+  --mode mcp --run-id scenario-3-mcp-opus-7 \
+  --starting-scene scenes/kitchen.json --call-log runs/run-7.jsonl
+```
+
+**One process is one run.** The transport is stateless from protocol revision 2026-07-28 (no
+`Mcp-Session-Id`), so a tool call carries nothing that identifies a client; `SessionProvider` holds
+a single run-scoped `SceneSession` and the harness gets isolation by starting a server per run.
+
+**Tools** (`mcp` mode): `add_entity`, `move_entity`, `rotate_entity`, `scale_entity`,
+`set_material`, `rename_entity`, `remove_entity`, plus the reads `get_scene` and `get_entity` and
+`finish`, which ends the run. `dsl` and `text` modes land in their own issues; an unknown `--mode`
+fails at startup.
+
+**Every tool returns JSON, never an exception** — `{"ok":true,...}` or
+`{"ok":false,"error":"..."}` carrying the validator's or handler's own message so the agent can
+correct itself. Tool bodies go through `ToolGateway`, which logs the call and renders the envelope.
+
+**Tool names, descriptions and parameter schemas are controlled constants** of the experiment. All
+wording lives in `Tools/ToolDescriptions.cs` and the published schema is pinned by
+`Manipulator.Mcp.Tests/Fixtures/tools.snapshot.json`. Regenerate it deliberately:
+`MANIPULATOR_UPDATE_SNAPSHOT=1 dotnet test`. Tool methods must not take the SDK's `RequestContext`
+— it has been observed leaking into a published schema as a `context` parameter.
+
+**Call log** (`Logging/CallLog.cs`) records the run as one ordered stream for the harness: every
+tool call with arguments, result, duration and scene version delta; every `EventBus` write event;
+and session start/finish with the final scene. Reads and failures publish no events, which is why
+calls are logged too. It is written as JSONL to `--call-log` and served at `GET /session/log`,
+alongside `GET /session` and `GET /session/scene`.
+
 ## Testing
 
 **Entity ID pattern:** Use `SceneBuilder.Id(index, tag?)` for entity IDs in tests — never raw strings.
