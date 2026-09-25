@@ -1,9 +1,6 @@
 using Manipulator.Core.Commands;
-using Manipulator.Core.Commands.Handlers;
-using Manipulator.Core.Commands.Validation;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Events;
-using Manipulator.Core.IdGeneration;
 using Manipulator.Core.Serialization;
 
 namespace Manipulator.Examples.Programs;
@@ -24,14 +21,7 @@ public static class HelixScene
         // Set up a scene system.
         var scene = new Scene();
         var eventBus = new EventBus();
-        var commandDispatcher = new CommandDispatcher(scene: scene, eventBus: eventBus);
-
-        // Register AddEntity handler.
-        commandDispatcher.Register(
-            commandType: "AddEntity",
-            handler: new AddEntityHandler(new GuidGenerator()),
-            validators: new VersionConflictValidator()
-        );
+        var commandDispatcher = CommandDispatcherFactory.Create(scene, eventBus);
 
         // Configure the output path where the scene JSON will be saved after each step.
         var outputPath = Path.Combine(

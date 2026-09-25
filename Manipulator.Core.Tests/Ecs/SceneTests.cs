@@ -1,4 +1,6 @@
 using FluentAssertions;
+using Manipulator.Core.Ecs;
+using Manipulator.Core.Ecs.Components;
 using Manipulator.Core.Tests.Helpers;
 
 namespace Manipulator.Core.Tests.Ecs;
@@ -82,6 +84,88 @@ public class SceneTests
 
         // Assert
         result.Should().BeFalse();
+    }
+
+    #endregion
+
+    #region Component mutation bumps version
+
+    [Fact]
+    public void AddEntity_ComponentsSetBeforeAdd_BumpsVersionOnce()
+    {
+        // Arrange
+        var scene = new SceneBuilder().Build();
+        var entity = new EntityBuilder(SceneBuilder.Id(1))
+            .WithComponent(new Transform())
+            .WithComponent(new EntityName("A"))
+            .Build();
+
+        // Act
+        scene.AddEntity(entity);
+
+        // Assert
+        scene.Version.Should().Be(1);
+    }
+
+    [Fact]
+    public void EntitySet_OnEntityInScene_BumpsSceneVersion()
+    {
+        // Arrange
+        var scene = new SceneBuilder().WithEntity().Build();
+        var entity = scene.GetEntity(SceneBuilder.Id(1))!;
+        var versionBeforeChange = scene.Version;
+
+        // Act
+        entity.Set(new Transform { Position = Vector3.Up });
+
+        // Assert
+        scene.Version.Should().Be(versionBeforeChange + 1);
+    }
+
+    [Fact]
+    public void EntitySet_CalledTwice_BumpsSceneVersionTwice()
+    {
+        // Arrange
+        var scene = new SceneBuilder().WithEntity().Build();
+        var entity = scene.GetEntity(SceneBuilder.Id(1))!;
+        var versionBeforeChange = scene.Version;
+
+        // Act
+        entity.Set(new Transform { Position = Vector3.Up });
+        entity.Set(new Transform { Position = Vector3.Forward });
+
+        // Assert
+        scene.Version.Should().Be(versionBeforeChange + 2);
+    }
+
+    [Fact]
+    public void EntityRemove_ExistingComponentOnEntityInScene_BumpsSceneVersion()
+    {
+        // Arrange
+        var scene = new SceneBuilder().WithEntity(e => e.WithComponent(new Transform())).Build();
+        var entity = scene.GetEntity(SceneBuilder.Id(1))!;
+        var versionBeforeChange = scene.Version;
+
+        // Act
+        entity.Remove<Transform>();
+
+        // Assert
+        scene.Version.Should().Be(versionBeforeChange + 1);
+    }
+
+    [Fact]
+    public void EntityRemove_MissingComponentOnEntityInScene_DoesNotBumpSceneVersion()
+    {
+        // Arrange
+        var scene = new SceneBuilder().WithEntity().Build();
+        var entity = scene.GetEntity(SceneBuilder.Id(1))!;
+        var versionBeforeChange = scene.Version;
+
+        // Act
+        entity.Remove<Transform>();
+
+        // Assert
+        scene.Version.Should().Be(versionBeforeChange);
     }
 
     #endregion
