@@ -2,10 +2,6 @@ using Manipulator.Core.Ecs;
 
 namespace Manipulator.Mcp.Tools;
 
-/// <summary>
-/// Parses the loosely typed arguments an agent sends into Core values. Every failure produces a
-/// message the agent can act on — which valid values exist, what it sent instead.
-/// </summary>
 internal static class ToolArgs
 {
     private static readonly string ValidGeometries = string.Join(
