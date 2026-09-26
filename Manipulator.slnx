@@ -3,16 +3,16 @@
     <Project Path="Manipulator.Api.Tests/Manipulator.Api.Tests.csproj" />
     <Project Path="Manipulator.Api/Manipulator.Api.csproj" />
   </Folder>
+  <Folder Name="/Manipulator.Core/">
+    <Project Path="Manipulator.Core.Tests/Manipulator.Core.Tests.csproj" />
+    <Project Path="Manipulator.Core/Manipulator.Core.csproj" />
+  </Folder>
   <Folder Name="/Manipulator.Mcp/">
     <Project Path="Manipulator.Mcp.Tests/Manipulator.Mcp.Tests.csproj" />
     <Project Path="Manipulator.Mcp/Manipulator.Mcp/Manipulator.Mcp.csproj" />
   </Folder>
   <Folder Name="/Manipulator.Runner/">
     <Project Path="Manipulator.Runner/Manipulator.Runner.csproj" />
-  </Folder>
-  <Folder Name="/Manipulator.Core/">
-    <Project Path="Manipulator.Core.Tests/Manipulator.Core.Tests.csproj" />
-    <Project Path="Manipulator.Core/Manipulator.Core.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />
@@ -21,7 +21,5 @@
     <File Path="compose.yaml" />
     <File Path="README.md" />
   </Folder>
-  <Project Path="Manipulator.Core.Tests/Manipulator.Core.Tests.csproj" />
-  <Project Path="Manipulator.Core/Manipulator.Core.csproj" />
   <Project Path="Manipulator.Examples/Manipulator.Examples.csproj" />
 </Solution>
