@@ -37,6 +37,11 @@ public class SceneSerializer
         return JsonSerializer.Serialize(dto, Options);
     }
 
+    public static string SerializeEntity(Entity entity)
+    {
+        return JsonSerializer.Serialize(ToEntityDto(entity), Options);
+    }
+
     public static SceneDeserializationResult Deserialize(string json)
     {
         SceneDto dto;
