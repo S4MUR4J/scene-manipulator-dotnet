@@ -39,12 +39,12 @@ public class CallLogTests
             .Select(entry => entry["name"]!.GetValue<string>())
             .Should()
             .ContainInOrder(
-                "session_started",
+                "run_started",
                 "EntityAddedEvent",
                 "add_entity",
                 "get_scene",
                 "move_entity",
-                "session_finished",
+                "run_finished",
                 "finish"
             );
 
@@ -71,30 +71,23 @@ public class CallLogTests
         added["call_index"]!.GetValue<long>().Should().Be(1);
 
         var finished = entries.Single(entry =>
-            entry["name"]!.GetValue<string>() == "session_finished"
+            entry["name"]!.GetValue<string>() == "run_finished"
         );
         finished["data"]!["scene"]!["entities"]!.AsArray().Should().HaveCount(1);
     }
 
     [Fact]
-    public async Task The_harness_can_read_the_session_log_and_scene_over_http()
+    public async Task The_runner_can_probe_the_server_before_it_connects_an_agent()
     {
         await using var app = McpTestApp.Start();
         var client = await app.ConnectAsync();
         await client.AddCubeAsync();
 
-        var http = app.CreateHttpClient();
+        var health = JsonNode.Parse(await app.CreateHttpClient().GetStringAsync("/health"))!;
 
-        var session = JsonNode.Parse(await http.GetStringAsync("/session"))!;
-        session["tool_calls"]!.GetValue<long>().Should().Be(1);
-        session["entity_count"]!.GetValue<int>().Should().Be(1);
-        session["finished"]!.GetValue<bool>().Should().BeFalse();
-
-        var log = JsonNode.Parse(await http.GetStringAsync("/session/log"))!.AsArray();
-        log.Should().NotBeEmpty();
-
-        var scene = JsonNode.Parse(await http.GetStringAsync("/session/scene"))!;
-        scene["entities"]!.AsArray().Should().HaveCount(1);
+        health["run_id"]!.GetValue<string>().Should().Be("run");
+        health["entity_count"]!.GetValue<int>().Should().Be(1);
+        health["finished"]!.GetValue<bool>().Should().BeFalse();
     }
 
     [Fact]

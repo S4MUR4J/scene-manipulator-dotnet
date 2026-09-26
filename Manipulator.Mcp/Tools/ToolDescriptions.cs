@@ -48,7 +48,7 @@ internal static class ToolDescriptions
         + "scene.";
 
     public const string Finish =
-        "Call this when the scene is complete and there is nothing left to do. It ends the session; "
+        "Call this when the scene is complete and there is nothing left to do. It ends the run; "
         + "any tool call made after it is rejected.";
 
     // Parameters.

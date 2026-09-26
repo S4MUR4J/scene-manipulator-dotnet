@@ -276,7 +276,7 @@ public class McpToolsTests
     }
 
     [Fact]
-    public async Task Finish_summarises_the_run_and_closes_the_session()
+    public async Task Finish_summarises_the_run_and_closes_it()
     {
         await using var app = McpTestApp.Start();
         var client = await app.ConnectAsync();

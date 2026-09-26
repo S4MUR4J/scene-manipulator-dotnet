@@ -1,7 +1,7 @@
-namespace Manipulator.Mcp.Session;
+namespace Manipulator.Mcp.Runtime;
 
 /// <summary>
-/// Run-level configuration, supplied by the harness on the command line, e.g.
+/// Run-level configuration, supplied by the runner on the command line, e.g.
 /// <c>--mode mcp --starting-scene scenes/kitchen.json --call-log runs/run-17.jsonl</c>.
 /// </summary>
 public sealed record RunOptions
@@ -15,14 +15,14 @@ public sealed record RunOptions
     /// </summary>
     public string Mode { get; init; } = McpMode;
 
-    /// <summary>Optional scene every session starts from, for modification and repair scenarios.</summary>
+    /// <summary>Optional scene the run starts from, for modification and repair scenarios.</summary>
     public string? StartingScenePath { get; init; }
 
     /// <summary>Optional JSONL file every tool call and scene event is appended to.</summary>
     public string? CallLogPath { get; init; }
 
     /// <summary>
-    /// Identifier the harness gives this run. It tags every log entry so a log can be traced back
+    /// Identifier the runner gives this run. It tags every log entry so a log can be traced back
     /// to the scenario, approach and model it came from.
     /// </summary>
     public string RunId { get; init; } = "run";

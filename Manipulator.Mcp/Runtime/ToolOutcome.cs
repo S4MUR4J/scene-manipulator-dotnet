@@ -1,6 +1,6 @@
 using System.Text.Json.Nodes;
 
-namespace Manipulator.Mcp.Session;
+namespace Manipulator.Mcp.Runtime;
 
 /// <summary>
 /// Result of a single tool body. Failures are values, never exceptions: the agent has to be able to

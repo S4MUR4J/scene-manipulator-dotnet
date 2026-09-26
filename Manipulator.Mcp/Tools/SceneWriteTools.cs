@@ -1,6 +1,6 @@
 using System.ComponentModel;
 using Manipulator.Core.Commands;
-using Manipulator.Mcp.Session;
+using Manipulator.Mcp.Runtime;
 using ModelContextProtocol.Server;
 
 namespace Manipulator.Mcp.Tools;
@@ -10,7 +10,7 @@ namespace Manipulator.Mcp.Tools;
 /// reports the result; all of the scene logic stays in Core.
 /// </summary>
 [McpServerToolType]
-public sealed class SceneWriteTools(ToolGateway gateway)
+public sealed class SceneWriteTools(SceneRun run)
 {
     [McpServerTool(Name = "add_entity", Destructive = false, Idempotent = false)]
     [Description(ToolDescriptions.AddEntity)]
@@ -26,7 +26,7 @@ public sealed class SceneWriteTools(ToolGateway gateway)
         [Description(ToolDescriptions.NameParam)] string? name = null
     )
     {
-        return gateway.Execute(
+        return run.Invoke(
             "add_entity",
             ToolJson.Args(
                 ("geometry", ToolJson.Value(geometry)),
@@ -39,7 +39,7 @@ public sealed class SceneWriteTools(ToolGateway gateway)
                 ("roughness", ToolJson.Value(roughness)),
                 ("name", ToolJson.Value(name))
             ),
-            session =>
+            run =>
             {
                 if (!ToolArgs.TryGeometry(geometry, out var geometryType, out var error))
                     return ToolOutcome.Failure(error!);
@@ -50,7 +50,7 @@ public sealed class SceneWriteTools(ToolGateway gateway)
                 if (!ToolArgs.TryVector(scale, "scale", out var scaleValue, out error))
                     return ToolOutcome.Failure(error!);
 
-                var result = session.Dispatcher.Dispatch(
+                var result = run.Dispatcher.Dispatch(
                     new AddEntityCommand(
                         Geometry: geometryType,
                         Position: positionValue,
@@ -64,7 +64,7 @@ public sealed class SceneWriteTools(ToolGateway gateway)
                     )
                 );
 
-                return ToolResults.From(session, result, result.Data as string);
+                return ToolResults.From(run, result, result.Data as string);
             }
         );
     }
@@ -76,21 +76,21 @@ public sealed class SceneWriteTools(ToolGateway gateway)
         [Description(ToolDescriptions.RequiredPositionParam)] float[] position
     )
     {
-        return gateway.Execute(
+        return run.Invoke(
             "move_entity",
             ToolJson.Args(
                 ("entityId", ToolJson.Value(entityId)),
                 ("position", ToolJson.Vector(position))
             ),
-            session =>
+            run =>
             {
                 if (!ToolArgs.TryEntityId(entityId, out var id, out var error))
                     return ToolOutcome.Failure(error!);
                 if (!ToolArgs.TryRequiredVector(position, "position", out var value, out error))
                     return ToolOutcome.Failure(error!);
 
-                var result = session.Dispatcher.Dispatch(new MoveEntityCommand(id, value));
-                return ToolResults.From(session, result, id);
+                var result = run.Dispatcher.Dispatch(new MoveEntityCommand(id, value));
+                return ToolResults.From(run, result, id);
             }
         );
     }
@@ -102,21 +102,21 @@ public sealed class SceneWriteTools(ToolGateway gateway)
         [Description(ToolDescriptions.RequiredRotationParam)] float[] rotation
     )
     {
-        return gateway.Execute(
+        return run.Invoke(
             "rotate_entity",
             ToolJson.Args(
                 ("entityId", ToolJson.Value(entityId)),
                 ("rotation", ToolJson.Vector(rotation))
             ),
-            session =>
+            run =>
             {
                 if (!ToolArgs.TryEntityId(entityId, out var id, out var error))
                     return ToolOutcome.Failure(error!);
                 if (!ToolArgs.TryRequiredVector(rotation, "rotation", out var value, out error))
                     return ToolOutcome.Failure(error!);
 
-                var result = session.Dispatcher.Dispatch(new RotateEntityCommand(id, value));
-                return ToolResults.From(session, result, id);
+                var result = run.Dispatcher.Dispatch(new RotateEntityCommand(id, value));
+                return ToolResults.From(run, result, id);
             }
         );
     }
@@ -128,18 +128,18 @@ public sealed class SceneWriteTools(ToolGateway gateway)
         [Description(ToolDescriptions.RequiredScaleParam)] float[] scale
     )
     {
-        return gateway.Execute(
+        return run.Invoke(
             "scale_entity",
             ToolJson.Args(("entityId", ToolJson.Value(entityId)), ("scale", ToolJson.Vector(scale))),
-            session =>
+            run =>
             {
                 if (!ToolArgs.TryEntityId(entityId, out var id, out var error))
                     return ToolOutcome.Failure(error!);
                 if (!ToolArgs.TryRequiredVector(scale, "scale", out var value, out error))
                     return ToolOutcome.Failure(error!);
 
-                var result = session.Dispatcher.Dispatch(new ScaleEntityCommand(id, value));
-                return ToolResults.From(session, result, id);
+                var result = run.Dispatcher.Dispatch(new ScaleEntityCommand(id, value));
+                return ToolResults.From(run, result, id);
             }
         );
     }
@@ -154,7 +154,7 @@ public sealed class SceneWriteTools(ToolGateway gateway)
         [Description(ToolDescriptions.MaterialRoughnessParam)] float? roughness = null
     )
     {
-        return gateway.Execute(
+        return run.Invoke(
             "set_material",
             ToolJson.Args(
                 ("entityId", ToolJson.Value(entityId)),
@@ -163,15 +163,15 @@ public sealed class SceneWriteTools(ToolGateway gateway)
                 ("metalness", ToolJson.Value(metalness)),
                 ("roughness", ToolJson.Value(roughness))
             ),
-            session =>
+            run =>
             {
                 if (!ToolArgs.TryEntityId(entityId, out var id, out var error))
                     return ToolOutcome.Failure(error!);
 
-                var result = session.Dispatcher.Dispatch(
+                var result = run.Dispatcher.Dispatch(
                     new SetMaterialCommand(id, color, opacity, metalness, roughness)
                 );
-                return ToolResults.From(session, result, id);
+                return ToolResults.From(run, result, id);
             }
         );
     }
@@ -183,16 +183,16 @@ public sealed class SceneWriteTools(ToolGateway gateway)
         [Description(ToolDescriptions.NewNameParam)] string name
     )
     {
-        return gateway.Execute(
+        return run.Invoke(
             "rename_entity",
             ToolJson.Args(("entityId", ToolJson.Value(entityId)), ("name", ToolJson.Value(name))),
-            session =>
+            run =>
             {
                 if (!ToolArgs.TryEntityId(entityId, out var id, out var error))
                     return ToolOutcome.Failure(error!);
 
-                var result = session.Dispatcher.Dispatch(new RenameEntityCommand(id, name ?? ""));
-                return ToolResults.From(session, result, id);
+                var result = run.Dispatcher.Dispatch(new RenameEntityCommand(id, name ?? ""));
+                return ToolResults.From(run, result, id);
             }
         );
     }
@@ -203,16 +203,16 @@ public sealed class SceneWriteTools(ToolGateway gateway)
         [Description(ToolDescriptions.EntityIdParam)] string entityId
     )
     {
-        return gateway.Execute(
+        return run.Invoke(
             "remove_entity",
             ToolJson.Args(("entityId", ToolJson.Value(entityId))),
-            session =>
+            run =>
             {
                 if (!ToolArgs.TryEntityId(entityId, out var id, out var error))
                     return ToolOutcome.Failure(error!);
 
-                var result = session.Dispatcher.Dispatch(new RemoveEntityCommand(id));
-                return ToolResults.From(session, result, id);
+                var result = run.Dispatcher.Dispatch(new RemoveEntityCommand(id));
+                return ToolResults.From(run, result, id);
             }
         );
     }

@@ -1,19 +1,26 @@
 using System.Diagnostics;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Encodings.Web;
 using Manipulator.Core.Commands;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Events;
 using Manipulator.Mcp.Logging;
 
-namespace Manipulator.Mcp.Session;
+namespace Manipulator.Mcp.Runtime;
 
 /// <summary>
-/// One agent run: an in-memory <see cref="Scene"/>, the dispatcher that mutates it and the log of
-/// everything the agent did to it. Nothing is persisted — the scene lives and dies with the session.
+/// The one agent run this process serves: an in-memory <see cref="Scene"/>, the dispatcher that
+/// mutates it and the log of everything the agent did to it. Nothing is persisted — the scene lives
+/// and dies with the process.
 /// </summary>
-public sealed class SceneSession
+/// <remarks>
+/// There is deliberately no session layer. The streamable HTTP transport is stateless from protocol
+/// revision 2026-07-28 onwards — the <c>Mcp-Session-Id</c> header is gone and a tool call carries
+/// nothing that identifies a client — so one agent works against one run and the runner gets
+/// isolation by starting a server per run. A finished run can never leak into the next one.
+/// </remarks>
+public sealed class SceneRun
 {
     private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
     {
@@ -26,32 +33,42 @@ public sealed class SceneSession
     private readonly Lock _gate = new Lock();
     private long _callIndex;
 
-    public SceneSession(string id, StartingScene startingScene, string? callLogPath)
+    public SceneRun(RunOptions options)
     {
-        Id = id;
-        Scene = startingScene.Create();
+        var startingScene = StartingScene.Load(options);
+
+        Id = options.RunId;
+        Scene = startingScene.Scene;
         EventBus = new EventBus();
         Dispatcher = CommandDispatcherFactory.Create(Scene, EventBus);
-        CallLog = new CallLog(id, callLogPath);
+        CallLog = new CallLog(Id, options.CallLogPath);
         StartedAt = DateTimeOffset.UtcNow;
-        LastActivityAt = StartedAt;
 
         EventBus.Subscribe<ISceneEvent>(OnSceneEvent);
+
+        var data = new JsonObject
+        {
+            ["starting_scene"] = startingScene.Path,
+            ["entity_count"] = Scene.Count,
+        };
+
+        // Dropped components and fields in the starting scene are the scenario's problem, not the
+        // agent's: record them so a run is never scored against a scene that silently lost parts.
+        if (startingScene.Warnings.Count > 0)
+            data["starting_scene_warnings"] = new JsonArray(
+                [.. startingScene.Warnings.Select(warning => JsonValue.Create(warning))]
+            );
 
         CallLog.Append(
             new CallLogEntry
             {
-                SessionId = id,
-                Kind = CallLogEntry.SessionKind,
-                Name = "session_started",
+                RunId = Id,
+                Kind = CallLogEntry.RunKind,
+                Name = "run_started",
                 Ok = true,
                 SceneVersionBefore = Scene.Version,
                 SceneVersionAfter = Scene.Version,
-                Data = new JsonObject
-                {
-                    ["starting_scene"] = startingScene.Path,
-                    ["entity_count"] = Scene.Count,
-                },
+                Data = data,
             }
         );
     }
@@ -68,17 +85,20 @@ public sealed class SceneSession
 
     public DateTimeOffset StartedAt { get; }
 
-    public DateTimeOffset LastActivityAt { get; private set; }
-
     public bool IsFinished { get; private set; }
 
     public long ToolCallCount => _callIndex;
 
     /// <summary>
-    /// Runs one tool body under the session lock, logs the call with its arguments, result and
-    /// scene version delta, and renders the JSON the agent sees.
+    /// Runs one tool body under the run lock, logs the call with its arguments, result and scene
+    /// version delta, and renders the JSON the agent sees.
     /// </summary>
-    public string Invoke(string toolName, JsonNode? arguments, Func<SceneSession, ToolOutcome> body)
+    /// <remarks>
+    /// Every tool goes through here rather than touching the scene directly: the lock (Kestrel
+    /// serves calls concurrently and <see cref="Scene"/> is not thread-safe), the finished check,
+    /// the log entry and the result envelope are the same for all ten tools.
+    /// </remarks>
+    public string Invoke(string toolName, JsonNode? arguments, Func<SceneRun, ToolOutcome> body)
     {
         lock (_gate)
         {
@@ -90,7 +110,7 @@ public sealed class SceneSession
             if (IsFinished)
             {
                 outcome = ToolOutcome.Failure(
-                    "Session is already finished; no further tool calls are accepted."
+                    "Run is already finished; no further tool calls are accepted."
                 );
             }
             else
@@ -105,11 +125,10 @@ public sealed class SceneSession
                 }
             }
 
-            LastActivityAt = DateTimeOffset.UtcNow;
             CallLog.Append(
                 new CallLogEntry
                 {
-                    SessionId = Id,
+                    RunId = Id,
                     CallIndex = callIndex,
                     Kind = CallLogEntry.ToolCallKind,
                     Name = toolName,
@@ -164,7 +183,7 @@ public sealed class SceneSession
         CallLog.Append(
             new CallLogEntry
             {
-                SessionId = Id,
+                RunId = Id,
                 CallIndex = _callIndex,
                 Kind = CallLogEntry.EventKind,
                 Name = sceneEvent.GetType().Name,

@@ -6,12 +6,12 @@ using System.Text.Json.Serialization;
 namespace Manipulator.Mcp.Logging;
 
 /// <summary>
-/// Append-only record of everything that happened in a session: every tool call with its arguments
+/// Append-only record of everything that happened in a run: every tool call with its arguments
 /// and result, every scene event published on the <c>EventBus</c>, and every error. Reads and
 /// failures publish no events, so the call itself is logged too — the event stream alone would miss
 /// exactly the operations the experiment is measuring.
 /// </summary>
-public sealed class CallLog(string sessionId, string? filePath = null)
+public sealed class CallLog
 {
     private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
     {
@@ -22,9 +22,23 @@ public sealed class CallLog(string sessionId, string? filePath = null)
 
     private readonly Lock _gate = new Lock();
     private readonly List<CallLogEntry> _entries = [];
+    private readonly string _runId;
+    private readonly string? _filePath;
     private long _seq;
 
-    public string SessionId => sessionId;
+    public CallLog(string runId, string? filePath = null)
+    {
+        _runId = runId;
+        _filePath = filePath;
+
+        // The runner passes a path like runs/<batch>/<run>.jsonl and should not have to pre-create
+        // the directory tree for every run it is about to start.
+        var directory = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
+    }
+
+    public string RunId => _runId;
 
     public IReadOnlyList<CallLogEntry> Entries
     {
@@ -43,7 +57,7 @@ public sealed class CallLog(string sessionId, string? filePath = null)
             {
                 Seq = ++_seq,
                 Timestamp = entry.Timestamp == default ? DateTimeOffset.UtcNow : entry.Timestamp,
-                SessionId = sessionId,
+                RunId = _runId,
             };
             _entries.Add(stamped);
             WriteLine(stamped);
@@ -61,10 +75,10 @@ public sealed class CallLog(string sessionId, string? filePath = null)
 
     private void WriteLine(CallLogEntry entry)
     {
-        if (filePath is null)
+        if (_filePath is null)
             return;
 
         var line = JsonSerializer.Serialize(entry, JsonOptions);
-        File.AppendAllText(filePath, line + Environment.NewLine);
+        File.AppendAllText(_filePath, line + Environment.NewLine);
     }
 }

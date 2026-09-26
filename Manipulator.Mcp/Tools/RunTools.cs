@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.Text.Json.Nodes;
 using Manipulator.Core.Serialization;
 using Manipulator.Mcp.Logging;
-using Manipulator.Mcp.Session;
+using Manipulator.Mcp.Runtime;
 using ModelContextProtocol.Server;
 
 namespace Manipulator.Mcp.Tools;
@@ -12,20 +12,20 @@ namespace Manipulator.Mcp.Tools;
 /// and iteration metrics have nothing to measure against.
 /// </summary>
 [McpServerToolType]
-public sealed class SessionTools(ToolGateway gateway)
+public sealed class RunTools(SceneRun run)
 {
     [McpServerTool(Name = "finish", Destructive = false, Idempotent = false)]
     [Description(ToolDescriptions.Finish)]
     public string Finish()
     {
-        return gateway.Execute(
+        return run.Invoke(
             "finish",
             ToolJson.Args(),
-            session =>
+            run =>
             {
-                session.MarkFinished();
+                run.MarkFinished();
 
-                var entries = session.CallLog.Entries;
+                var entries = run.CallLog.Entries;
                 var toolCalls = entries.Count(entry => entry.Kind == CallLogEntry.ToolCallKind);
                 var failedCalls = entries.Count(entry =>
                     entry.Kind == CallLogEntry.ToolCallKind && entry.Ok == false
@@ -34,28 +34,28 @@ public sealed class SessionTools(ToolGateway gateway)
 
                 var summary = new JsonObject
                 {
-                    ["scene_version"] = session.Scene.Version,
-                    ["entity_count"] = session.Scene.Count,
+                    ["scene_version"] = run.Scene.Version,
+                    ["entity_count"] = run.Scene.Count,
                     // The finish call itself is logged after this body runs, so count it here.
                     ["tool_calls"] = toolCalls + 1,
                     ["failed_tool_calls"] = failedCalls,
                     ["scene_events"] = sceneEvents,
-                    ["duration_ms"] = (DateTimeOffset.UtcNow - session.StartedAt).TotalMilliseconds,
+                    ["duration_ms"] = (DateTimeOffset.UtcNow - run.StartedAt).TotalMilliseconds,
                 };
 
-                session.CallLog.Append(
+                run.CallLog.Append(
                     new CallLogEntry
                     {
-                        SessionId = session.Id,
-                        Kind = CallLogEntry.SessionKind,
-                        Name = "session_finished",
+                        RunId = run.Id,
+                        Kind = CallLogEntry.RunKind,
+                        Name = "run_finished",
                         Ok = true,
-                        SceneVersionBefore = session.Scene.Version,
-                        SceneVersionAfter = session.Scene.Version,
+                        SceneVersionBefore = run.Scene.Version,
+                        SceneVersionAfter = run.Scene.Version,
                         Data = new JsonObject
                         {
                             ["summary"] = summary.DeepClone(),
-                            ["scene"] = JsonNode.Parse(SceneSerializer.Serialize(session.Scene)),
+                            ["scene"] = JsonNode.Parse(SceneSerializer.Serialize(run.Scene)),
                         },
                     }
                 );

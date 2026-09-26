@@ -63,7 +63,10 @@ To add a command: define an `ICommand` record with a `Type` string, add an `ICom
 
 `Manipulator.Mcp` exposes the command set to an LLM agent as MCP tools over streamable HTTP
 (official C# SDK, `ModelContextProtocol.AspNetCore`). It holds an in-memory `Scene` and
-`CommandDispatcher` and touches no database — `Manipulator.Api` still owns Postgres.
+`CommandDispatcher` and touches no database — `Manipulator.Api` still owns Postgres. It is the
+benchmark target for the research pipeline (MAN-68): the runner (MAN-75) starts it, drives one
+agent through it and reads its log. Folding it into a shared `Manipulator.Server` alongside the
+Api, per the design doc, is planned separately and deliberately not done here.
 
 ```bash
 dotnet run --project Manipulator.Mcp -- \
@@ -71,18 +74,22 @@ dotnet run --project Manipulator.Mcp -- \
   --starting-scene scenes/kitchen.json --call-log runs/run-7.jsonl
 ```
 
-**One process is one run.** The transport is stateless from protocol revision 2026-07-28 (no
-`Mcp-Session-Id`), so a tool call carries nothing that identifies a client; `SessionProvider` holds
-a single run-scoped `SceneSession` and the harness gets isolation by starting a server per run.
+**One process is one run, and there is no session layer.** The transport is stateless from protocol
+revision 2026-07-28 (no `Mcp-Session-Id`), so a tool call carries nothing that identifies a client.
+One `SceneRun` singleton (`Runtime/SceneRun.cs`) holds the scene, the dispatcher and the log for the
+whole process; the runner gets isolation by starting a server per run, so a finished run can never
+leak into the next one. `GET /health` is a readiness probe for the runner, nothing more.
 
 **Tools** (`mcp` mode): `add_entity`, `move_entity`, `rotate_entity`, `scale_entity`,
 `set_material`, `rename_entity`, `remove_entity`, plus the reads `get_scene` and `get_entity` and
-`finish`, which ends the run. `dsl` and `text` modes land in their own issues; an unknown `--mode`
-fails at startup.
+`finish`, which ends the run. `dsl` (MAN-82) and `text` (MAN-77) modes land in their own issues; an
+unknown `--mode` fails at startup rather than serving the wrong tool set to a run.
 
 **Every tool returns JSON, never an exception** — `{"ok":true,...}` or
 `{"ok":false,"error":"..."}` carrying the validator's or handler's own message so the agent can
-correct itself. Tool bodies go through `ToolGateway`, which logs the call and renders the envelope.
+correct itself. Tool bodies run through `SceneRun.Invoke`, which is the single place holding the
+lock (Kestrel serves calls concurrently, `Scene` is not thread-safe), the finished check, the log
+entry and the envelope.
 
 **Tool names, descriptions and parameter schemas are controlled constants** of the experiment. All
 wording lives in `Tools/ToolDescriptions.cs` and the published schema is pinned by
@@ -90,11 +97,10 @@ wording lives in `Tools/ToolDescriptions.cs` and the published schema is pinned 
 `MANIPULATOR_UPDATE_SNAPSHOT=1 dotnet test`. Tool methods must not take the SDK's `RequestContext`
 — it has been observed leaking into a published schema as a `context` parameter.
 
-**Call log** (`Logging/CallLog.cs`) records the run as one ordered stream for the harness: every
+**Call log** (`Logging/CallLog.cs`) records the run as one ordered stream for the runner: every
 tool call with arguments, result, duration and scene version delta; every `EventBus` write event;
-and session start/finish with the final scene. Reads and failures publish no events, which is why
-calls are logged too. It is written as JSONL to `--call-log` and served at `GET /session/log`,
-alongside `GET /session` and `GET /session/scene`.
+and `run_started` / `run_finished`, the latter carrying the summary and the final scene. Reads and
+failures publish no events, which is why calls are logged too. Written as JSONL to `--call-log`.
 
 ## Testing
 

@@ -90,7 +90,7 @@
   },
   {
     "name": "finish",
-    "description": "Call this when the scene is complete and there is nothing left to do. It ends the session; any tool call made after it is rejected.",
+    "description": "Call this when the scene is complete and there is nothing left to do. It ends the run; any tool call made after it is rejected.",
     "input_schema": {
       "type": "object",
       "properties": {}

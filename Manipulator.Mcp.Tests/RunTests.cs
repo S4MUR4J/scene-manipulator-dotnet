@@ -3,7 +3,7 @@ using Manipulator.Mcp.Tests.Helpers;
 
 namespace Manipulator.Mcp.Tests;
 
-public class SessionTests
+public class RunTests
 {
     [Fact]
     public async Task One_server_process_is_one_run_so_every_client_sees_the_same_scene()
@@ -88,17 +88,17 @@ public class SessionTests
     }
 
     [Fact]
-    public async Task The_run_id_tags_the_session_and_its_log()
+    public async Task The_run_id_tags_the_run_and_its_log()
     {
         await using var app = McpTestApp.Start(("run-id", "scenario-3-mcp-opus-7"));
         var client = await app.ConnectAsync();
         await client.AddCubeAsync();
 
-        var session = System.Text.Json.Nodes.JsonNode.Parse(
-            await app.CreateHttpClient().GetStringAsync("/session")
+        var health = System.Text.Json.Nodes.JsonNode.Parse(
+            await app.CreateHttpClient().GetStringAsync("/health")
         )!;
 
-        session["id"]!.GetValue<string>().Should().Be("scenario-3-mcp-opus-7");
+        health["run_id"]!.GetValue<string>().Should().Be("scenario-3-mcp-opus-7");
     }
 
     private static async Task<string> WriteStartingSceneAsync()
