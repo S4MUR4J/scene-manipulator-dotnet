@@ -4,15 +4,13 @@ namespace Manipulator.Mcp;
 
 public static class ManipulatorMcpExtensions
 {
-    public static IServiceCollection AddManipulatorMcp(this IServiceCollection services)
+    public static IMcpServerBuilder AddManipulatorMcp(this IServiceCollection services)
     {
-        services
+        return services
             .AddMcpServer()
             .WithHttpTransport()
             .WithTools<SceneReadTools>()
             .WithTools<SceneWriteTools>();
-
-        return services;
     }
 
     public static IEndpointRouteBuilder MapManipulatorMcp(this IEndpointRouteBuilder app)
