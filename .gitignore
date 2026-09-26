@@ -485,9 +485,6 @@ $RECYCLE.BIN/
 # Misc
 dev/
 
-# Local docs (not tracked in git)
-docs/
-
 # Local configurations
 http-client.private.env.json
 
