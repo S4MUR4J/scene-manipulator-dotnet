@@ -6,6 +6,9 @@
   <Folder Name="/Manipulator.Mcp/">
     <Project Path="Manipulator.Mcp/Manipulator.Mcp/Manipulator.Mcp.csproj" />
   </Folder>
+  <Folder Name="/Manipulator.Runner/">
+    <Project Path="Manipulator.Runner/Manipulator.Runner.csproj" />
+  </Folder>
   <Folder Name="/Manipulator.Core/">
     <Project Path="Manipulator.Core.Tests/Manipulator.Core.Tests.csproj" />
     <Project Path="Manipulator.Core/Manipulator.Core.csproj" />

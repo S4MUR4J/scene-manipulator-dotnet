@@ -1,4 +1,12 @@
 services:
+  manipulator.runner:
+    image: manipulator.runner
+    build:
+      context: .
+      dockerfile: Manipulator.Runner/Dockerfile
+    ports:
+      - "8001:8080"
+
   manipulator.api:
     image: manipulator.api
     build:
@@ -38,4 +46,10 @@ services:
 
 volumes:
   pgdata:
+
+  manipulator.runner:
+    image: manipulator.runner
+    build:
+      context: .
+      dockerfile: Manipulator.Runner/Dockerfile
 
