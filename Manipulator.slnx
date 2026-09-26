@@ -4,6 +4,7 @@
     <Project Path="Manipulator.Api/Manipulator.Api.csproj" />
   </Folder>
   <Folder Name="/Manipulator.Mcp/">
+    <Project Path="Manipulator.Mcp.Tests/Manipulator.Mcp.Tests.csproj" />
     <Project Path="Manipulator.Mcp/Manipulator.Mcp/Manipulator.Mcp.csproj" />
   </Folder>
   <Folder Name="/Manipulator.Runner/">
