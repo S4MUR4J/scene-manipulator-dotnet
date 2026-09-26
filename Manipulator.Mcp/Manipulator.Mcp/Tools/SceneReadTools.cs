@@ -7,7 +7,7 @@ namespace Manipulator.Mcp.Tools;
 public sealed class SceneReadTools()
 {
     [McpServerTool(Name = "get_scene", ReadOnly = true, Idempotent = true)]
-    [Description("Missing description")]
+    [Description(ToolDescriptions.GetScene)]
     public string GetScene()
     {
         throw new NotImplementedException();
@@ -16,7 +16,7 @@ public sealed class SceneReadTools()
     }
 
     [McpServerTool(Name = "get_entity", ReadOnly = true, Idempotent = true)]
-    [Description("Missing description")]
+    [Description(ToolDescriptions.GetEntity)]
     public string GetEntity()
     {
         throw new NotImplementedException();
