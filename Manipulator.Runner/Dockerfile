@@ -9,6 +9,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Manipulator.Runner/Manipulator.Runner.csproj", "Manipulator.Runner/"]
 COPY ["Manipulator.Mcp/Manipulator.Mcp/Manipulator.Mcp.csproj", "Manipulator.Mcp/Manipulator.Mcp/"]
+COPY ["Manipulator.Core/Manipulator.Core.csproj", "Manipulator.Core/"]
 RUN dotnet restore "Manipulator.Runner/Manipulator.Runner.csproj"
 COPY . .
 WORKDIR "/src/Manipulator.Runner"
