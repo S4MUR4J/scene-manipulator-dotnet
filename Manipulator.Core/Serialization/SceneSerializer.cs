@@ -5,7 +5,7 @@ using Manipulator.Core.Ecs.Components.Validators;
 
 namespace Manipulator.Core.Serialization;
 
-public class SceneSerializer
+public static class SceneSerializer
 {
     private static readonly JsonSerializerOptions Options = new JsonSerializerOptions
     {
@@ -32,15 +32,11 @@ public class SceneSerializer
         var dto = new SceneDto(
             Version: "1.0",
             SceneVersion: scene.Version,
-            Entities: scene.Entities.Values.Select(ToEntityDto).ToList()
+            Entities: [.. scene.Entities.Values.Select(ToEntityDto)]
         );
         return JsonSerializer.Serialize(dto, Options);
     }
 
-    /// <summary>
-    /// Serializes a single entity in the same shape it has inside a serialized scene, so that
-    /// per-entity reads and full-scene reads can never drift apart.
-    /// </summary>
     public static string SerializeEntity(Entity entity)
     {
         return JsonSerializer.Serialize(ToEntityDto(entity), Options);
