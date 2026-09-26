@@ -490,3 +490,6 @@ docs/
 
 # Local configurations
 http-client.private.env.json
+
+# Runner call-log output
+Manipulator.Runner/logs/
