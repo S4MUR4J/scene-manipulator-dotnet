@@ -7,7 +7,7 @@ namespace Manipulator.Mcp.Tools;
 public sealed class SceneWriteTools()
 {
     [McpServerTool(Name = "add_entity", Destructive = false, Idempotent = false)]
-    [Description("Missing description")]
+    [Description(ToolDescriptions.AddEntity)]
     public string AddEntity()
     {
         throw new NotImplementedException();
