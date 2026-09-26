@@ -9,4 +9,8 @@
   <ItemGroup>
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="2.2.0" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Manipulator.Core\Manipulator.Core.csproj" />
+  </ItemGroup>
 </Project>

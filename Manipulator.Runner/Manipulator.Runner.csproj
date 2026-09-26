@@ -14,5 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Manipulator.Mcp\Manipulator.Mcp\Manipulator.Mcp.csproj" />
+    <ProjectReference Include="..\Manipulator.Core\Manipulator.Core.csproj" />
   </ItemGroup>
 </Project>
