@@ -8,7 +8,7 @@ using ModelContextProtocol.Server;
 namespace Manipulator.Runner;
 
 [McpServerToolType]
-internal sealed class FinishTool(Scene scene, ScenarioRunState runState)
+sealed class FinishTool(Scene scene, ScenarioRunState runState)
 {
     private const string Description =
         "Call this when the scene is complete and there is nothing left to do. It ends the run; "

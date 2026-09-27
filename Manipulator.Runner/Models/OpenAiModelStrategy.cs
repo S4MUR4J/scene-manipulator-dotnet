@@ -3,7 +3,7 @@ using OpenAI.Chat;
 
 namespace Manipulator.Runner.Models;
 
-internal sealed class OpenAiModelStrategy(ChatClient client) : IModelStrategy
+sealed class OpenAiModelStrategy(ChatClient client) : IModelStrategy
 {
     private readonly List<ChatMessage> _messages = [];
     private ChatCompletionOptions? _options;
@@ -56,14 +56,11 @@ internal sealed class OpenAiModelStrategy(ChatClient client) : IModelStrategy
             completion.Usage.OutputTokenCount,
             completion.FinishReason.ToString(),
             completion
-                .ToolCalls.Select(
-                    toolCall =>
-                        new ModelToolCall(
-                            toolCall.Id,
-                            toolCall.FunctionName,
-                            JsonDocument.Parse(toolCall.FunctionArguments.ToString()).RootElement.Clone()
-                        )
-                )
+                .ToolCalls.Select(toolCall => new ModelToolCall(
+                    toolCall.Id,
+                    toolCall.FunctionName,
+                    JsonDocument.Parse(toolCall.FunctionArguments.ToString()).RootElement.Clone()
+                ))
                 .ToList()
         );
     }

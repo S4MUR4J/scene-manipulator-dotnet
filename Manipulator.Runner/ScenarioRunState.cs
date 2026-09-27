@@ -1,6 +1,6 @@
 namespace Manipulator.Runner;
 
-internal sealed class ScenarioRunState
+sealed class ScenarioRunState
 {
     public DateTimeOffset StartedAt { get; } = DateTimeOffset.UtcNow;
 
