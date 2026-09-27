@@ -490,3 +490,7 @@ http-client.private.env.json
 
 # Runner call-log output
 Manipulator.Runner/logs/
+
+# Harness run output (JSONL logs + per-run scene snapshots)
+Manipulator.Harness/logs/
+runs/
