@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 
-namespace Manipulator.Harness.Tests;
+namespace Manipulator.Runner.Tests;
 
 public class RunConfigTests
 {
@@ -50,7 +50,7 @@ public class RunConfigTests
         config.Model.Should().Be("claude-sonnet-5");
         config.RunIndex.Should().Be(0);
         config.Batch.Should().Be("adhoc");
-        config.MaxToolIterations.Should().Be(HarnessConstants.DefaultMaxToolIterations);
+        config.MaxToolIterations.Should().Be(RunnerConstants.DefaultMaxToolIterations);
         config.TimeoutSeconds.Should().BeNull();
         config.Seed.Should().BeNull();
     }

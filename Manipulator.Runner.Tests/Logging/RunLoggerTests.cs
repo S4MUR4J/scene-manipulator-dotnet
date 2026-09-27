@@ -1,8 +1,8 @@
 using System.Text.Json;
 using FluentAssertions;
-using Manipulator.Harness.Logging;
+using Manipulator.Runner.Logging;
 
-namespace Manipulator.Harness.Tests.Logging;
+namespace Manipulator.Runner.Tests.Logging;
 
 public class RunLoggerTests
 {

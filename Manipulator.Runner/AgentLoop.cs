@@ -5,8 +5,7 @@ using Anthropic;
 using Anthropic.Models.Messages;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Serialization;
-using Manipulator.Harness.Logging;
-using Manipulator.Runner;
+using Manipulator.Runner.Logging;
 using Manipulator.Scenarios.Specs;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
@@ -16,7 +15,7 @@ using ModelContextProtocol.Protocol;
 using AnthropicRole = Anthropic.Models.Messages.Role;
 using AnthropicTool = Anthropic.Models.Messages.Tool;
 
-namespace Manipulator.Harness;
+namespace Manipulator.Runner;
 
 public enum StopReason
 {
@@ -59,25 +58,12 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
         var startTime = DateTimeOffset.UtcNow;
         var stopwatch = Stopwatch.StartNew();
 
-        string? startingScenePath = null;
-        if (spec.StartingScene is not null)
-        {
-            startingScenePath = Path.Combine(
-                Path.GetTempPath(),
-                $"manipulator-harness-{runId}.json"
-            );
-            File.WriteAllText(startingScenePath, SceneSerializer.Serialize(spec.StartingScene));
-        }
-
-        var hostArgs = new List<string> { "--urls", "http://127.0.0.1:0" };
-        if (startingScenePath is not null)
-            hostArgs.AddRange(["--starting-scene", startingScenePath]);
-
-        var app = RunnerHost.Build(hostArgs.ToArray());
+        var app = ScenarioMcpHost.Build(spec.StartingScene);
+        app.Urls.Add("http://127.0.0.1:0");
         await app.StartAsync(cancellationToken);
 
         var scene = app.Services.GetRequiredService<Scene>();
-        var runnerState = app.Services.GetRequiredService<RunnerState>();
+        var runnerState = app.Services.GetRequiredService<ScenarioRunState>();
         var baseAddress = app
             .Services.GetRequiredService<IServer>()
             .Features.Get<IServerAddressesFeature>()!
@@ -101,7 +87,7 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                 {
                     Endpoint = new Uri($"{baseAddress}/mcp"),
                     TransportMode = HttpTransportMode.StreamableHttp,
-                    Name = "manipulator-harness",
+                    Name = "manipulator-runner",
                 },
                 NullLoggerFactory.Instance
             );
@@ -152,8 +138,8 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                         new MessageCreateParams
                         {
                             Model = config.Model,
-                            MaxTokens = HarnessConstants.MaxTokens,
-                            System = HarnessConstants.SystemPrompt,
+                            MaxTokens = RunnerConstants.MaxTokens,
+                            System = RunnerConstants.SystemPrompt,
                             Messages = messages,
                             Tools = tools,
                         },
@@ -300,8 +286,6 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                 await mcpClient.DisposeAsync();
             await app.StopAsync(cancellationToken);
             await app.DisposeAsync();
-            if (startingScenePath is not null)
-                File.Delete(startingScenePath);
         }
 
         var finalSceneJson = SceneSerializer.Serialize(scene);

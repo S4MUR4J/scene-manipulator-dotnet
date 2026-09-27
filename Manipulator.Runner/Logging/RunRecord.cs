@@ -1,4 +1,4 @@
-namespace Manipulator.Harness.Logging;
+namespace Manipulator.Runner.Logging;
 
 public sealed record RunConfigLog(
     string Scenario,

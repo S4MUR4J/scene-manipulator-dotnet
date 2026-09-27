@@ -12,15 +12,12 @@
     <Project Path="Manipulator.Mcp/Manipulator.Mcp/Manipulator.Mcp.csproj" />
   </Folder>
   <Folder Name="/Manipulator.Runner/">
+    <Project Path="Manipulator.Runner.Tests/Manipulator.Runner.Tests.csproj" />
     <Project Path="Manipulator.Runner/Manipulator.Runner.csproj" />
   </Folder>
   <Folder Name="/Manipulator.Scenarios/">
     <Project Path="Manipulator.Scenarios.Tests/Manipulator.Scenarios.Tests.csproj" />
     <Project Path="Manipulator.Scenarios/Manipulator.Scenarios.csproj" />
-  </Folder>
-  <Folder Name="/Manipulator.Harness/">
-    <Project Path="Manipulator.Harness.Tests/Manipulator.Harness.Tests.csproj" />
-    <Project Path="Manipulator.Harness/Manipulator.Harness.csproj" />
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".gitignore" />

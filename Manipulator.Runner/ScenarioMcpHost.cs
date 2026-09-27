@@ -1,8 +1,9 @@
 using System.Text.Json.Nodes;
 using Manipulator.Core.Commands;
+using Manipulator.Core.Ecs;
 using Manipulator.Core.Events;
+using Manipulator.Core.Serialization;
 using Manipulator.Mcp;
-using Manipulator.Runner.Tools;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Serilog;
@@ -10,11 +11,12 @@ using Serilog.Formatting.Compact;
 
 namespace Manipulator.Runner;
 
-public static class RunnerHost
+/// <summary>Creates the isolated MCP server used by one research scenario run.</summary>
+internal static class ScenarioMcpHost
 {
-    public static WebApplication Build(string[] args)
+    public static WebApplication Build(Scene? startingScene)
     {
-        var builder = WebApplication.CreateBuilder(args);
+        var builder = WebApplication.CreateBuilder();
 
         builder.Host.UseSerilog(
             (context, configuration) =>
@@ -29,21 +31,21 @@ public static class RunnerHost
                     )
         );
 
-        var scene = StartingScene.Load(builder.Configuration["starting-scene"]);
+        var scene = CloneOrCreateScene(startingScene);
         var eventBus = new EventBus();
         var dispatcher = CommandDispatcherFactory.Create(scene, eventBus);
 
         builder.Services.AddSingleton(scene);
         builder.Services.AddSingleton(eventBus);
         builder.Services.AddSingleton(dispatcher);
-        builder.Services.AddSingleton<RunnerState>();
+        builder.Services.AddSingleton<ScenarioRunState>();
 
         builder.Services.Configure<McpServerOptions>(options =>
         {
             options.Filters.Request.CallToolFilters.Add(next =>
                 async (context, cancellationToken) =>
                 {
-                    var logger = context.Services!.GetRequiredService<ILogger<Program>>();
+                    var logger = context.Services!.GetRequiredService<ILogger<ScenarioMcpHostLog>>();
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                     var result = await next(context, cancellationToken);
@@ -72,7 +74,7 @@ public static class RunnerHost
 
         var app = builder.Build();
 
-        var eventLogger = app.Services.GetRequiredService<ILogger<Program>>();
+        var eventLogger = app.Services.GetRequiredService<ILogger<ScenarioMcpHostLog>>();
         eventBus.Subscribe<ISceneEvent>(sceneEvent =>
             eventLogger.LogInformation(
                 "Scene event {EventType}: {@Event}",
@@ -85,4 +87,11 @@ public static class RunnerHost
 
         return app;
     }
+
+    private static Scene CloneOrCreateScene(Scene? startingScene) =>
+        startingScene is null
+            ? new Scene()
+            : SceneSerializer.Deserialize(SceneSerializer.Serialize(startingScene)).Scene;
 }
+
+internal sealed class ScenarioMcpHostLog;

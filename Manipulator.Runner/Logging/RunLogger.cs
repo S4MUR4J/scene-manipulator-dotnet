@@ -2,12 +2,11 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Formatting.Compact;
 
-namespace Manipulator.Harness.Logging;
+namespace Manipulator.Runner.Logging;
 
 /// <summary>
 /// Path conventions for a batch's output, and the Serilog logger that writes its JSONL (run +
-/// per-step records, one JSON object per line via <see cref="CompactJsonFormatter"/> - the same
-/// sink/formatter pairing <c>Manipulator.Runner</c> already uses for its own call log).
+/// per-step records, one JSON object per line via <see cref="CompactJsonFormatter"/>).
 /// </summary>
 public static class RunLogger
 {

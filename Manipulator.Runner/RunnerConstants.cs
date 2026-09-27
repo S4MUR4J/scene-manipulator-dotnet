@@ -1,10 +1,10 @@
-namespace Manipulator.Harness;
+namespace Manipulator.Runner;
 
 /// <summary>
 /// Controlled constants for the agent loop. These must stay identical across the mcp/dsl/text
 /// approaches so a comparison between them isn't confounded by loop or prompting differences.
 /// </summary>
-public static class HarnessConstants
+public static class RunnerConstants
 {
     public const string SystemPrompt =
         "You control a 3D scene made of entities. Each entity has a transform (position, "
