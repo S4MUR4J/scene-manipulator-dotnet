@@ -105,7 +105,7 @@ The `content` value is expected to be a JSON string conforming to the **scene
 content JSON contract** below. The API currently stores and returns this value
 as an opaque string — it does not itself parse or validate the scene graph
 inside it; that's done client-side (see `Manipulator.Core.Serialization.SceneSerializer`)
-or by whatever produced it (e.g. `Manipulator.Runner`).
+or by whatever produced it (e.g. a `Manipulator.Runner` research scenario).
 
 ## Scene content JSON contract
 

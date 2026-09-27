@@ -5,10 +5,10 @@ using Manipulator.Core.Results;
 using Manipulator.Mcp.Tools;
 using ModelContextProtocol.Server;
 
-namespace Manipulator.Runner.Tools;
+namespace Manipulator.Runner;
 
 [McpServerToolType]
-public sealed class FinishTool(Scene scene, RunnerState runnerState)
+internal sealed class FinishTool(Scene scene, ScenarioRunState runState)
 {
     private const string Description =
         "Call this when the scene is complete and there is nothing left to do. It ends the run; "
@@ -18,13 +18,13 @@ public sealed class FinishTool(Scene scene, RunnerState runnerState)
     [Description(Description)]
     public string Finish()
     {
-        runnerState.MarkFinished();
+        runState.MarkFinished();
 
         var data = new JsonObject
         {
             ["scene_version"] = scene.Version,
             ["entity_count"] = scene.Count,
-            ["duration_ms"] = (DateTimeOffset.UtcNow - runnerState.StartedAt).TotalMilliseconds,
+            ["duration_ms"] = (DateTimeOffset.UtcNow - runState.StartedAt).TotalMilliseconds,
         };
 
         return McpJsonSerializer.Serialize(ManipulatorResult<JsonObject?>.Success(data));

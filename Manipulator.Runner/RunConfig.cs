@@ -1,4 +1,4 @@
-namespace Manipulator.Harness;
+namespace Manipulator.Runner;
 
 public sealed record RunConfig(
     string Scenario,
@@ -44,7 +44,7 @@ public sealed record RunConfig(
             OutDir: configuration["out-dir"] ?? "runs",
             MaxToolIterations: configuration["max-iterations"] is { } maxIter
                 ? int.Parse(maxIter)
-                : HarnessConstants.DefaultMaxToolIterations,
+                : RunnerConstants.DefaultMaxToolIterations,
             TimeoutSeconds: configuration["timeout-s"] is { } timeout ? int.Parse(timeout) : null
         );
     }

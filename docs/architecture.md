@@ -16,11 +16,14 @@ architecture chapter.
 `Manipulator.Core` is referenced by `Manipulator.Api`, but today the API stores scene
 `Content` as an opaque string — it does not yet deserialize or validate it through
 `SceneSerializer`. The ECS pipeline (`CommandDispatcher`, `EventBus`, live mutation) is
-currently exercised by a separate host, `Manipulator.Mcp` + `Manipulator.Runner`, which
-runs an in-memory `Scene` and exposes it to AI agents over MCP (Streamable HTTP) for
-research/benchmarking. It has no database and no connection to `Manipulator.Api` — the
-two hosts share the `Core` library, not runtime state. That path is out of scope for the
-diagram below; see `dev/manipulator_design.md` for the fuller design history.
+currently exercised by `Manipulator.Runner`, the research/evaluation executable.
+For every scenario run it creates an isolated in-memory `Scene`, hosts
+`Manipulator.Mcp` tools over MCP (Streamable HTTP), and lets a configured AI
+model drive those tools. It has no database and no connection to
+`Manipulator.Api` — the two paths share the `Core` library, not runtime state.
+`Manipulator.Mcp` remains host-neutral for reuse by a future independently
+hosted server. That research path is out of scope for the diagram below; see
+`dev/manipulator_design.md` for the fuller design history.
 
 ## Component diagram
 

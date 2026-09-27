@@ -1,0 +1,32 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://scene-keeper.com/scene.schema.json",
+	"title": "Scene",
+	"description": "A scene described in program format",
+	"type": "object",
+	"properties": {
+		"version": {
+			"type": "string",
+			"description": "Schema version"
+		},
+		"scene_version": {
+			"type": "integer",
+			"description": "Monotonically increasing version counter, incremented on each mutation"
+		},
+		"entities": {
+			"type": "array",
+			"items": {
+				"type": "object",
+				"properties": {
+					"id": { "type": "string" },
+					"components": {
+						"type": "object",
+						"additionalProperties": { "type": "object" }
+					}
+				},
+				"required": ["id", "components"]
+			}
+		}
+	},
+	"required": ["version", "scene_version", "entities"]
+}
