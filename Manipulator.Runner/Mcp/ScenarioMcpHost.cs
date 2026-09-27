@@ -9,7 +9,7 @@ using ModelContextProtocol.Server;
 using Serilog;
 using Serilog.Formatting.Compact;
 
-namespace Manipulator.Runner;
+namespace Manipulator.Runner.Mcp;
 
 /// <summary>Creates the isolated MCP server used by one research scenario run.</summary>
 static class ScenarioMcpHost

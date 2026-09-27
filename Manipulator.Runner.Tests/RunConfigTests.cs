@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Manipulator.Runner.Configuration;
 
 namespace Manipulator.Runner.Tests;
 

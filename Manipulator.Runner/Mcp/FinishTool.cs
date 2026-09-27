@@ -5,7 +5,7 @@ using Manipulator.Core.Results;
 using Manipulator.Mcp.Tools;
 using ModelContextProtocol.Server;
 
-namespace Manipulator.Runner;
+namespace Manipulator.Runner.Mcp;
 
 [McpServerToolType]
 sealed class FinishTool(Scene scene, ScenarioRunState runState)

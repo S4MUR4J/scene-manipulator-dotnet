@@ -1,10 +1,11 @@
 using Manipulator.Runner.Logging;
 using Manipulator.Runner.Models;
+using Manipulator.Runner.Configuration;
 using Manipulator.Scenarios.Loading;
 using Microsoft.Extensions.Options;
 using ScenarioSpec = Manipulator.Scenarios.Specs.ScenarioSpec;
 
-namespace Manipulator.Runner;
+namespace Manipulator.Runner.Execution;
 
 sealed class RunnerApplication(
     IOptions<RunnerSettings> runnerSettings,

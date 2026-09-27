@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FluentAssertions;
+using Manipulator.Runner.Configuration;
 using Manipulator.Runner.Logging;
 
 namespace Manipulator.Runner.Tests.Logging;

@@ -1,4 +1,4 @@
-namespace Manipulator.Runner;
+namespace Manipulator.Runner.Execution;
 
 sealed class RunnerExitCode
 {
