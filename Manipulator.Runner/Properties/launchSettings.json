@@ -6,6 +6,12 @@
       "environmentVariables": {
         "DOTNET_ENVIRONMENT": "ScenarioOne"
       }
+    },
+    "Manipulator.Runner - Scenario One Cheap": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "ScenarioOneCheap"
+      }
     }
   }
 }

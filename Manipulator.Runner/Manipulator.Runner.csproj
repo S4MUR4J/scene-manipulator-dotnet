@@ -32,5 +32,8 @@
     <Content Update="appsettings.ScenarioOne.json">
       <DependentUpon>appsettings.json</DependentUpon>
     </Content>
+    <Content Update="appsettings.ScenarioOneCheap.json">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </Content>
   </ItemGroup>
 </Project>
