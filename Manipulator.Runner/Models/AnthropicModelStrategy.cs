@@ -1,12 +1,12 @@
+using System.Text.Json;
 using Anthropic;
 using Anthropic.Models.Messages;
-using System.Text.Json;
 using AnthropicRole = Anthropic.Models.Messages.Role;
 using AnthropicTool = Anthropic.Models.Messages.Tool;
 
 namespace Manipulator.Runner.Models;
 
-internal sealed class AnthropicModelStrategy(AnthropicClient client, string model) : IModelStrategy
+sealed class AnthropicModelStrategy(AnthropicClient client, string model) : IModelStrategy
 {
     private readonly List<MessageParam> _messages = [];
     private IReadOnlyList<ToolUnion>? _tools;
@@ -20,15 +20,14 @@ internal sealed class AnthropicModelStrategy(AnthropicClient client, string mode
     {
         _messages.Add(new MessageParam { Role = AnthropicRole.User, Content = prompt });
         _tools = tools
-            .Select(
-                tool =>
-                    (ToolUnion)
-                        new AnthropicTool
-                        {
-                            Name = tool.Name,
-                            Description = tool.Description,
-                            InputSchema = AgentLoop.ToInputSchema(tool.InputSchema),
-                        }
+            .Select(tool =>
+                (ToolUnion)
+                    new AnthropicTool
+                    {
+                        Name = tool.Name,
+                        Description = tool.Description,
+                        InputSchema = AgentLoop.ToInputSchema(tool.InputSchema),
+                    }
             )
             .ToList();
 
@@ -45,14 +44,13 @@ internal sealed class AnthropicModelStrategy(AnthropicClient client, string mode
             {
                 Role = AnthropicRole.User,
                 Content = toolResults
-                    .Select(
-                        result =>
-                            (ContentBlockParam)
-                                new ToolResultBlockParam(result.ToolCallId)
-                                {
-                                    Content = result.Content,
-                                    IsError = result.IsError,
-                                }
+                    .Select(result =>
+                        (ContentBlockParam)
+                            new ToolResultBlockParam(result.ToolCallId)
+                            {
+                                Content = result.Content,
+                                IsError = result.IsError,
+                            }
                     )
                     .ToList(),
             }
@@ -95,14 +93,11 @@ internal sealed class AnthropicModelStrategy(AnthropicClient client, string mode
             response
                 .Content.Select(block => block.TryPickToolUse(out var toolUse) ? toolUse : null)
                 .Where(toolUse => toolUse is not null)
-                .Select(
-                    toolUse =>
-                        new ModelToolCall(
-                            toolUse!.ID,
-                            toolUse.Name,
-                            JsonSerializer.SerializeToElement(toolUse.Input)
-                        )
-                )
+                .Select(toolUse => new ModelToolCall(
+                    toolUse!.ID,
+                    toolUse.Name,
+                    JsonSerializer.SerializeToElement(toolUse.Input)
+                ))
                 .ToList()
         );
     }

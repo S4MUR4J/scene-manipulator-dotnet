@@ -12,7 +12,7 @@ using Serilog.Formatting.Compact;
 namespace Manipulator.Runner;
 
 /// <summary>Creates the isolated MCP server used by one research scenario run.</summary>
-internal static class ScenarioMcpHost
+static class ScenarioMcpHost
 {
     public static WebApplication Build(Scene? startingScene)
     {
@@ -45,7 +45,9 @@ internal static class ScenarioMcpHost
             options.Filters.Request.CallToolFilters.Add(next =>
                 async (context, cancellationToken) =>
                 {
-                    var logger = context.Services!.GetRequiredService<ILogger<ScenarioMcpHostLog>>();
+                    var logger = context.Services!.GetRequiredService<
+                        ILogger<ScenarioMcpHostLog>
+                    >();
                     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
                     var result = await next(context, cancellationToken);
@@ -94,4 +96,4 @@ internal static class ScenarioMcpHost
             : SceneSerializer.Deserialize(SceneSerializer.Serialize(startingScene)).Scene;
 }
 
-internal sealed class ScenarioMcpHostLog;
+sealed class ScenarioMcpHostLog;

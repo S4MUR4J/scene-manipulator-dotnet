@@ -18,10 +18,19 @@ will provide the independently hosted API and MCP surface.
 
 ## Configuration
 
-Runner reads its complete research-run configuration from the checked-in
-`appsettings.ScenarioOne.json` template. It does not accept environment
-variables or command-line arguments for run configuration. Edit that template
-to choose the scenario, limits, artifact location, and model matrix.
+Runner reads its base research-run configuration from the checked-in
+`appsettings.ScenarioOne.json` template. Configuration sources are applied in
+this order, with later sources overriding earlier values:
+
+1. Scenario template
+2. User secrets
+3. Environment variables
+4. Command-line arguments
+
+Edit the template to choose the default scenario, limits, artifact location,
+and model matrix. Use environment variables or command-line arguments for
+local overrides, for example `Runner__Batch=development` or
+`--Runner:Batch=development`.
 
 The only settings stored outside tracked configuration are provider API keys.
 Set both keys when using the default Anthropic/OpenAI matrix:
