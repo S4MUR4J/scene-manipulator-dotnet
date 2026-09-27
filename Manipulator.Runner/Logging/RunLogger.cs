@@ -10,11 +10,15 @@ namespace Manipulator.Runner.Logging;
 /// </summary>
 public static class RunLogger
 {
-    public static string JsonlPath(string outDir, string batch) =>
-        Path.Combine(outDir, batch, $"{batch}.jsonl");
+    public static string JsonlPath(string outDir, string batch, RunConfig config) =>
+        Path.Combine(outDir, batch, $"{SanitizeSegment(config.ModelName)}.jsonl");
 
     public static string FinalScenePath(string outDir, string batch, RunConfig config) =>
-        Path.Combine(outDir, batch, $"{config.Scenario}_{config.Approach}_{config.RunIndex}.json");
+        Path.Combine(
+            outDir,
+            batch,
+            $"{config.Scenario}_{config.Approach}_{SanitizeSegment(config.ModelName)}_{config.RunIndex}.json"
+        );
 
     public static Logger CreateLogger(string jsonlPath)
     {
@@ -29,4 +33,7 @@ public static class RunLogger
         Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         File.WriteAllText(path, sceneJson);
     }
+
+    private static string SanitizeSegment(string value) =>
+        string.Concat(value.Select(character => Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
 }

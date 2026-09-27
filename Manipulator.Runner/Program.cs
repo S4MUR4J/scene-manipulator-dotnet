@@ -1,43 +1,45 @@
 using System.Reflection;
-using Anthropic;
 using Manipulator.Runner;
 using Manipulator.Runner.Logging;
+using Manipulator.Runner.Models;
 using Manipulator.Scenarios.Loading;
-using Manipulator.Scenarios.Specs;
-using RunConfig = Manipulator.Runner.RunConfig;
+using ScenarioSpec = Manipulator.Scenarios.Specs.ScenarioSpec;
+using RunnerRunConfig = Manipulator.Runner.RunConfig;
 
 var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: false)
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.ScenarioOne.json", optional: false, reloadOnChange: false)
     .AddUserSecrets(Assembly.GetExecutingAssembly())
-    .AddEnvironmentVariables()
-    .AddCommandLine(args)
     .Build();
 
-RunConfig config;
+IReadOnlyList<RunnerRunConfig> runConfigs;
 try
 {
-    config = RunConfig.FromConfiguration(configuration);
+    var settings = configuration.GetRequiredSection("Runner").Get<RunnerSettings>()
+        ?? throw new ArgumentException("Runner configuration section is required.");
+    runConfigs = settings.ToRunConfigs();
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine($"Invalid run config: {ex.Message}");
-    Console.Error.WriteLine(
-        "Set defaults in appsettings.json, or override per run, e.g.:\n"
-            + "  dotnet run --project Manipulator.Runner -- "
-            + "--scenario-file ../scenarios/s1-new-gen-livingroom.json "
-            + "[--scenario id] [--variant n] [--approach mcp] [--model claude-sonnet-5] [--seed n] "
-            + "[--run-index n] [--batch name] [--out-dir runs] [--max-iterations n] [--timeout-s n]"
-    );
+    Console.Error.WriteLine($"Invalid Runner configuration: {ex.Message}");
     return 2;
 }
 
-var apiKey = configuration["ANTHROPIC_API_KEY"];
-if (string.IsNullOrEmpty(apiKey))
+var anthropicApiKey = configuration["Anthropic:ApiKey"];
+var openAiApiKey = configuration["OpenAI:ApiKey"];
+var requiredProviders = runConfigs.Select(config => config.Provider).Distinct().ToHashSet();
+var missingKeys = new List<string>();
+if (requiredProviders.Contains(ModelProvider.Anthropic) && string.IsNullOrWhiteSpace(anthropicApiKey))
+    missingKeys.Add("Anthropic:ApiKey");
+if (requiredProviders.Contains(ModelProvider.OpenAi) && string.IsNullOrWhiteSpace(openAiApiKey))
+    missingKeys.Add("OpenAI:ApiKey");
+
+if (missingKeys.Count > 0)
 {
     Console.Error.WriteLine(
-        "ANTHROPIC_API_KEY is not set. Configure it via "
-            + "'dotnet user-secrets set ANTHROPIC_API_KEY <key> --project Manipulator.Runner' "
-            + "or the ANTHROPIC_API_KEY environment variable - never appsettings.json."
+        $"Missing required user-secret key(s): {string.Join(", ", missingKeys)}. Configure them with:\n"
+            + "  dotnet user-secrets set Anthropic:ApiKey <key> --project Manipulator.Runner\n"
+            + "  dotnet user-secrets set OpenAI:ApiKey <key> --project Manipulator.Runner"
     );
     return 2;
 }
@@ -45,7 +47,7 @@ if (string.IsNullOrEmpty(apiKey))
 ScenarioSpec spec;
 try
 {
-    spec = ScenarioSpecLoader.LoadFile(config.ScenarioFile);
+    spec = ScenarioSpecLoader.LoadFile(runConfigs[0].ScenarioFile);
 }
 catch (Exception ex)
 {
@@ -53,30 +55,45 @@ catch (Exception ex)
     return 2;
 }
 
-var anthropicClient = new AnthropicClient { ApiKey = apiKey };
-var agentLoop = new AgentLoop(anthropicClient);
-
-var jsonlPath = RunLogger.JsonlPath(config.OutDir, config.Batch);
-var finalScenePath = RunLogger.FinalScenePath(config.OutDir, config.Batch, config);
-using var logger = RunLogger.CreateLogger(jsonlPath);
-
-Console.WriteLine($"Running scenario '{spec.Id}' ({config.Approach}, {config.Model})...");
-
-var record = await agentLoop.RunAsync(
-    config,
-    spec,
-    step => logger.Information("step {@Step}", step),
-    CancellationToken.None
+var strategyFactory = new ModelStrategyFactory(anthropicApiKey!, openAiApiKey!);
+var records = await Task.WhenAll(
+    runConfigs.Select(config => RunModelAsync(config, spec, strategyFactory))
 );
 
-logger.Information("run {@Run}", record);
-RunLogger.SaveFinalScene(finalScenePath, record.FinalSceneJson);
+return records.All(record => record.StopReason != StopReason.FatalError.ToString()) ? 0 : 1;
 
-Console.WriteLine(
-    $"Done: stop_reason={record.StopReason} llm_calls={record.LlmCalls} "
-        + $"tool_calls={record.ToolCallsTotal} tokens_in={record.InputTokens} tokens_out={record.OutputTokens}"
-);
-Console.WriteLine($"Run record: {jsonlPath}");
-Console.WriteLine($"Final scene: {finalScenePath}");
+static async Task<RunRecord> RunModelAsync(
+    RunnerRunConfig config,
+    ScenarioSpec spec,
+    ModelStrategyFactory strategyFactory
+)
+{
+    var jsonlPath = RunLogger.JsonlPath(config.OutDir, config.Batch, config);
+    var finalScenePath = RunLogger.FinalScenePath(config.OutDir, config.Batch, config);
+    using var logger = RunLogger.CreateLogger(jsonlPath);
+    var agentLoop = new AgentLoop(strategyFactory.Create(config));
 
-return 0;
+    Console.WriteLine(
+        $"Running '{config.ModelName}' for scenario '{spec.Id}' ({config.Approach}, {config.Model})..."
+    );
+
+    var record = await agentLoop.RunAsync(
+        config,
+        spec,
+        step => logger.Information("step {@Step}", step),
+        CancellationToken.None
+    );
+
+    logger.Information("run {@Run}", record);
+    RunLogger.SaveFinalScene(finalScenePath, record.FinalSceneJson);
+
+    Console.WriteLine(
+        $"Done ({config.ModelName}): stop_reason={record.StopReason} llm_calls={record.LlmCalls} "
+            + $"tool_calls={record.ToolCallsTotal} tokens_in={record.InputTokens} "
+            + $"tokens_out={record.OutputTokens}"
+    );
+    Console.WriteLine($"Run record ({config.ModelName}): {jsonlPath}");
+    Console.WriteLine($"Final scene ({config.ModelName}): {finalScenePath}");
+
+    return record;
+}
