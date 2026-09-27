@@ -14,20 +14,21 @@ namespace Manipulator.Runner.Mcp;
 /// <summary>Creates the isolated MCP server used by one research scenario run.</summary>
 static class ScenarioMcpHost
 {
-    public static WebApplication Build(Scene? startingScene)
+    public static WebApplication Build(Scene? startingScene, string? runId = null)
     {
         var builder = WebApplication.CreateBuilder();
+        var diagnosticLogName = runId ?? Guid.NewGuid().ToString("n");
+        var diagnosticLogPath = Path.Combine("logs", $"mcp-host-{diagnosticLogName}.jsonl");
 
         builder.Host.UseSerilog(
-            (context, configuration) =>
+            (_, configuration) =>
                 configuration
-                    .ReadFrom.Configuration(context.Configuration)
+                    .MinimumLevel.Information()
                     .Enrich.FromLogContext()
                     .WriteTo.Console()
                     .WriteTo.File(
                         new CompactJsonFormatter(),
-                        "logs/run-.jsonl",
-                        rollingInterval: RollingInterval.Day
+                        diagnosticLogPath
                     )
         );
 

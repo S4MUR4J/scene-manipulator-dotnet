@@ -56,6 +56,23 @@ public class RunConfigTests
     }
 
     [Fact]
+    public void ToRunConfigs_ArtifactFilenameCollision_Throws()
+    {
+        var settings = ValidSettings() with
+        {
+            Models =
+            [
+                new ModelSettings { Name = "a/b", Provider = "Anthropic", Model = "claude-sonnet-5" },
+                new ModelSettings { Name = "a_b", Provider = "OpenAi", Model = "gpt-5" },
+            ],
+        };
+
+        var act = settings.ToRunConfigs;
+
+        act.Should().Throw<ArgumentException>().WithMessage("*artifact filename*");
+    }
+
+    [Fact]
     public void ToRunConfigs_EnabledMatrix_MapsEachProvider()
     {
         var settings = ValidSettings() with

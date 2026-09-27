@@ -1,6 +1,6 @@
+using Manipulator.Runner.Configuration;
 using Manipulator.Runner.Logging;
 using Manipulator.Runner.Models;
-using Manipulator.Runner.Configuration;
 using Manipulator.Scenarios.Loading;
 using Microsoft.Extensions.Options;
 using ScenarioSpec = Manipulator.Scenarios.Specs.ScenarioSpec;
@@ -10,7 +10,9 @@ namespace Manipulator.Runner.Execution;
 sealed class RunnerApplication(
     IOptions<RunnerSettings> runnerSettings,
     IConfiguration configuration,
-    ModelStrategyFactory strategyFactory
+    ModelStrategyFactory strategyFactory,
+    RunArtifactWriter artifactWriter,
+    ILogger<RunnerApplication> logger
 )
 {
     public async Task<int> RunAsync(CancellationToken cancellationToken)
@@ -25,17 +27,17 @@ sealed class RunnerApplication(
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Invalid Runner configuration: {ex.Message}");
+            logger.LogError(ex, "Invalid Runner configuration");
             return 2;
         }
 
         var missingKeys = GetMissingApiKeys(runConfigs);
         if (missingKeys.Count > 0)
         {
-            Console.Error.WriteLine(
-                $"Missing required user-secret key(s): {string.Join(", ", missingKeys)}. Configure them with:\n"
-                    + "  dotnet user-secrets set Anthropic:ApiKey <key> --project Manipulator.Runner\n"
-                    + "  dotnet user-secrets set OpenAI:ApiKey <key> --project Manipulator.Runner"
+            logger.LogError(
+                "Missing required user-secret key(s): {MissingKeys}. Configure them with "
+                    + "'dotnet user-secrets set <Provider>:ApiKey <key> --project Manipulator.Runner'.",
+                string.Join(", ", missingKeys)
             );
             return 2;
         }
@@ -47,7 +49,7 @@ sealed class RunnerApplication(
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Failed to load scenario spec: {ex.Message}");
+            logger.LogError(ex, "Failed to load scenario spec");
             return 2;
         }
 
@@ -55,7 +57,7 @@ sealed class RunnerApplication(
             runConfigs.Select(config => RunModelAsync(config, spec, cancellationToken))
         );
 
-        return records.All(record => record.StopReason != StopReason.FatalError.ToString()) ? 0 : 1;
+        return records.All(record => record.StopReason != nameof(StopReason.FatalError)) ? 0 : 1;
     }
 
     private List<string> GetMissingApiKeys(IReadOnlyList<RunConfig> runConfigs)
@@ -83,32 +85,43 @@ sealed class RunnerApplication(
         CancellationToken cancellationToken
     )
     {
-        var jsonlPath = RunLogger.JsonlPath(config.OutDir, config.Batch, config);
-        var finalScenePath = RunLogger.FinalScenePath(config.OutDir, config.Batch, config);
-        using var logger = RunLogger.CreateLogger(jsonlPath);
+        using var artifacts = artifactWriter.Open(config);
         var agentLoop = new AgentLoop(strategyFactory.Create(config));
 
-        Console.WriteLine(
-            $"Running '{config.ModelName}' for scenario '{spec.Id}' ({config.Approach}, {config.Model})..."
+        logger.LogInformation(
+            "Running {ModelName} for scenario {ScenarioId} ({Approach}, {Model})",
+            config.ModelName,
+            spec.Id,
+            config.Approach,
+            config.Model
         );
 
         var record = await agentLoop.RunAsync(
             config,
             spec,
-            step => logger.Information("step {@Step}", step),
+            artifacts.WriteStep,
             cancellationToken
         );
 
-        logger.Information("run {@Run}", record);
-        RunLogger.SaveFinalScene(finalScenePath, record.FinalSceneJson);
+        artifacts.WriteRun(record);
+        artifacts.SaveFinalScene(record.FinalSceneJson);
 
-        Console.WriteLine(
-            $"Done ({config.ModelName}): stop_reason={record.StopReason} llm_calls={record.LlmCalls} "
-                + $"tool_calls={record.ToolCallsTotal} tokens_in={record.InputTokens} "
-                + $"tokens_out={record.OutputTokens}"
+        logger.LogInformation(
+            "Completed {ModelName}: stop_reason={StopReason} llm_calls={LlmCalls} tool_calls={ToolCalls} "
+                + "tokens_in={InputTokens} tokens_out={OutputTokens}",
+            config.ModelName,
+            record.StopReason,
+            record.LlmCalls,
+            record.ToolCallsTotal,
+            record.InputTokens,
+            record.OutputTokens
         );
-        Console.WriteLine($"Run record ({config.ModelName}): {jsonlPath}");
-        Console.WriteLine($"Final scene ({config.ModelName}): {finalScenePath}");
+        logger.LogInformation(
+            "Run artifacts for {ModelName}: record={RecordPath} final_scene={FinalScenePath}",
+            config.ModelName,
+            artifacts.JsonlPath,
+            artifacts.FinalScenePath
+        );
 
         return record;
     }

@@ -3,7 +3,8 @@ namespace Manipulator.Runner.Execution;
 sealed class RunnerHostedService(
     RunnerApplication application,
     RunnerExitCode exitCode,
-    IHostApplicationLifetime lifetime
+    IHostApplicationLifetime lifetime,
+    ILogger<RunnerHostedService> logger
 ) : BackgroundService
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -14,7 +15,7 @@ sealed class RunnerHostedService(
         }
         catch (Exception ex)
         {
-            await Console.Error.WriteLineAsync($"Runner failed unexpectedly: {ex.Message}");
+            logger.LogError(ex, "Runner failed unexpectedly");
             exitCode.Value = 1;
         }
         finally

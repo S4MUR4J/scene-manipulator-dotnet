@@ -23,16 +23,16 @@ will provide the independently hosted API and MCP surface.
   model/tool execution loop.
 - `Mcp/` contains the isolated per-run MCP host and its completion tool.
 - `Models/` contains model-provider strategies and their shared abstractions.
-- `Logging/` contains artifact paths and JSONL run-record serialization.
+- `Logging/` contains Serilog-backed, per-run artifact output and run-record
+  serialization.
 
 ## Configuration
 
-Runner reads its base research-run configuration from `appsettings.json`.
-Fill in its `Runner` section with the scenario, limits, artifact location, and
-model matrix. Launch profiles select an optional
+Runner reads its base research-run configuration from `appsettings.json`, which
+defaults to the bundled Scenario One model matrix. Launch profiles select an optional
 `appsettings.{DOTNET_ENVIRONMENT}.json` file for environment-specific
-overrides: for example, the **Manipulator.Runner - Creation** profile loads
-`appsettings.Create.json`.
+overrides: the **Manipulator.Runner - Scenario One** profile loads
+`appsettings.ScenarioOne.json`.
 
 Configuration sources are applied in this order, with later sources overriding
 earlier values:
@@ -78,3 +78,7 @@ other:
   model token usage and tool errors.
 - `<scenario>_<approach>_<model-name>_<run-index>.json` contains the final serialized
   scene.
+
+Runner lifecycle diagnostics are emitted through the host's Serilog pipeline.
+Research artifacts remain isolated per model run, so concurrent evaluations
+produce deterministic JSONL and final-scene paths.

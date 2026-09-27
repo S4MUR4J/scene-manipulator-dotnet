@@ -57,7 +57,7 @@ public sealed class AgentLoop(IModelStrategy modelStrategy)
         var startTime = DateTimeOffset.UtcNow;
         var stopwatch = Stopwatch.StartNew();
 
-        var app = ScenarioMcpHost.Build(spec.StartingScene);
+        var app = ScenarioMcpHost.Build(spec.StartingScene, runId);
         app.Urls.Add("http://127.0.0.1:0");
         await app.StartAsync(cancellationToken);
 

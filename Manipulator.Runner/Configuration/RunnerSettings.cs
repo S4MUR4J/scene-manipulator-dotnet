@@ -43,42 +43,52 @@ public sealed record RunnerSettings
                 $"Runner:Models contains duplicate name '{duplicateNames.Key}'."
             );
 
-        return models
-            .Select(
-                model =>
-                {
-                    var modelName = Require(model.Name, "Runner:Models:Name");
-                    var modelId = Require(model.Model, $"Runner:Models:{modelName}:Model");
-                    if (!Enum.TryParse<ModelProvider>(model.Provider, true, out var provider))
-                        throw new ArgumentException(
-                            $"Runner:Models:{modelName}:Provider '{model.Provider}' is unsupported."
-                        );
+        var duplicateArtifactNames = models
+            .GroupBy(model => SanitizeArtifactSegment(model.Name ?? ""), StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault(group => group.Count() > 1);
+        if (duplicateArtifactNames is not null)
+            throw new ArgumentException(
+                $"Runner:Models names produce the same artifact filename '{duplicateArtifactNames.Key}'."
+            );
 
-                    return new RunConfig(
-                        Scenario: Scenario ?? "unknown",
-                        Variant: Variant,
-                        Approach: approach,
-                        ModelName: modelName,
-                        Provider: provider,
-                        Model: modelId,
-                        Seed: Seed,
-                        RunIndex: RunIndex,
-                        ScenarioFile: scenarioFile,
-                        Batch: Batch ?? "adhoc",
-                        OutDir: OutDir ?? "runs",
-                        MaxToolIterations: MaxToolIterations
-                            ?? RunnerConstants.DefaultMaxToolIterations,
-                        TimeoutSeconds: TimeoutSeconds
+        return
+        [
+            .. models.Select(model =>
+            {
+                var modelName = Require(model.Name, "Runner:Models:Name");
+                var modelId = Require(model.Model, $"Runner:Models:{modelName}:Model");
+                if (!Enum.TryParse<ModelProvider>(model.Provider, true, out var provider))
+                    throw new ArgumentException(
+                        $"Runner:Models:{modelName}:Provider '{model.Provider}' is unsupported."
                     );
-                }
-            )
-            .ToList();
+
+                return new RunConfig(
+                    Scenario: Scenario ?? "unknown",
+                    Variant: Variant,
+                    Approach: approach,
+                    ModelName: modelName,
+                    Provider: provider,
+                    Model: modelId,
+                    Seed: Seed,
+                    RunIndex: RunIndex,
+                    ScenarioFile: scenarioFile,
+                    Batch: Batch ?? "adhoc",
+                    OutDir: OutDir ?? "runs",
+                    MaxToolIterations: MaxToolIterations
+                        ?? RunnerConstants.DefaultMaxToolIterations,
+                    TimeoutSeconds: TimeoutSeconds
+                );
+            }),
+        ];
     }
 
     private static string Require(string? value, string key) =>
         string.IsNullOrWhiteSpace(value)
             ? throw new ArgumentException($"{key} is required.")
             : value;
+
+    private static string SanitizeArtifactSegment(string value) =>
+        string.Concat(value.Select(character => Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
 }
 
 public sealed class ModelSettings
