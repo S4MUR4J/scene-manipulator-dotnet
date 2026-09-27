@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Serialization;
 using Manipulator.Runner.Configuration;
@@ -11,7 +10,6 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging.Abstractions;
 using ModelContextProtocol.Client;
-using ModelContextProtocol.Protocol;
 using ScenarioSpec = Manipulator.Scenarios.Specs.ScenarioSpec;
 
 namespace Manipulator.Runner.Execution;
@@ -26,26 +24,12 @@ public enum StopReason
 }
 
 /// <summary>
-/// The MCP-approach agent loop: starts an in-process MCP server session for the run, forwards its
-/// tool list to the LLM (via the official <c>Anthropic</c> SDK), executes tool calls through the
-/// MCP client, and stops on finish / iteration limit / timeout / fatal error. Identical loop,
-/// system prompt and model parameters are meant to be reused by the dsl/text approaches once they
-/// exist (MAN-77, MAN-82).
+/// Orchestrates an MCP-based run: hosts the scenario MCP server, gets model responses through
+/// an <see cref="IModelStrategy"/>, and stops when the model finishes, reaches a limit, times out,
+/// or fails. Tool execution and run telemetry are delegated to dedicated execution types.
 /// </summary>
 public sealed class AgentLoop(IModelStrategy modelStrategy)
 {
-    private static readonly HashSet<string> ReadTools = ["get_scene", "get_entity"];
-    private static readonly HashSet<string> WriteTools =
-    [
-        "add_entity",
-        "move_entity",
-        "rotate_entity",
-        "scale_entity",
-        "set_material",
-        "rename_entity",
-        "remove_entity",
-    ];
-
     public async Task<RunRecord> RunAsync(
         RunConfig config,
         ScenarioSpec spec,
@@ -68,179 +52,28 @@ public sealed class AgentLoop(IModelStrategy modelStrategy)
             .Features.Get<IServerAddressesFeature>()!
             .Addresses.First();
 
-        var toolCallsByTool = new Dictionary<string, int>();
-        var toolErrors = new List<ToolErrorLog>();
-        long llmCalls = 0;
-        long inputTokens = 0;
-        long outputTokens = 0;
-        var sceneReads = 0;
-        var sceneWrites = 0;
-        StopReason stopReason;
-        string? fatalError = null;
+        var metrics = new RunMetrics();
+        LoopResult result;
         McpClient? mcpClient = null;
 
         try
         {
-            var transport = new HttpClientTransport(
-                new HttpClientTransportOptions
-                {
-                    Endpoint = new Uri($"{baseAddress}/mcp"),
-                    TransportMode = HttpTransportMode.StreamableHttp,
-                    Name = "manipulator-runner",
-                },
-                NullLoggerFactory.Instance
-            );
-            mcpClient = await McpClient.CreateAsync(
-                transport,
-                cancellationToken: cancellationToken
-            );
-
+            mcpClient = await CreateMcpClientAsync(baseAddress, cancellationToken);
             var mcpTools = await mcpClient.ListToolsAsync(cancellationToken: cancellationToken);
-            var tools = mcpTools
-                .Select(tool => new ModelTool(tool.Name, tool.Description, tool.JsonSchema))
-                .ToList();
-
-            var promptText = ResolvePrompt(spec, config.Variant);
-            var timeoutSeconds = config.TimeoutSeconds ?? spec.TimeoutSeconds;
-            var isFirstTurn = true;
-            IReadOnlyList<ModelToolResult>? previousToolResults = null;
-
-            while (true)
-            {
-                if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
-                {
-                    stopReason = StopReason.Timeout;
-                    break;
-                }
-
-                if (llmCalls >= config.MaxToolIterations)
-                {
-                    stopReason = StopReason.IterationLimit;
-                    break;
-                }
-
-                ModelResponse response;
-                try
-                {
-                    response = isFirstTurn
-                        ? await modelStrategy.StartAsync(
-                            RunnerConstants.SystemPrompt,
-                            promptText,
-                            tools,
-                            cancellationToken
-                        )
-                        : await modelStrategy.ContinueAsync(previousToolResults!, cancellationToken);
-                    isFirstTurn = false;
-                }
-                catch (Exception ex)
-                {
-                    fatalError = ex.Message;
-                    stopReason = StopReason.FatalError;
-                    break;
-                }
-
-                llmCalls++;
-                inputTokens += response.InputTokens;
-                outputTokens += response.OutputTokens;
-                var toolUses = response.ToolCalls;
-
-                var stepCalls = new List<ToolCallLog>();
-
-                if (toolUses.Count == 0)
-                {
-                    onStep?.Invoke(
-                        new StepRecord(
-                            runId,
-                            llmCalls,
-                            response.InputTokens,
-                            response.OutputTokens,
-                            response.StopReason,
-                            stepCalls
-                        )
-                    );
-                    stopReason = StopReason.ModelStoppedNaturally;
-                    break;
-                }
-
-                var resultBlocks = new List<ModelToolResult>();
-                foreach (var toolUse in toolUses)
-                {
-                    var toolName = toolUse.Name;
-                    var toolUseId = toolUse.Id;
-                    var arguments = toolUse.Arguments.EnumerateObject().ToDictionary(
-                        kv => kv.Name,
-                        kv => (object?)kv.Value
-                    );
-
-                    toolCallsByTool[toolName] = toolCallsByTool.GetValueOrDefault(toolName) + 1;
-                    if (ReadTools.Contains(toolName))
-                        sceneReads++;
-                    else if (WriteTools.Contains(toolName))
-                        sceneWrites++;
-
-                    string resultText;
-                    bool isError;
-                    string? errorMessage = null;
-                    try
-                    {
-                        var callResult = await mcpClient.CallToolAsync(
-                            toolName,
-                            arguments,
-                            cancellationToken: cancellationToken
-                        );
-                        resultText =
-                            callResult.Content.OfType<TextContentBlock>().FirstOrDefault()?.Text
-                            ?? "";
-                        var envelope = resultText.Length > 0 ? JsonNode.Parse(resultText) : null;
-                        errorMessage = envelope?["error"]?.GetValue<string>();
-                        isError = callResult.IsError == true || errorMessage is not null;
-                    }
-                    catch (Exception ex)
-                    {
-                        resultText = $"Tool call failed: {ex.Message}";
-                        errorMessage = ex.Message;
-                        isError = true;
-                    }
-
-                    if (isError)
-                        toolErrors.Add(
-                            new ToolErrorLog(
-                                toolName,
-                                errorMessage ?? "tool call failed",
-                                DateTimeOffset.UtcNow
-                            )
-                        );
-
-                    stepCalls.Add(
-                        new ToolCallLog(
-                            toolName,
-                            toolUse.Arguments.GetRawText(),
-                            isError,
-                            errorMessage
-                        )
-                    );
-
-                    resultBlocks.Add(new ModelToolResult(toolUseId, resultText, isError));
-                }
-                previousToolResults = resultBlocks;
-
-                onStep?.Invoke(
-                    new StepRecord(
-                        runId,
-                        llmCalls,
-                        response.InputTokens,
-                        response.OutputTokens,
-                        response.StopReason,
-                        stepCalls
-                    )
-                );
-
-                if (runnerState.IsFinished)
-                {
-                    stopReason = StopReason.FinishCalled;
-                    break;
-                }
-            }
+            result = await RunLoopAsync(
+                config,
+                spec,
+                mcpClient,
+                mcpTools
+                    .Select(tool => new ModelTool(tool.Name, tool.Description, tool.JsonSchema))
+                    .ToList(),
+                runnerState,
+                stopwatch,
+                metrics,
+                runId,
+                onStep,
+                cancellationToken
+            );
         }
         finally
         {
@@ -253,34 +86,105 @@ public sealed class AgentLoop(IModelStrategy modelStrategy)
         var finalSceneJson = SceneSerializer.Serialize(scene);
         var endTime = DateTimeOffset.UtcNow;
 
-        return new RunRecord(
+        return RunRecord.FromRun(
             runId,
-            new RunConfigLog(
-                config.Scenario,
-                config.Variant,
-                config.Approach,
-                config.ModelName,
-                config.Provider.ToString(),
-                config.Model,
-                config.Seed,
-                config.RunIndex
-            ),
+            config,
             startTime,
             endTime,
             stopwatch.Elapsed.TotalMilliseconds,
-            stopReason.ToString(),
-            fatalError,
-            llmCalls,
-            inputTokens,
-            outputTokens,
-            toolCallsByTool.Values.Sum(),
-            toolCallsByTool,
-            sceneReads,
-            sceneWrites,
-            toolErrors,
+            result,
+            metrics,
             finalSceneJson
         );
     }
+
+    private async Task<LoopResult> RunLoopAsync(
+        RunConfig config,
+        ScenarioSpec spec,
+        McpClient mcpClient,
+        IReadOnlyList<ModelTool> tools,
+        ScenarioRunState runnerState,
+        Stopwatch stopwatch,
+        RunMetrics metrics,
+        string runId,
+        Action<StepRecord>? onStep,
+        CancellationToken cancellationToken
+    )
+    {
+        var promptText = ResolvePrompt(spec, config.Variant);
+        var timeoutSeconds = config.TimeoutSeconds ?? spec.TimeoutSeconds;
+        IReadOnlyList<ModelToolResult> previousToolResults = [];
+
+        while (true)
+        {
+            if (stopwatch.Elapsed.TotalSeconds > timeoutSeconds)
+                return new LoopResult(StopReason.Timeout);
+
+            if (metrics.LlmCalls >= config.MaxToolIterations)
+                return new LoopResult(StopReason.IterationLimit);
+
+            ModelResponse response;
+            try
+            {
+                response =
+                    metrics.LlmCalls == 0
+                        ? await modelStrategy.StartAsync(
+                            RunnerConstants.SystemPrompt,
+                            promptText,
+                            tools,
+                            cancellationToken
+                        )
+                        : await modelStrategy.ContinueAsync(previousToolResults, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                return new LoopResult(StopReason.FatalError, ex.Message);
+            }
+
+            metrics.RecordResponse(response);
+            var toolExecutions = await ToolCallExecutor.ExecuteAsync(
+                mcpClient,
+                response.ToolCalls,
+                metrics,
+                cancellationToken
+            );
+            onStep?.Invoke(
+                StepRecord.FromResponse(
+                    runId,
+                    metrics.LlmCalls,
+                    response,
+                    toolExecutions.Select(execution => execution.ToLog()).ToList()
+                )
+            );
+
+            if (response.ToolCalls.Count == 0)
+                return new LoopResult(StopReason.ModelStoppedNaturally);
+
+            previousToolResults = toolExecutions
+                .Select(call => new ModelToolResult(call.Id, call.ResultText, call.IsError))
+                .ToList();
+
+            if (runnerState.IsFinished)
+                return new LoopResult(StopReason.FinishCalled);
+        }
+    }
+
+    private static async Task<McpClient> CreateMcpClientAsync(
+        string baseAddress,
+        CancellationToken cancellationToken
+    ) =>
+        await McpClient.CreateAsync(
+            new HttpClientTransport(
+                new HttpClientTransportOptions
+                {
+                    Endpoint = new Uri($"{baseAddress}/mcp"),
+                    TransportMode = HttpTransportMode.StreamableHttp,
+                    Name = "manipulator-runner",
+                },
+                NullLoggerFactory.Instance
+            ),
+            cancellationToken: cancellationToken
+        );
 
     internal static Anthropic.Models.Messages.InputSchema ToInputSchema(JsonElement mcpJsonSchema)
     {
@@ -291,7 +195,11 @@ public sealed class AgentLoop(IModelStrategy modelStrategy)
             ? req.EnumerateArray().Select(e => e.GetString()!).ToList()
             : [];
 
-        return new Anthropic.Models.Messages.InputSchema { Properties = properties, Required = required };
+        return new Anthropic.Models.Messages.InputSchema
+        {
+            Properties = properties,
+            Required = required,
+        };
     }
 
     private static string ResolvePrompt(ScenarioSpec spec, string? variant)
