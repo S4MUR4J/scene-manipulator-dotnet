@@ -1,6 +1,7 @@
 using Serilog;
 using Serilog.Core;
 using Serilog.Formatting.Compact;
+using Manipulator.Runner.Configuration;
 
 namespace Manipulator.Runner.Logging;
 

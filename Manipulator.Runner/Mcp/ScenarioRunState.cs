@@ -1,4 +1,4 @@
-namespace Manipulator.Runner;
+namespace Manipulator.Runner.Mcp;
 
 sealed class ScenarioRunState
 {

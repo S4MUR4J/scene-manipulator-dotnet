@@ -1,4 +1,4 @@
-namespace Manipulator.Runner;
+namespace Manipulator.Runner.Execution;
 
 /// <summary>
 /// Controlled constants for the agent loop. These must stay identical across the mcp/dsl/text

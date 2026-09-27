@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Manipulator.Core.Ecs;
+using Manipulator.Runner.Mcp;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Manipulator.Runner.Tests;

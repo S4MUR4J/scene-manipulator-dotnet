@@ -1,4 +1,4 @@
-namespace Manipulator.Runner;
+namespace Manipulator.Runner.Configuration;
 
 public sealed record RunConfig(
     string Scenario,

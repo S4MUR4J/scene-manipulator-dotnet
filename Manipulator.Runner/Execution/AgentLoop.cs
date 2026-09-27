@@ -3,15 +3,18 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Serialization;
+using Manipulator.Runner.Configuration;
 using Manipulator.Runner.Logging;
+using Manipulator.Runner.Mcp;
 using Manipulator.Runner.Models;
-using Manipulator.Scenarios.Specs;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging.Abstractions;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
-namespace Manipulator.Runner;
+using ScenarioSpec = Manipulator.Scenarios.Specs.ScenarioSpec;
+
+namespace Manipulator.Runner.Execution;
 
 public enum StopReason
 {

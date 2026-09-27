@@ -16,6 +16,15 @@ For every run, Runner:
 It is not a persistent or deployed MCP service. A future `Manipulator.Server`
 will provide the independently hosted API and MCP surface.
 
+## Project layout
+
+- `Configuration/` contains settings binding and validated run configuration.
+- `Execution/` contains process hosting, the application coordinator, and the
+  model/tool execution loop.
+- `Mcp/` contains the isolated per-run MCP host and its completion tool.
+- `Models/` contains model-provider strategies and their shared abstractions.
+- `Logging/` contains artifact paths and JSONL run-record serialization.
+
 ## Configuration
 
 Runner reads its base research-run configuration from `appsettings.json`.
