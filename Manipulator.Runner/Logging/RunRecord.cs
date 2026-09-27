@@ -4,6 +4,8 @@ public sealed record RunConfigLog(
     string Scenario,
     string? Variant,
     string Approach,
+    string ModelName,
+    string Provider,
     string Model,
     int? Seed,
     int RunIndex

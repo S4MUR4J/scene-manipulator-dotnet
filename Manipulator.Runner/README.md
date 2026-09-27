@@ -18,32 +18,40 @@ will provide the independently hosted API and MCP surface.
 
 ## Configuration
 
-Runner reads defaults from `appsettings.json`, then lets user secrets,
-environment variables, and command-line arguments override them. Set the
-Anthropic API key outside tracked configuration:
+Runner reads its complete research-run configuration from the checked-in
+`appsettings.ScenarioOne.json` template. It does not accept environment
+variables or command-line arguments for run configuration. Edit that template
+to choose the scenario, limits, artifact location, and model matrix.
+
+The only settings stored outside tracked configuration are provider API keys.
+Set both keys when using the default Anthropic/OpenAI matrix:
 
 ```bash
-dotnet user-secrets set ANTHROPIC_API_KEY <key> --project Manipulator.Runner
+dotnet user-secrets set Anthropic:ApiKey <key> --project Manipulator.Runner
+dotnet user-secrets set OpenAI:ApiKey <key> --project Manipulator.Runner
 ```
 
-Run a scenario with:
+Each enabled `Runner:Models` entry has a stable name, provider, and provider
+model ID. A single invocation runs all enabled entries concurrently. Runner
+validates every enabled provider key before it starts any model, and fails the
+whole matrix if one is missing.
+
+Run the scenario-one template with:
 
 ```bash
-dotnet run --project Manipulator.Runner -- \
-  --scenario-file ../scenarios/s1-new-gen-livingroom.json \
-  --scenario 1 \
-  --batch adhoc
+dotnet run --project Manipulator.Runner
 ```
 
-Useful options include `--variant`, `--model`, `--seed`, `--run-index`,
-`--out-dir`, `--max-iterations`, and `--timeout-s`. Only the `mcp` approach is
-implemented today.
+Only the `mcp` approach is implemented today. Future scenario-specific
+templates can use the same `Runner` configuration schema.
 
 ## Outputs
 
-By default, run artifacts are stored under `runs/<batch>/`:
+By default, run artifacts are stored under `runs/<batch>/`. Model names are
+included in filenames so concurrently evaluated models never overwrite each
+other:
 
-- `<batch>.jsonl` contains per-step and completed-run telemetry, including
+- `<model-name>.jsonl` contains per-step and completed-run telemetry, including
   model token usage and tool errors.
-- `<scenario>_<approach>_<run-index>.json` contains the final serialized
+- `<scenario>_<approach>_<model-name>_<run-index>.json` contains the final serialized
   scene.

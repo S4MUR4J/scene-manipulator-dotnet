@@ -1,89 +1,124 @@
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 
 namespace Manipulator.Runner.Tests;
 
 public class RunConfigTests
 {
-    private static IConfiguration BuildConfiguration(Dictionary<string, string> args) =>
-        new ConfigurationBuilder().AddInMemoryCollection(args!).Build();
-
     [Fact]
-    public void FromConfiguration_MissingScenarioFile_Throws()
+    public void ToRunConfigs_MissingScenarioFile_Throws()
     {
-        var configuration = BuildConfiguration(new Dictionary<string, string>());
+        var settings = ValidSettings() with { ScenarioFile = null };
 
-        var act = () => RunConfig.FromConfiguration(configuration);
+        var act = settings.ToRunConfigs;
 
-        act.Should().Throw<ArgumentException>().WithMessage("*scenario-file*");
+        act.Should().Throw<ArgumentException>().WithMessage("*Runner:ScenarioFile*");
     }
 
     [Fact]
-    public void FromConfiguration_NonMcpApproach_Throws()
+    public void ToRunConfigs_NonMcpApproach_Throws()
     {
-        var configuration = BuildConfiguration(
-            new Dictionary<string, string>
-            {
-                ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
-                ["approach"] = "dsl",
-            }
-        );
+        var settings = ValidSettings() with { Approach = "dsl" };
 
-        var act = () => RunConfig.FromConfiguration(configuration);
+        var act = settings.ToRunConfigs;
 
         act.Should().Throw<NotSupportedException>().WithMessage("*dsl*");
     }
 
     [Fact]
-    public void FromConfiguration_ValidArgs_AppliesDefaults()
+    public void ToRunConfigs_NoEnabledModels_Throws()
     {
-        var configuration = BuildConfiguration(
-            new Dictionary<string, string>
-            {
-                ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
-            }
-        );
+        var settings = ValidSettings() with
+        {
+            Models = [new ModelSettings { Name = "sonnet", Provider = "Anthropic", Model = "claude-sonnet-5", Enabled = false }],
+        };
 
-        var config = RunConfig.FromConfiguration(configuration);
+        var act = settings.ToRunConfigs;
 
-        config.Approach.Should().Be("mcp");
-        config.Model.Should().Be("claude-sonnet-5");
-        config.RunIndex.Should().Be(0);
-        config.Batch.Should().Be("adhoc");
-        config.MaxToolIterations.Should().Be(RunnerConstants.DefaultMaxToolIterations);
-        config.TimeoutSeconds.Should().BeNull();
-        config.Seed.Should().BeNull();
+        act.Should().Throw<ArgumentException>().WithMessage("*enabled model*");
     }
 
     [Fact]
-    public void FromConfiguration_OverridesGivenExplicitly()
+    public void ToRunConfigs_DuplicateEnabledModelNames_Throws()
     {
-        var configuration = BuildConfiguration(
-            new Dictionary<string, string>
-            {
-                ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
-                ["scenario"] = "1",
-                ["variant"] = "2",
-                ["model"] = "claude-opus-5",
-                ["seed"] = "42",
-                ["run-index"] = "3",
-                ["batch"] = "pilot",
-                ["out-dir"] = "custom-runs",
-                ["max-iterations"] = "10",
-                ["timeout-s"] = "60",
-            }
-        );
+        var settings = ValidSettings() with
+        {
+            Models =
+            [
+                new ModelSettings { Name = "model", Provider = "Anthropic", Model = "claude-sonnet-5" },
+                new ModelSettings { Name = "MODEL", Provider = "OpenAi", Model = "gpt-5" },
+            ],
+        };
 
-        var config = RunConfig.FromConfiguration(configuration);
+        var act = settings.ToRunConfigs;
 
-        config.Scenario.Should().Be("1");
-        config.Variant.Should().Be("2");
-        config.Model.Should().Be("claude-opus-5");
-        config.Seed.Should().Be(42);
-        config.RunIndex.Should().Be(3);
-        config.Batch.Should().Be("pilot");
-        config.OutDir.Should().Be("custom-runs");
-        config.MaxToolIterations.Should().Be(10);
-        config.TimeoutSeconds.Should().Be(60);
+        act.Should().Throw<ArgumentException>().WithMessage("*duplicate name*");
     }
+
+    [Fact]
+    public void ToRunConfigs_EnabledMatrix_MapsEachProvider()
+    {
+        var settings = ValidSettings() with
+        {
+            Models =
+            [
+                new ModelSettings { Name = "sonnet", Provider = "Anthropic", Model = "claude-sonnet-5" },
+                new ModelSettings { Name = "gpt", Provider = "OpenAi", Model = "gpt-5" },
+                new ModelSettings { Name = "disabled", Provider = "OpenAi", Model = "gpt-5-mini", Enabled = false },
+            ],
+        };
+
+        var configs = settings.ToRunConfigs();
+
+        configs.Should()
+            .BeEquivalentTo(
+                [
+                    new RunConfig(
+                        "1",
+                        "2",
+                        "mcp",
+                        "sonnet",
+                        ModelProvider.Anthropic,
+                        "claude-sonnet-5",
+                        42,
+                        3,
+                        "scenarios/s1.json",
+                        "pilot",
+                        "custom-runs",
+                        10,
+                        60
+                    ),
+                    new RunConfig(
+                        "1",
+                        "2",
+                        "mcp",
+                        "gpt",
+                        ModelProvider.OpenAi,
+                        "gpt-5",
+                        42,
+                        3,
+                        "scenarios/s1.json",
+                        "pilot",
+                        "custom-runs",
+                        10,
+                        60
+                    ),
+                ]
+            );
+    }
+
+    private static RunnerSettings ValidSettings() =>
+        new()
+        {
+            ScenarioFile = "scenarios/s1.json",
+            Scenario = "1",
+            Variant = "2",
+            Approach = "mcp",
+            Seed = 42,
+            RunIndex = 3,
+            Batch = "pilot",
+            OutDir = "custom-runs",
+            MaxToolIterations = 10,
+            TimeoutSeconds = 60,
+            Models = [new ModelSettings { Name = "sonnet", Provider = "Anthropic", Model = "claude-sonnet-5" }],
+        };
 }

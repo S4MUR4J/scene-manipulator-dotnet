@@ -57,4 +57,35 @@ public class RunLoggerTests
             File.Delete(path);
         }
     }
+
+    [Fact]
+    public void ArtifactPaths_UseModelNameToSeparateConcurrentRuns()
+    {
+        var sonnet = CreateConfig("claude-sonnet");
+        var gpt = CreateConfig("gpt-5");
+
+        RunLogger.JsonlPath("runs", "batch", sonnet)
+            .Should()
+            .NotBe(RunLogger.JsonlPath("runs", "batch", gpt));
+        RunLogger.FinalScenePath("runs", "batch", sonnet)
+            .Should()
+            .NotBe(RunLogger.FinalScenePath("runs", "batch", gpt));
+    }
+
+    private static RunConfig CreateConfig(string modelName) =>
+        new(
+            "1",
+            null,
+            "mcp",
+            modelName,
+            ModelProvider.Anthropic,
+            "model",
+            null,
+            0,
+            "scenario.json",
+            "batch",
+            "runs",
+            10,
+            null
+        );
 }
