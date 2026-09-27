@@ -16,6 +16,7 @@ services:
       - "8000:8080"
     environment:
       ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=manipulator;Username=admin;Password=password"
+      Authentication__ApiKey: ${AUTHENTICATION_API_KEY:-dev-api-key}
     depends_on:
       manipulator.db.postgres:
         condition: service_healthy
