@@ -1,5 +1,3 @@
-using System.Text.Json.Nodes;
-
 namespace Manipulator.Harness.Logging;
 
 public sealed record RunConfigLog(
@@ -13,20 +11,19 @@ public sealed record RunConfigLog(
 
 public sealed record ToolErrorLog(string Tool, string Message, DateTimeOffset At);
 
-public sealed record ToolCallLog(string Tool, JsonNode? Arguments, bool IsError, string? Error);
+/// <summary>Arguments are logged as raw JSON text, not parsed - keeps this a plain log record.</summary>
+public sealed record ToolCallLog(string Tool, string ArgumentsJson, bool IsError, string? Error);
 
 public sealed record StepRecord(
     string RunId,
-    int Iteration,
-    int InputTokens,
-    int OutputTokens,
+    long Iteration,
+    long InputTokens,
+    long OutputTokens,
     string StopReason,
     IReadOnlyList<ToolCallLog> ToolCalls
-)
-{
-    public string RecordType => "step";
-}
+);
 
+/// <summary>FinalSceneJson is the raw plain-scene-format JSON text (also saved as a standalone file).</summary>
 public sealed record RunRecord(
     string RunId,
     RunConfigLog Config,
@@ -35,16 +32,13 @@ public sealed record RunRecord(
     double DurationMs,
     string StopReason,
     string? FatalError,
-    int LlmCalls,
-    int InputTokens,
-    int OutputTokens,
+    long LlmCalls,
+    long InputTokens,
+    long OutputTokens,
     int ToolCallsTotal,
     IReadOnlyDictionary<string, int> ToolCallsByTool,
     int SceneReads,
     int SceneWrites,
     IReadOnlyList<ToolErrorLog> ToolErrors,
-    JsonNode? FinalScene
-)
-{
-    public string RecordType => "run";
-}
+    string FinalSceneJson
+);

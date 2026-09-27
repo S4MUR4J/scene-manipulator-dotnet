@@ -15,10 +15,10 @@ public static class HarnessConstants
         + "finish tool exactly once when the scene satisfies it and there is nothing left to do. "
         + "Do not describe what you would do instead of doing it - call the tools.";
 
-    public const double Temperature = 0.0;
-    public const int MaxTokens = 4096;
-    public const string AnthropicVersion = "2023-06-01";
-    public const string AnthropicEndpoint = "https://api.anthropic.com/v1/messages";
+    // Deliberately no Temperature constant: models released after Claude Opus 4.6 reject any
+    // value other than the default (the Anthropic SDK marks MessageCreateParams.Temperature
+    // Obsolete for this reason), so it's left unset rather than forced to 0 for "determinism".
+    public const long MaxTokens = 4096;
 
     public const int DefaultMaxToolIterations = 30;
     public const int DefaultTimeoutSeconds = 300;

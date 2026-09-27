@@ -1,8 +1,10 @@
 using System.Diagnostics;
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using Anthropic;
+using Anthropic.Models.Messages;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Serialization;
-using Manipulator.Harness.Anthropic;
 using Manipulator.Harness.Logging;
 using Manipulator.Runner;
 using Manipulator.Scenarios.Specs;
@@ -11,6 +13,8 @@ using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.Extensions.Logging.Abstractions;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
+using AnthropicRole = Anthropic.Models.Messages.Role;
+using AnthropicTool = Anthropic.Models.Messages.Tool;
 
 namespace Manipulator.Harness;
 
@@ -25,9 +29,10 @@ public enum StopReason
 
 /// <summary>
 /// The MCP-approach agent loop: starts an in-process MCP server session for the run, forwards its
-/// tool list to the LLM, executes tool calls through the MCP client, and stops on finish / iteration
-/// limit / timeout / fatal error. Identical loop, system prompt and model parameters are meant to be
-/// reused by the dsl/text approaches once they exist (MAN-77, MAN-82).
+/// tool list to the LLM (via the official <c>Anthropic</c> SDK), executes tool calls through the
+/// MCP client, and stops on finish / iteration limit / timeout / fatal error. Identical loop,
+/// system prompt and model parameters are meant to be reused by the dsl/text approaches once they
+/// exist (MAN-77, MAN-82).
 /// </summary>
 public sealed class AgentLoop(AnthropicClient anthropicClient)
 {
@@ -80,9 +85,9 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
 
         var toolCallsByTool = new Dictionary<string, int>();
         var toolErrors = new List<ToolErrorLog>();
-        var llmCalls = 0;
-        var inputTokens = 0;
-        var outputTokens = 0;
+        long llmCalls = 0;
+        long inputTokens = 0;
+        long outputTokens = 0;
         var sceneReads = 0;
         var sceneWrites = 0;
         StopReason stopReason;
@@ -106,30 +111,22 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
             );
 
             var mcpTools = await mcpClient.ListToolsAsync(cancellationToken: cancellationToken);
-            var tools = new JsonArray();
-            foreach (var tool in mcpTools)
-            {
-                tools.Add(
-                    new JsonObject
-                    {
-                        ["name"] = tool.Name,
-                        ["description"] = tool.Description,
-                        ["input_schema"] = JsonNode.Parse(tool.JsonSchema.GetRawText()),
-                    }
-                );
-            }
+            var tools = mcpTools
+                .Select(tool =>
+                    (ToolUnion)
+                        new AnthropicTool
+                        {
+                            Name = tool.Name,
+                            Description = tool.Description,
+                            InputSchema = ToInputSchema(tool.JsonSchema),
+                        }
+                )
+                .ToList();
 
             var promptText = ResolvePrompt(spec, config.Variant);
-            var messages = new JsonArray
+            var messages = new List<MessageParam>
             {
-                new JsonObject
-                {
-                    ["role"] = "user",
-                    ["content"] = new JsonArray
-                    {
-                        new JsonObject { ["type"] = "text", ["text"] = promptText },
-                    },
-                },
+                new() { Role = AnthropicRole.User, Content = promptText },
             };
 
             var timeoutSeconds = config.TimeoutSeconds ?? spec.TimeoutSeconds;
@@ -148,14 +145,18 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                     break;
                 }
 
-                AnthropicResponse response;
+                Message response;
                 try
                 {
-                    response = await anthropicClient.SendAsync(
-                        config.Model,
-                        HarnessConstants.SystemPrompt,
-                        messages,
-                        tools,
+                    response = await anthropicClient.Messages.Create(
+                        new MessageCreateParams
+                        {
+                            Model = config.Model,
+                            MaxTokens = HarnessConstants.MaxTokens,
+                            System = HarnessConstants.SystemPrompt,
+                            Messages = messages,
+                            Tools = tools,
+                        },
                         cancellationToken
                     );
                 }
@@ -167,20 +168,23 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                 }
 
                 llmCalls++;
-                inputTokens += response.InputTokens;
-                outputTokens += response.OutputTokens;
+                inputTokens += response.Usage.InputTokens;
+                outputTokens += response.Usage.OutputTokens;
 
                 messages.Add(
-                    new JsonObject
+                    new MessageParam
                     {
-                        ["role"] = "assistant",
-                        ["content"] = response.Content.DeepClone(),
+                        Role = AnthropicRole.Assistant,
+                        Content = response
+                            .Content.Select(block => new ContentBlockParam(block.Json))
+                            .ToList(),
                     }
                 );
 
                 var toolUses = response
-                    .Content.OfType<JsonObject>()
-                    .Where(block => block["type"]?.GetValue<string>() == "tool_use")
+                    .Content.Select(block => block.TryPickToolUse(out var toolUse) ? toolUse : null)
+                    .Where(toolUse => toolUse is not null)
+                    .Select(toolUse => toolUse!)
                     .ToList();
 
                 var stepCalls = new List<ToolCallLog>();
@@ -191,9 +195,9 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                         new StepRecord(
                             runId,
                             llmCalls,
-                            response.InputTokens,
-                            response.OutputTokens,
-                            response.StopReason,
+                            response.Usage.InputTokens,
+                            response.Usage.OutputTokens,
+                            response.StopReason?.ToString() ?? "end_turn",
                             stepCalls
                         )
                     );
@@ -201,13 +205,15 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                     break;
                 }
 
-                var resultBlocks = new JsonArray();
+                var resultBlocks = new List<ContentBlockParam>();
                 foreach (var toolUse in toolUses)
                 {
-                    var toolName = toolUse["name"]!.GetValue<string>();
-                    var toolUseId = toolUse["id"]!.GetValue<string>();
-                    var input = toolUse["input"] as JsonObject ?? new JsonObject();
-                    var arguments = input.ToDictionary(kv => kv.Key, kv => (object?)kv.Value);
+                    var toolName = toolUse.Name;
+                    var toolUseId = toolUse.ID;
+                    var arguments = toolUse.Input.ToDictionary(
+                        kv => kv.Key,
+                        kv => (object?)kv.Value
+                    );
 
                     toolCallsByTool[toolName] = toolCallsByTool.GetValueOrDefault(toolName) + 1;
                     if (ReadTools.Contains(toolName))
@@ -249,29 +255,34 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
                         );
 
                     stepCalls.Add(
-                        new ToolCallLog(toolName, input.DeepClone(), isError, errorMessage)
+                        new ToolCallLog(
+                            toolName,
+                            JsonSerializer.Serialize(toolUse.Input),
+                            isError,
+                            errorMessage
+                        )
                     );
 
                     resultBlocks.Add(
-                        new JsonObject
+                        new ToolResultBlockParam(toolUseId)
                         {
-                            ["type"] = "tool_result",
-                            ["tool_use_id"] = toolUseId,
-                            ["content"] = resultText,
-                            ["is_error"] = isError,
+                            Content = resultText,
+                            IsError = isError,
                         }
                     );
                 }
 
-                messages.Add(new JsonObject { ["role"] = "user", ["content"] = resultBlocks });
+                messages.Add(
+                    new MessageParam { Role = AnthropicRole.User, Content = resultBlocks }
+                );
 
                 onStep?.Invoke(
                     new StepRecord(
                         runId,
                         llmCalls,
-                        response.InputTokens,
-                        response.OutputTokens,
-                        response.StopReason,
+                        response.Usage.InputTokens,
+                        response.Usage.OutputTokens,
+                        response.StopReason?.ToString() ?? "tool_use",
                         stepCalls
                     )
                 );
@@ -319,8 +330,20 @@ public sealed class AgentLoop(AnthropicClient anthropicClient)
             sceneReads,
             sceneWrites,
             toolErrors,
-            JsonNode.Parse(finalSceneJson)
+            finalSceneJson
         );
+    }
+
+    private static InputSchema ToInputSchema(JsonElement mcpJsonSchema)
+    {
+        var properties = mcpJsonSchema.TryGetProperty("properties", out var props)
+            ? props.EnumerateObject().ToDictionary(p => p.Name, p => p.Value)
+            : new Dictionary<string, JsonElement>();
+        var required = mcpJsonSchema.TryGetProperty("required", out var req)
+            ? req.EnumerateArray().Select(e => e.GetString()!).ToList()
+            : [];
+
+        return new InputSchema { Properties = properties, Required = required };
     }
 
     private static string ResolvePrompt(ScenarioSpec spec, string? variant)
