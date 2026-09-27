@@ -1,0 +1,76 @@
+{
+	"id": "S1-new-gen-livingroom",
+	"category": "new_scene_generation",
+	"prompt": "Generate a living room scene: a sofa, a coffee table placed between the sofa and the back wall, two stools next to the coffee table, and a floor lamp beside the sofa. Everything should stand on the floor, with a single wall behind the room.",
+	"variants": [
+		"Furnish a living room: a sofa with a coffee table in front of it against the back wall, two stools by the table, and a floor lamp next to the sofa — all resting on the floor with one wall behind.",
+		"Create a living room layout: a sofa, a coffee table positioned between the sofa and the wall, a pair of stools close to the table, and a floor lamp near the sofa. Just a floor and a single back wall."
+	],
+	"roles": {
+		"sofa": { "name_contains": ["sofa"], "geometry": ["Cube"], "count": 1 },
+		"coffee_table": { "name_contains": ["coffee"], "geometry": ["Cube"], "count": 1 },
+		"stool": { "name_contains": ["stool"], "geometry": ["Cylinder"], "count": 2 },
+		"lamp": { "name_contains": ["lamp"], "geometry": ["Cylinder"], "count": 1 },
+		"floor": { "name_contains": ["floor"], "geometry": ["Plane"], "count": 1 },
+		"wall": { "name_contains": ["wall"], "geometry": ["Plane", "Cube"], "count": 1 }
+	},
+	"requirements": [
+		{
+			"id": "R1-entity-set",
+			"type": "entity_exists",
+			"roles": ["sofa", "coffee_table", "stool", "lamp", "floor", "wall"]
+		},
+		{
+			"id": "R2-on-floor",
+			"type": "spatial_relation",
+			"relation": "on_top_of",
+			"subjects": ["sofa", "coffee_table", "stool", "lamp"],
+			"references": ["floor"],
+			"params": { "tolerance_m": 0.05 }
+		},
+		{
+			"id": "R3-table-between-sofa-and-wall",
+			"type": "spatial_relation",
+			"relation": "between",
+			"subjects": ["coffee_table"],
+			"references": ["sofa", "wall"],
+			"params": { "margin_m": 0.3 }
+		},
+		{
+			"id": "R4-stools-near-table",
+			"type": "spatial_relation",
+			"relation": "near",
+			"subjects": ["stool"],
+			"references": ["coffee_table"],
+			"params": { "max_distance_m": 1.0, "plane": "xz" }
+		},
+		{
+			"id": "R5-lamp-near-sofa",
+			"type": "spatial_relation",
+			"relation": "near",
+			"subjects": ["lamp"],
+			"references": ["sofa"],
+			"params": { "max_distance_m": 1.0, "plane": "xz" }
+		},
+		{
+			"id": "R6-no-furniture-overlap",
+			"type": "spatial_relation",
+			"relation": "no_overlap",
+			"subjects": ["sofa", "coffee_table", "stool", "lamp"],
+			"params": { "min_separation_m": 0.4 }
+		},
+		{
+			"id": "R7-reasonable-scale",
+			"type": "spatial_relation",
+			"relation": "scale_order",
+			"subjects": [],
+			"params": {
+				"order": [["sofa"], ["coffee_table"], ["stool", "lamp"]],
+				"metric": "aabb_volume"
+			}
+		}
+	],
+	"iteration_limit": 1,
+	"timeout_s": 120,
+	"runs": { "main": 10, "per_variant": 5 }
+}

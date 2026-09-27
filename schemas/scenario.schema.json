@@ -1,0 +1,206 @@
+{
+	"$schema": "https://json-schema.org/draft/2020-12/schema",
+	"$id": "https://scene-keeper.com/scenario.schema.json",
+	"title": "ScenarioSpec",
+	"description": "A machine-readable spec for one experiment scenario: prompt(s), optional starting scene, requirements a validator scores the resulting scene against, and run parameters.",
+	"type": "object",
+	"properties": {
+		"id": { "type": "string", "minLength": 1 },
+		"category": { "type": "string", "minLength": 1 },
+		"prompt": { "type": "string", "minLength": 1 },
+		"variants": {
+			"type": "array",
+			"description": "Paraphrases of 'prompt' with the same requirements, different wording/order.",
+			"items": { "type": "string", "minLength": 1 }
+		},
+		"starting_scene": {
+			"description": "Scene the agent starts from, in the scene content format. Omitted for pure-generation scenarios.",
+			"$ref": "scene.schema.json"
+		},
+		"roles": {
+			"type": "object",
+			"description": "Names entities can be referred to by in 'requirements'. Agent-generated entity ids are unpredictable, so requirements match by EntityName, optionally narrowed by geometry.",
+			"minProperties": 1,
+			"additionalProperties": { "$ref": "#/$defs/role_selector" }
+		},
+		"requirements": {
+			"type": "array",
+			"minItems": 1,
+			"items": { "$ref": "#/$defs/requirement" }
+		},
+		"iteration_limit": {
+			"type": "integer",
+			"minimum": 1,
+			"description": "Max self-correction rounds the agent gets. 1 = one-shot."
+		},
+		"timeout_s": { "type": "integer", "minimum": 1 },
+		"runs": { "$ref": "#/$defs/run_config" }
+	},
+	"required": [
+		"id",
+		"category",
+		"prompt",
+		"roles",
+		"requirements",
+		"iteration_limit",
+		"timeout_s",
+		"runs"
+	],
+	"additionalProperties": false,
+	"$defs": {
+		"role_selector": {
+			"type": "object",
+			"properties": {
+				"name_contains": {
+					"type": "array",
+					"description": "Case-insensitive substrings matched against EntityName; any one matching is enough.",
+					"minItems": 1,
+					"items": { "type": "string", "minLength": 1 }
+				},
+				"geometry": {
+					"type": "array",
+					"description": "Optional geometry filter, applied in addition to name_contains when a name alone would be ambiguous.",
+					"items": {
+						"type": "string",
+						"enum": [
+							"Cube",
+							"Sphere",
+							"Cylinder",
+							"Cone",
+							"Capsule",
+							"Plane",
+							"Torus",
+							"Hemisphere"
+						]
+					}
+				},
+				"count": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Expected number of entities matching this role. A different actual count fails the role's entity_exists requirement; every matching entity is checked by any other requirement referencing the role (an 'all' quantifier), not just one arbitrarily picked."
+				}
+			},
+			"required": ["name_contains", "count"],
+			"additionalProperties": false
+		},
+		"requirement": {
+			"type": "object",
+			"oneOf": [
+				{ "$ref": "#/$defs/entity_exists_requirement" },
+				{ "$ref": "#/$defs/component_value_requirement" },
+				{ "$ref": "#/$defs/spatial_relation_requirement" }
+			]
+		},
+		"entity_exists_requirement": {
+			"type": "object",
+			"properties": {
+				"id": { "type": "string", "minLength": 1 },
+				"type": { "const": "entity_exists" },
+				"roles": {
+					"type": "array",
+					"minItems": 1,
+					"items": { "type": "string", "minLength": 1 }
+				}
+			},
+			"required": ["id", "type", "roles"],
+			"additionalProperties": false
+		},
+		"component_value_requirement": {
+			"type": "object",
+			"properties": {
+				"id": { "type": "string", "minLength": 1 },
+				"type": { "const": "component_value" },
+				"role": { "type": "string", "minLength": 1 },
+				"component": { "type": "string", "minLength": 1 },
+				"field": { "type": "string", "minLength": 1 },
+				"constraint": {
+					"type": "object",
+					"description": "expected_value for exact match (e.g. a hex color); min/max for a numeric range; hue_min_deg/hue_max_deg for a color's hue range.",
+					"properties": {
+						"expected_value": { "type": "string" },
+						"min": { "type": "number" },
+						"max": { "type": "number" },
+						"hue_min_deg": { "type": "number", "minimum": 0, "maximum": 360 },
+						"hue_max_deg": { "type": "number", "minimum": 0, "maximum": 360 }
+					},
+					"minProperties": 1,
+					"additionalProperties": false
+				}
+			},
+			"required": ["id", "type", "role", "component", "field", "constraint"],
+			"additionalProperties": false
+		},
+		"spatial_relation_requirement": {
+			"type": "object",
+			"properties": {
+				"id": { "type": "string", "minLength": 1 },
+				"type": { "const": "spatial_relation" },
+				"relation": {
+					"type": "string",
+					"enum": [
+						"on_top_of",
+						"between",
+						"near",
+						"left_of",
+						"right_of",
+						"symmetric_around",
+						"facing",
+						"no_overlap",
+						"scale_order"
+					]
+				},
+				"subjects": {
+					"type": "array",
+					"items": { "type": "string", "minLength": 1 }
+				},
+				"references": {
+					"type": "array",
+					"items": { "type": "string", "minLength": 1 }
+				},
+				"params": {
+					"type": "object",
+					"description": "Which fields apply depends on 'relation': on_top_of uses tolerance_m; between uses margin_m (and exactly 2 references); near uses max_distance_m; no_overlap uses min_separation_m; scale_order uses order and metric. plane restricts distance/position checks to an axis pair ('xz', 'xy'); omitted means all 3 axes.",
+					"properties": {
+						"max_distance_m": { "type": "number", "exclusiveMinimum": 0 },
+						"min_separation_m": { "type": "number", "minimum": 0 },
+						"margin_m": { "type": "number", "minimum": 0 },
+						"tolerance_m": { "type": "number", "exclusiveMinimum": 0 },
+						"tolerance_deg": { "type": "number", "exclusiveMinimum": 0 },
+						"plane": { "type": "string", "enum": ["xz", "xy", "xyz"] },
+						"order": {
+							"type": "array",
+							"description": "Role groups from largest to smallest expected size; roles within a group are unordered relative to each other.",
+							"minItems": 2,
+							"items": {
+								"type": "array",
+								"minItems": 1,
+								"items": { "type": "string", "minLength": 1 }
+							}
+						},
+						"metric": { "type": "string", "enum": ["aabb_volume"] }
+					},
+					"additionalProperties": false
+				}
+			},
+			"required": ["id", "type", "relation"],
+			"additionalProperties": false
+		},
+		"run_config": {
+			"type": "object",
+			"properties": {
+				"main": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Runs on the fixed main prompt."
+				},
+				"per_variant": {
+					"type": "integer",
+					"minimum": 1,
+					"description": "Runs on each prompt variant."
+				}
+			},
+			"required": ["main", "per_variant"],
+			"additionalProperties": false
+		}
+	}
+}
