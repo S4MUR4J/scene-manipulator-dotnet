@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Manipulator.Runner.Configuration;
 using Manipulator.Runner.Execution;
+using Manipulator.Runner.Logging;
 using Manipulator.Runner.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -52,6 +53,7 @@ public class RunnerApplicationTests
         var builder = Host.CreateApplicationBuilder();
         builder.Services.Configure<RunnerSettings>(_ => { });
         builder.Services.AddSingleton<ModelStrategyFactory>();
+        builder.Services.AddSingleton<RunArtifactWriter>();
         builder.Services.AddSingleton<RunnerApplication>();
         builder.Services.AddSingleton<RunnerExitCode>();
         builder.Services.AddHostedService<RunnerHostedService>();
@@ -66,5 +68,12 @@ public class RunnerApplicationTests
     private static RunnerApplication CreateApplication(
         RunnerSettings settings,
         IConfiguration configuration
-    ) => new(Options.Create(settings), configuration, new ModelStrategyFactory(configuration));
+    ) =>
+        new(
+            Options.Create(settings),
+            configuration,
+            new ModelStrategyFactory(configuration),
+            new RunArtifactWriter(),
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<RunnerApplication>.Instance
+        );
 }
