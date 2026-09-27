@@ -1,42 +1,50 @@
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 
 namespace Manipulator.Harness.Tests;
 
 public class RunConfigTests
 {
-    [Fact]
-    public void FromArgs_MissingScenarioFile_Throws()
-    {
-        var args = new Dictionary<string, string>();
+    private static IConfiguration BuildConfiguration(Dictionary<string, string> args) =>
+        new ConfigurationBuilder().AddInMemoryCollection(args!).Build();
 
-        var act = () => RunConfig.FromArgs(args);
+    [Fact]
+    public void FromConfiguration_MissingScenarioFile_Throws()
+    {
+        var configuration = BuildConfiguration(new Dictionary<string, string>());
+
+        var act = () => RunConfig.FromConfiguration(configuration);
 
         act.Should().Throw<ArgumentException>().WithMessage("*scenario-file*");
     }
 
     [Fact]
-    public void FromArgs_NonMcpApproach_Throws()
+    public void FromConfiguration_NonMcpApproach_Throws()
     {
-        var args = new Dictionary<string, string>
-        {
-            ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
-            ["approach"] = "dsl",
-        };
+        var configuration = BuildConfiguration(
+            new Dictionary<string, string>
+            {
+                ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
+                ["approach"] = "dsl",
+            }
+        );
 
-        var act = () => RunConfig.FromArgs(args);
+        var act = () => RunConfig.FromConfiguration(configuration);
 
         act.Should().Throw<NotSupportedException>().WithMessage("*dsl*");
     }
 
     [Fact]
-    public void FromArgs_ValidArgs_AppliesDefaults()
+    public void FromConfiguration_ValidArgs_AppliesDefaults()
     {
-        var args = new Dictionary<string, string>
-        {
-            ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
-        };
+        var configuration = BuildConfiguration(
+            new Dictionary<string, string>
+            {
+                ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
+            }
+        );
 
-        var config = RunConfig.FromArgs(args);
+        var config = RunConfig.FromConfiguration(configuration);
 
         config.Approach.Should().Be("mcp");
         config.Model.Should().Be("claude-sonnet-5");
@@ -48,23 +56,25 @@ public class RunConfigTests
     }
 
     [Fact]
-    public void FromArgs_OverridesGivenExplicitly()
+    public void FromConfiguration_OverridesGivenExplicitly()
     {
-        var args = new Dictionary<string, string>
-        {
-            ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
-            ["scenario"] = "1",
-            ["variant"] = "2",
-            ["model"] = "claude-opus-5",
-            ["seed"] = "42",
-            ["run-index"] = "3",
-            ["batch"] = "pilot",
-            ["out-dir"] = "custom-runs",
-            ["max-iterations"] = "10",
-            ["timeout-s"] = "60",
-        };
+        var configuration = BuildConfiguration(
+            new Dictionary<string, string>
+            {
+                ["scenario-file"] = "scenarios/s1-new-gen-livingroom.json",
+                ["scenario"] = "1",
+                ["variant"] = "2",
+                ["model"] = "claude-opus-5",
+                ["seed"] = "42",
+                ["run-index"] = "3",
+                ["batch"] = "pilot",
+                ["out-dir"] = "custom-runs",
+                ["max-iterations"] = "10",
+                ["timeout-s"] = "60",
+            }
+        );
 
-        var config = RunConfig.FromArgs(args);
+        var config = RunConfig.FromConfiguration(configuration);
 
         config.Scenario.Should().Be("1");
         config.Variant.Should().Be("2");

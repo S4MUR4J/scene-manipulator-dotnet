@@ -14,34 +14,38 @@ public sealed record RunConfig(
     int? TimeoutSeconds
 )
 {
-    public static RunConfig FromArgs(IReadOnlyDictionary<string, string> args)
+    /// <summary>
+    /// Reads run config from <paramref name="configuration"/> - appsettings.json holds the
+    /// defaults for day-to-day runs, command-line args (added last, highest precedence in
+    /// Program.cs) override them for one-off variations.
+    /// </summary>
+    public static RunConfig FromConfiguration(IConfiguration configuration)
     {
-        var approach = args.GetValueOrDefault("approach", "mcp");
+        var approach = configuration["approach"] ?? "mcp";
         if (approach != "mcp")
             throw new NotSupportedException(
                 $"Approach '{approach}' is not implemented yet - only 'mcp' runs end-to-end "
                     + "today (see MAN-77 for text, MAN-82 for dsl)."
             );
 
-        if (!args.TryGetValue("scenario-file", out var scenarioFile))
+        var scenarioFile = configuration["scenario-file"];
+        if (string.IsNullOrEmpty(scenarioFile))
             throw new ArgumentException("--scenario-file is required.");
 
         return new RunConfig(
-            Scenario: args.GetValueOrDefault("scenario", "unknown"),
-            Variant: args.GetValueOrDefault("variant"),
+            Scenario: configuration["scenario"] ?? "unknown",
+            Variant: configuration["variant"],
             Approach: approach,
-            Model: args.GetValueOrDefault("model", "claude-sonnet-5"),
-            Seed: args.TryGetValue("seed", out var seed) ? int.Parse(seed) : null,
-            RunIndex: args.TryGetValue("run-index", out var runIndex) ? int.Parse(runIndex) : 0,
+            Model: configuration["model"] ?? "claude-sonnet-5",
+            Seed: configuration["seed"] is { } seed ? int.Parse(seed) : null,
+            RunIndex: configuration["run-index"] is { } runIndex ? int.Parse(runIndex) : 0,
             ScenarioFile: scenarioFile,
-            Batch: args.GetValueOrDefault("batch", "adhoc"),
-            OutDir: args.GetValueOrDefault("out-dir", "runs"),
-            MaxToolIterations: args.TryGetValue("max-iterations", out var maxIter)
+            Batch: configuration["batch"] ?? "adhoc",
+            OutDir: configuration["out-dir"] ?? "runs",
+            MaxToolIterations: configuration["max-iterations"] is { } maxIter
                 ? int.Parse(maxIter)
                 : HarnessConstants.DefaultMaxToolIterations,
-            TimeoutSeconds: args.TryGetValue("timeout-s", out var timeout)
-                ? int.Parse(timeout)
-                : null
+            TimeoutSeconds: configuration["timeout-s"] is { } timeout ? int.Parse(timeout) : null
         );
     }
 }
