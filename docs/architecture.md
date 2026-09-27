@@ -58,5 +58,5 @@ sequenceDiagram
 
 - `dev/manipulator_design.md` — original design document; broader in scope than this file, partly superseded by the current implementation.
 - `schemas/scene.schema.json` — JSON Schema for the scene content contract.
-- `docs/api.md` (planned) — endpoint reference, auth, versioning, scene content contract.
-- `docs/adr/` (planned) — architectural decision records.
+- `docs/api.md` — endpoint reference, auth, versioning, scene content contract.
+- `docs/adr/` — architectural decision records (none recorded yet).
