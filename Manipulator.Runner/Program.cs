@@ -2,18 +2,10 @@ using Manipulator.Runner;
 using Manipulator.Runner.Models;
 
 var builder = Host.CreateApplicationBuilder(
-    new HostApplicationBuilderSettings
-    {
-        Args = args,
-        ContentRootPath = AppContext.BaseDirectory,
-    }
+    new HostApplicationBuilderSettings { Args = args, ContentRootPath = AppContext.BaseDirectory }
 );
-builder.Configuration.Sources.Clear();
-builder.Configuration
-    .AddJsonFile("appsettings.ScenarioOne.json", optional: false, reloadOnChange: false)
-    .AddUserSecrets<Program>()
-    .AddEnvironmentVariables()
-    .AddCommandLine(args);
+builder.Configuration.AddUserSecrets<Program>();
+
 builder.Logging.ClearProviders();
 
 builder.Services.Configure<RunnerSettings>(builder.Configuration.GetSection("Runner"));

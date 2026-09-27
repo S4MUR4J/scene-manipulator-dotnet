@@ -27,4 +27,10 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Manipulator.Runner.Tests" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="appsettings.ScenarioOne.json">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </Content>
+  </ItemGroup>
 </Project>

@@ -18,19 +18,24 @@ will provide the independently hosted API and MCP surface.
 
 ## Configuration
 
-Runner reads its base research-run configuration from the checked-in
-`appsettings.ScenarioOne.json` template. Configuration sources are applied in
-this order, with later sources overriding earlier values:
+Runner reads its base research-run configuration from `appsettings.json`.
+Fill in its `Runner` section with the scenario, limits, artifact location, and
+model matrix. Launch profiles select an optional
+`appsettings.{DOTNET_ENVIRONMENT}.json` file for environment-specific
+overrides: for example, the **Manipulator.Runner - Creation** profile loads
+`appsettings.Create.json`.
 
-1. Scenario template
-2. User secrets
+Configuration sources are applied in this order, with later sources overriding
+earlier values:
+
+1. `appsettings.json`
+2. `appsettings.{DOTNET_ENVIRONMENT}.json`
 3. Environment variables
 4. Command-line arguments
+5. User secrets
 
-Edit the template to choose the default scenario, limits, artifact location,
-and model matrix. Use environment variables or command-line arguments for
-local overrides, for example `Runner__Batch=development` or
-`--Runner:Batch=development`.
+Use environment variables or command-line arguments for local overrides, for
+example `Runner__Batch=development` or `--Runner:Batch=development`.
 
 The only settings stored outside tracked configuration are provider API keys.
 Set both keys when using the default Anthropic/OpenAI matrix:
@@ -45,7 +50,7 @@ model ID. A single invocation runs all enabled entries concurrently. Runner
 validates every enabled provider key before it starts any model, and fails the
 whole matrix if one is missing.
 
-Run the scenario-one template with:
+Run the base configuration with:
 
 ```bash
 dotnet run --project Manipulator.Runner
