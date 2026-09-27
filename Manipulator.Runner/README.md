@@ -28,11 +28,13 @@ will provide the independently hosted API and MCP surface.
 
 ## Configuration
 
-Runner reads its base research-run configuration from `appsettings.json`, which
-defaults to the bundled Scenario One model matrix. Launch profiles select an optional
-`appsettings.{DOTNET_ENVIRONMENT}.json` file for environment-specific
-overrides: the **Manipulator.Runner - Scenario One** profile loads
-`appsettings.ScenarioOne.json`.
+`appsettings.json` is a commented configuration template and intentionally
+does not define a runnable configuration. Launch profiles select an
+`appsettings.{DOTNET_ENVIRONMENT}.json` file with the complete settings: the
+**Manipulator.Runner - Scenario One** profile loads
+`appsettings.ScenarioOne.json`. The **Manipulator.Runner - Scenario One Cheap**
+profile loads `appsettings.ScenarioOneCheap.json`, which uses Claude Haiku
+(`claude-haiku-4-5`) and GPT-5 mini (`gpt-5-mini`) to reduce model costs.
 
 Configuration sources are applied in this order, with later sources overriding
 earlier values:
