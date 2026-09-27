@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Manipulator.Runner - Creation": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Create"
+      }
+    },
+    "Manipulator.Runner - Editing": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "DOTNET_ENVIRONMENT": "Edit"
+      }
+    }
+
+  }
+}
