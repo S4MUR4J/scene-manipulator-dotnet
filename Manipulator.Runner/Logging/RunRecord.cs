@@ -1,3 +1,7 @@
+using Manipulator.Runner.Configuration;
+using Manipulator.Runner.Execution;
+using Manipulator.Runner.Models;
+
 namespace Manipulator.Runner.Logging;
 
 public sealed record RunConfigLog(
@@ -9,7 +13,20 @@ public sealed record RunConfigLog(
     string Model,
     int? Seed,
     int RunIndex
-);
+)
+{
+    public static RunConfigLog From(RunConfig config) =>
+        new RunConfigLog(
+            config.Scenario,
+            config.Variant,
+            config.Approach,
+            config.ModelName,
+            config.Provider.ToString(),
+            config.Model,
+            config.Seed,
+            config.RunIndex
+        );
+}
 
 public sealed record ToolErrorLog(string Tool, string Message, DateTimeOffset At);
 
@@ -23,7 +40,23 @@ public sealed record StepRecord(
     long OutputTokens,
     string StopReason,
     IReadOnlyList<ToolCallLog> ToolCalls
-);
+)
+{
+    public static StepRecord FromResponse(
+        string runId,
+        long iteration,
+        ModelResponse response,
+        IReadOnlyList<ToolCallLog> toolCalls
+    ) =>
+        new StepRecord(
+            runId,
+            iteration,
+            response.InputTokens,
+            response.OutputTokens,
+            response.StopReason,
+            toolCalls
+        );
+}
 
 /// <summary>FinalSceneJson is the raw plain-scene-format JSON text (also saved as a standalone file).</summary>
 public sealed record RunRecord(
@@ -43,4 +76,34 @@ public sealed record RunRecord(
     int SceneWrites,
     IReadOnlyList<ToolErrorLog> ToolErrors,
     string FinalSceneJson
-);
+)
+{
+    internal static RunRecord FromRun(
+        string runId,
+        RunConfig config,
+        DateTimeOffset startTime,
+        DateTimeOffset endTime,
+        double durationMs,
+        LoopResult result,
+        RunMetrics metrics,
+        string finalSceneJson
+    ) =>
+        new RunRecord(
+            runId,
+            RunConfigLog.From(config),
+            startTime,
+            endTime,
+            durationMs,
+            result.StopReason.ToString(),
+            result.FatalError,
+            metrics.LlmCalls,
+            metrics.InputTokens,
+            metrics.OutputTokens,
+            metrics.ToolCallsByTool.Values.Sum(),
+            metrics.ToolCallsByTool,
+            metrics.SceneReads,
+            metrics.SceneWrites,
+            metrics.ToolErrors,
+            finalSceneJson
+        );
+}
