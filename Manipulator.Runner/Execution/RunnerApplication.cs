@@ -1,7 +1,9 @@
+using Manipulator.Core.Serialization;
 using Manipulator.Runner.Configuration;
 using Manipulator.Runner.Logging;
 using Manipulator.Runner.Models;
 using Manipulator.Scenarios.Loading;
+using Manipulator.Scenarios.Scoring;
 using Microsoft.Extensions.Options;
 using ScenarioSpec = Manipulator.Scenarios.Specs.ScenarioSpec;
 
@@ -110,18 +112,24 @@ sealed class RunnerApplication(
             cancellationToken: cancellationToken
         );
 
+        var finalScene = SceneSerializer.Deserialize(record.FinalSceneJson).Scene;
+        var scoring = SceneScorer.Score(spec, finalScene);
+        record = record with { Scoring = ScoringLog.From(scoring) };
+
         artifacts.WriteRun(record);
         artifacts.SaveFinalScene(record.FinalSceneJson);
 
         logger.LogInformation(
             "Completed {ModelName}: stop_reason={StopReason} llm_calls={LlmCalls} tool_calls={ToolCalls} "
-                + "tokens_in={InputTokens} tokens_out={OutputTokens} runId={RunId}",
+                + "tokens_in={InputTokens} tokens_out={OutputTokens} coverage={Coverage} success={Success} runId={RunId}",
             config.ModelName,
             record.StopReason,
             record.LlmCalls,
             record.ToolCallsTotal,
             record.InputTokens,
             record.OutputTokens,
+            scoring.Coverage,
+            scoring.Success,
             runId
         );
         logger.LogInformation(
