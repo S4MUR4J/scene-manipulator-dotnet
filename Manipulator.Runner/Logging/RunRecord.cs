@@ -1,6 +1,7 @@
 using Manipulator.Runner.Configuration;
 using Manipulator.Runner.Execution;
 using Manipulator.Runner.Models;
+using Manipulator.Scenarios.Scoring;
 
 namespace Manipulator.Runner.Logging;
 
@@ -29,6 +30,26 @@ public sealed record RunConfigLog(
 }
 
 public sealed record ToolErrorLog(string Tool, string Message, DateTimeOffset At);
+
+public sealed record RequirementResultLog(string RequirementId, bool Passed, string Reason)
+{
+    public static RequirementResultLog From(RequirementResult result) =>
+        new RequirementResultLog(result.RequirementId, result.Passed, result.Reason);
+}
+
+public sealed record ScoringLog(
+    double Coverage,
+    bool Success,
+    IReadOnlyList<RequirementResultLog> Requirements
+)
+{
+    public static ScoringLog From(ScoringResult result) =>
+        new ScoringLog(
+            result.Coverage,
+            result.Success,
+            result.Requirements.Select(RequirementResultLog.From).ToList()
+        );
+}
 
 /// <summary>Arguments are logged as raw JSON text, not parsed - keeps this a plain log record.</summary>
 public sealed record ToolCallLog(string Tool, string ArgumentsJson, bool IsError, string? Error);
@@ -75,7 +96,8 @@ public sealed record RunRecord(
     int SceneReads,
     int SceneWrites,
     IReadOnlyList<ToolErrorLog> ToolErrors,
-    string FinalSceneJson
+    string FinalSceneJson,
+    ScoringLog? Scoring = null
 )
 {
     internal static RunRecord FromRun(
