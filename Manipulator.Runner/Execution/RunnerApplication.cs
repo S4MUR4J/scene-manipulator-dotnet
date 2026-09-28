@@ -53,8 +53,11 @@ sealed class RunnerApplication(
             return 2;
         }
 
+        var batchStartedAt = DateTimeOffset.UtcNow;
         var records = await Task.WhenAll(
-            runConfigs.Select(config => RunModelAsync(config, spec, cancellationToken))
+            runConfigs.Select(config =>
+                RunModelAsync(config, spec, batchStartedAt, cancellationToken)
+            )
         );
 
         return records.All(record => record.StopReason != nameof(StopReason.FatalError)) ? 0 : 1;
@@ -82,19 +85,21 @@ sealed class RunnerApplication(
     private async Task<RunRecord> RunModelAsync(
         RunConfig config,
         ScenarioSpec spec,
+        DateTimeOffset batchStartedAt,
         CancellationToken cancellationToken
     )
     {
         var runId = Guid.NewGuid().ToString("n");
-        using var artifacts = artifactWriter.Open(config, runId);
+        using var artifacts = artifactWriter.Open(config, runId, batchStartedAt);
         var agentLoop = new AgentLoop(strategyFactory.Create(config));
 
         logger.LogInformation(
-            "Running {ModelName} for scenario {ScenarioId} ({Approach}, {Model})",
+            "Running {ModelName} for scenario {ScenarioId} ({Approach}, {Model}) runId={RunId}",
             config.ModelName,
             spec.Id,
             config.Approach,
-            config.Model
+            config.Model,
+            runId
         );
 
         var record = await agentLoop.RunAsync(
@@ -110,19 +115,21 @@ sealed class RunnerApplication(
 
         logger.LogInformation(
             "Completed {ModelName}: stop_reason={StopReason} llm_calls={LlmCalls} tool_calls={ToolCalls} "
-                + "tokens_in={InputTokens} tokens_out={OutputTokens}",
+                + "tokens_in={InputTokens} tokens_out={OutputTokens} runId={RunId}",
             config.ModelName,
             record.StopReason,
             record.LlmCalls,
             record.ToolCallsTotal,
             record.InputTokens,
-            record.OutputTokens
+            record.OutputTokens,
+            runId
         );
         logger.LogInformation(
-            "Run artifacts for {ModelName}: record={RecordPath} final_scene={FinalScenePath}",
+            "Run artifacts for {ModelName}: record={RecordPath} final_scene={FinalScenePath} runId={RunId}",
             config.ModelName,
             artifacts.JsonlPath,
-            artifacts.FinalScenePath
+            artifacts.FinalScenePath,
+            runId
         );
 
         return record;

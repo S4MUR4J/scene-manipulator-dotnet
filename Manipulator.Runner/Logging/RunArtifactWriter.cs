@@ -8,10 +8,14 @@ namespace Manipulator.Runner.Logging;
 /// <summary>
 /// Creates isolated artifact sinks for individual model runs. Artifact JSONL is intentionally
 /// separate from application diagnostics because concurrent model runs require stable paths.
-/// The run id is folded into every artifact path so repeated runs never collide by default.
+/// Layout is root/{batch}_{batchStartedAt}/{runId}/{file} - the batch folder is timestamped so
+/// repeated invocations of the same batch never collide, and each run within it gets its own
+/// run-id subfolder so filenames underneath stay free of the id.
 /// </summary>
 public sealed class RunArtifactWriter(string? rootOverride = null)
 {
+    private const string BatchTimestampFormat = "yyyy-MM-dd_HH-mm-ss";
+
     private string Root =>
         rootOverride
         ?? Path.Combine(
@@ -19,10 +23,10 @@ public sealed class RunArtifactWriter(string? rootOverride = null)
             ".manipulator"
         );
 
-    public RunArtifactSession Open(RunConfig config, string runId)
+    public RunArtifactSession Open(RunConfig config, string runId, DateTimeOffset batchStartedAt)
     {
-        var jsonlPath = JsonlPath(config, runId);
-        var finalScenePath = FinalScenePath(config, runId);
+        var jsonlPath = JsonlPath(config, runId, batchStartedAt);
+        var finalScenePath = FinalScenePath(config, runId, batchStartedAt);
         Directory.CreateDirectory(Path.GetDirectoryName(jsonlPath)!);
         Directory.CreateDirectory(Path.GetDirectoryName(finalScenePath)!);
 
@@ -33,14 +37,25 @@ public sealed class RunArtifactWriter(string? rootOverride = null)
         return new RunArtifactSession(logger, jsonlPath, finalScenePath);
     }
 
-    public string JsonlPath(RunConfig config, string runId) =>
-        Path.Combine(Root, config.Batch, $"{SanitizeSegment(config.ModelName)}_{runId}.jsonl");
+    public string JsonlPath(RunConfig config, string runId, DateTimeOffset batchStartedAt) =>
+        Path.Combine(
+            RunDir(config, runId, batchStartedAt),
+            $"{SanitizeSegment(config.ModelName)}.jsonl"
+        );
 
-    public string FinalScenePath(RunConfig config, string runId) =>
+    public string FinalScenePath(RunConfig config, string runId, DateTimeOffset batchStartedAt) =>
+        Path.Combine(
+            RunDir(config, runId, batchStartedAt),
+            $"{config.Scenario}_{config.Approach}_{SanitizeSegment(config.ModelName)}_{config.RunIndex}.json"
+        );
+
+    private string RunDir(RunConfig config, string runId, DateTimeOffset batchStartedAt) =>
+        Path.Combine(BatchDir(config, batchStartedAt), SanitizeSegment(runId));
+
+    private string BatchDir(RunConfig config, DateTimeOffset batchStartedAt) =>
         Path.Combine(
             Root,
-            config.Batch,
-            $"{config.Scenario}_{config.Approach}_{SanitizeSegment(config.ModelName)}_{config.RunIndex}_{runId}.json"
+            $"{SanitizeSegment(config.Batch)}_{batchStartedAt.ToString(BatchTimestampFormat)}"
         );
 
     private static string SanitizeSegment(string value) =>
