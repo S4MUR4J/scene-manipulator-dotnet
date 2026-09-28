@@ -12,5 +12,6 @@ public sealed record RunConfig(
     string ScenarioFile,
     string Batch,
     int MaxToolIterations,
-    int? TimeoutSeconds
+    int? TimeoutSeconds,
+    string? Notes = null
 );
