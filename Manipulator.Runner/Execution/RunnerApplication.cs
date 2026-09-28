@@ -85,7 +85,8 @@ sealed class RunnerApplication(
         CancellationToken cancellationToken
     )
     {
-        using var artifacts = artifactWriter.Open(config);
+        var runId = Guid.NewGuid().ToString("n");
+        using var artifacts = artifactWriter.Open(config, runId);
         var agentLoop = new AgentLoop(strategyFactory.Create(config));
 
         logger.LogInformation(
@@ -97,10 +98,11 @@ sealed class RunnerApplication(
         );
 
         var record = await agentLoop.RunAsync(
-            config,
-            spec,
-            artifacts.WriteStep,
-            cancellationToken
+            config: config,
+            spec: spec,
+            runId: runId,
+            onStep: artifacts.WriteStep,
+            cancellationToken: cancellationToken
         );
 
         artifacts.WriteRun(record);

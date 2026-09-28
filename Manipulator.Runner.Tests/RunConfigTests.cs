@@ -30,7 +30,16 @@ public class RunConfigTests
     {
         var settings = ValidSettings() with
         {
-            Models = [new ModelSettings { Name = "sonnet", Provider = "Anthropic", Model = "claude-sonnet-5", Enabled = false }],
+            Models =
+            [
+                new ModelSettings
+                {
+                    Name = "sonnet",
+                    Provider = "Anthropic",
+                    Model = "claude-sonnet-5",
+                    Enabled = false,
+                },
+            ],
         };
 
         var act = settings.ToRunConfigs;
@@ -45,8 +54,18 @@ public class RunConfigTests
         {
             Models =
             [
-                new ModelSettings { Name = "model", Provider = "Anthropic", Model = "claude-sonnet-5" },
-                new ModelSettings { Name = "MODEL", Provider = "OpenAi", Model = "gpt-5" },
+                new ModelSettings
+                {
+                    Name = "model",
+                    Provider = "Anthropic",
+                    Model = "claude-sonnet-5",
+                },
+                new ModelSettings
+                {
+                    Name = "MODEL",
+                    Provider = "OpenAi",
+                    Model = "gpt-5",
+                },
             ],
         };
 
@@ -62,8 +81,18 @@ public class RunConfigTests
         {
             Models =
             [
-                new ModelSettings { Name = "a/b", Provider = "Anthropic", Model = "claude-sonnet-5" },
-                new ModelSettings { Name = "a_b", Provider = "OpenAi", Model = "gpt-5" },
+                new ModelSettings
+                {
+                    Name = "a/b",
+                    Provider = "Anthropic",
+                    Model = "claude-sonnet-5",
+                },
+                new ModelSettings
+                {
+                    Name = "a_b",
+                    Provider = "OpenAi",
+                    Model = "gpt-5",
+                },
             ],
         };
 
@@ -79,53 +108,66 @@ public class RunConfigTests
         {
             Models =
             [
-                new ModelSettings { Name = "sonnet", Provider = "Anthropic", Model = "claude-sonnet-5" },
-                new ModelSettings { Name = "gpt", Provider = "OpenAi", Model = "gpt-5" },
-                new ModelSettings { Name = "disabled", Provider = "OpenAi", Model = "gpt-5-mini", Enabled = false },
+                new ModelSettings
+                {
+                    Name = "sonnet",
+                    Provider = "Anthropic",
+                    Model = "claude-sonnet-5",
+                },
+                new ModelSettings
+                {
+                    Name = "gpt",
+                    Provider = "OpenAi",
+                    Model = "gpt-5",
+                },
+                new ModelSettings
+                {
+                    Name = "disabled",
+                    Provider = "OpenAi",
+                    Model = "gpt-5-mini",
+                    Enabled = false,
+                },
             ],
         };
 
         var configs = settings.ToRunConfigs();
 
-        configs.Should()
-            .BeEquivalentTo(
-                [
-                    new RunConfig(
-                        "1",
-                        "2",
-                        "mcp",
-                        "sonnet",
-                        ModelProvider.Anthropic,
-                        "claude-sonnet-5",
-                        42,
-                        3,
-                        "scenarios/s1.json",
-                        "pilot",
-                        "custom-runs",
-                        10,
-                        60
-                    ),
-                    new RunConfig(
-                        "1",
-                        "2",
-                        "mcp",
-                        "gpt",
-                        ModelProvider.OpenAi,
-                        "gpt-5",
-                        42,
-                        3,
-                        "scenarios/s1.json",
-                        "pilot",
-                        "custom-runs",
-                        10,
-                        60
-                    ),
-                ]
-            );
+        configs
+            .Should()
+            .BeEquivalentTo([
+                new RunConfig(
+                    Scenario: "1",
+                    Variant: "2",
+                    Approach: "mcp",
+                    ModelName: "sonnet",
+                    Provider: ModelProvider.Anthropic,
+                    Model: "claude-sonnet-5",
+                    Seed: 42,
+                    RunIndex: 3,
+                    ScenarioFile: "scenarios/s1.json",
+                    Batch: "pilot",
+                    MaxToolIterations: 10,
+                    TimeoutSeconds: 60
+                ),
+                new RunConfig(
+                    Scenario: "1",
+                    Variant: "2",
+                    Approach: "mcp",
+                    ModelName: "gpt",
+                    Provider: ModelProvider.OpenAi,
+                    Model: "gpt-5",
+                    Seed: 42,
+                    RunIndex: 3,
+                    ScenarioFile: "scenarios/s1.json",
+                    Batch: "pilot",
+                    MaxToolIterations: 10,
+                    TimeoutSeconds: 60
+                ),
+            ]);
     }
 
     private static RunnerSettings ValidSettings() =>
-        new()
+        new RunnerSettings
         {
             ScenarioFile = "scenarios/s1.json",
             Scenario = "1",
@@ -134,9 +176,16 @@ public class RunConfigTests
             Seed = 42,
             RunIndex = 3,
             Batch = "pilot",
-            OutDir = "custom-runs",
             MaxToolIterations = 10,
             TimeoutSeconds = 60,
-            Models = [new ModelSettings { Name = "sonnet", Provider = "Anthropic", Model = "claude-sonnet-5" }],
+            Models =
+            [
+                new ModelSettings
+                {
+                    Name = "sonnet",
+                    Provider = "Anthropic",
+                    Model = "claude-sonnet-5",
+                },
+            ],
         };
 }
