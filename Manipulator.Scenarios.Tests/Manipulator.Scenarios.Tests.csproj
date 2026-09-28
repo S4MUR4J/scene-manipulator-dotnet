@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Manipulator.Core\Manipulator.Core.csproj" />
+    <ProjectReference Include="..\Manipulator.Core.Tests\Manipulator.Core.Tests.csproj" />
     <ProjectReference Include="..\Manipulator.Scenarios\Manipulator.Scenarios.csproj" />
   </ItemGroup>
 
