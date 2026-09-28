@@ -166,6 +166,26 @@ public class RunConfigTests
             ]);
     }
 
+    [Fact]
+    public void ToRunConfigs_Notes_IsPassedThrough()
+    {
+        var settings = ValidSettings() with { Notes = "testing prompt variant 2" };
+
+        var configs = settings.ToRunConfigs();
+
+        configs.Should().OnlyContain(config => config.Notes == "testing prompt variant 2");
+    }
+
+    [Fact]
+    public void ToRunConfigs_NotesOmitted_IsNull()
+    {
+        var settings = ValidSettings();
+
+        var configs = settings.ToRunConfigs();
+
+        configs.Should().OnlyContain(config => config.Notes == null);
+    }
+
     private static RunnerSettings ValidSettings() =>
         new RunnerSettings
         {
