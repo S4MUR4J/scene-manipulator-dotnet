@@ -15,6 +15,9 @@ public static class SpatialRelationEvaluator
         {
             SpatialRelation.OnTopOf => OnTopOfEvaluator.Evaluate(requirement, spec, scene),
             SpatialRelation.Near => NearEvaluator.Evaluate(requirement, spec, scene),
+            SpatialRelation.Between => BetweenEvaluator.Evaluate(requirement, spec, scene),
+            SpatialRelation.NoOverlap => NoOverlapEvaluator.Evaluate(requirement, spec, scene),
+            SpatialRelation.ScaleOrder => ScaleOrderEvaluator.Evaluate(requirement, spec, scene),
             _ => throw new NotSupportedException(
                 $"Requirement '{requirement.Id}': spatial relation '{requirement.Relation}' is not yet implemented."
             ),
