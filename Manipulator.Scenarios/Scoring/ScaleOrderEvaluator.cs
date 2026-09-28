@@ -1,4 +1,5 @@
 using Manipulator.Core.Ecs;
+using Manipulator.Core.Ecs.Components;
 using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
@@ -78,10 +79,12 @@ public static class ScaleOrderEvaluator
 
     private static double? AabbVolume(Entity entity)
     {
-        var bounds = WorldBounds.Of(entity);
-        if (bounds is null)
+        var transform = entity.Get<Transform>();
+        var meshFilter = entity.Get<MeshFilter>();
+        if (transform is null || meshFilter is null)
             return null;
-        var size = bounds.Value.Max - bounds.Value.Min;
+
+        var size = GeometryBounds.For(meshFilter.Geometry) * transform.Scale;
         return (double)(size.X * size.Y * size.Z);
     }
 }
