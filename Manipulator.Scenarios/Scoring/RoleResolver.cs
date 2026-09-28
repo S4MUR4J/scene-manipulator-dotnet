@@ -20,4 +20,11 @@ public static class RoleResolver
         var selector = roles[roleName];
         return scene.Entities.Values.Where(selector.Matches).ToList();
     }
+
+    /// <summary>Resolves and flattens several roles, e.g. a requirement's Subjects or References.</summary>
+    public static IReadOnlyList<Entity> ResolveAll(
+        Scene scene,
+        IReadOnlyDictionary<string, RoleSelector> roles,
+        IReadOnlyList<string> roleNames
+    ) => roleNames.SelectMany(roleName => Resolve(scene, roles, roleName)).ToList();
 }
