@@ -33,11 +33,11 @@ public sealed class AgentLoop(IModelStrategy modelStrategy)
     public async Task<RunRecord> RunAsync(
         RunConfig config,
         ScenarioSpec spec,
+        string runId,
         Action<StepRecord>? onStep,
         CancellationToken cancellationToken
     )
     {
-        var runId = Guid.NewGuid().ToString("n");
         var startTime = DateTimeOffset.UtcNow;
         var stopwatch = Stopwatch.StartNew();
 

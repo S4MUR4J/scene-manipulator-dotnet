@@ -1,20 +1,28 @@
+using Manipulator.Runner.Configuration;
 using Serilog;
 using Serilog.Core;
 using Serilog.Formatting.Compact;
-using Manipulator.Runner.Configuration;
 
 namespace Manipulator.Runner.Logging;
 
 /// <summary>
 /// Creates isolated artifact sinks for individual model runs. Artifact JSONL is intentionally
 /// separate from application diagnostics because concurrent model runs require stable paths.
+/// The run id is folded into every artifact path so repeated runs never collide by default.
 /// </summary>
-public sealed class RunArtifactWriter
+public sealed class RunArtifactWriter(string? rootOverride = null)
 {
-    public RunArtifactSession Open(RunConfig config)
+    private string Root =>
+        rootOverride
+        ?? Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            ".manipulator"
+        );
+
+    public RunArtifactSession Open(RunConfig config, string runId)
     {
-        var jsonlPath = JsonlPath(config.OutDir, config.Batch, config);
-        var finalScenePath = FinalScenePath(config.OutDir, config.Batch, config);
+        var jsonlPath = JsonlPath(config, runId);
+        var finalScenePath = FinalScenePath(config, runId);
         Directory.CreateDirectory(Path.GetDirectoryName(jsonlPath)!);
         Directory.CreateDirectory(Path.GetDirectoryName(finalScenePath)!);
 
@@ -25,19 +33,21 @@ public sealed class RunArtifactWriter
         return new RunArtifactSession(logger, jsonlPath, finalScenePath);
     }
 
-    public string JsonlPath(string outDir, string batch, RunConfig config) =>
-        Path.Combine(outDir, batch, $"{SanitizeSegment(config.ModelName)}.jsonl");
+    public string JsonlPath(RunConfig config, string runId) =>
+        Path.Combine(Root, config.Batch, $"{SanitizeSegment(config.ModelName)}_{runId}.jsonl");
 
-    public string FinalScenePath(string outDir, string batch, RunConfig config) =>
+    public string FinalScenePath(RunConfig config, string runId) =>
         Path.Combine(
-            outDir,
-            batch,
-            $"{config.Scenario}_{config.Approach}_{SanitizeSegment(config.ModelName)}_{config.RunIndex}.json"
+            Root,
+            config.Batch,
+            $"{config.Scenario}_{config.Approach}_{SanitizeSegment(config.ModelName)}_{config.RunIndex}_{runId}.json"
         );
 
     private static string SanitizeSegment(string value) =>
         string.Concat(
-            value.Select(character => Path.GetInvalidFileNameChars().Contains(character) ? '_' : character)
+            value.Select(character =>
+                Path.GetInvalidFileNameChars().Contains(character) ? '_' : character
+            )
         );
 }
 

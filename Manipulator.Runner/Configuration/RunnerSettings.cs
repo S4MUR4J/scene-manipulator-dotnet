@@ -17,7 +17,6 @@ public sealed record RunnerSettings
     public int? Seed { get; init; }
     public int RunIndex { get; init; }
     public string? Batch { get; init; }
-    public string? OutDir { get; init; }
     public int? MaxToolIterations { get; init; }
     public int? TimeoutSeconds { get; init; }
     public IReadOnlyList<ModelSettings>? Models { get; init; }
@@ -44,7 +43,10 @@ public sealed record RunnerSettings
             );
 
         var duplicateArtifactNames = models
-            .GroupBy(model => SanitizeArtifactSegment(model.Name ?? ""), StringComparer.OrdinalIgnoreCase)
+            .GroupBy(
+                model => SanitizeArtifactSegment(model.Name ?? ""),
+                StringComparer.OrdinalIgnoreCase
+            )
             .FirstOrDefault(group => group.Count() > 1);
         if (duplicateArtifactNames is not null)
             throw new ArgumentException(
@@ -73,7 +75,6 @@ public sealed record RunnerSettings
                     RunIndex: RunIndex,
                     ScenarioFile: scenarioFile,
                     Batch: Batch ?? "adhoc",
-                    OutDir: OutDir ?? "runs",
                     MaxToolIterations: MaxToolIterations
                         ?? RunnerConstants.DefaultMaxToolIterations,
                     TimeoutSeconds: TimeoutSeconds
@@ -88,7 +89,11 @@ public sealed record RunnerSettings
             : value;
 
     private static string SanitizeArtifactSegment(string value) =>
-        string.Concat(value.Select(character => Path.GetInvalidFileNameChars().Contains(character) ? '_' : character));
+        string.Concat(
+            value.Select(character =>
+                Path.GetInvalidFileNameChars().Contains(character) ? '_' : character
+            )
+        );
 }
 
 public sealed class ModelSettings
