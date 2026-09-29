@@ -16,13 +16,25 @@ public class RunConfigTests
     }
 
     [Fact]
-    public void ToRunConfigs_NonMcpApproach_Throws()
+    public void ToRunConfigs_UnimplementedApproach_Throws()
     {
         var settings = ValidSettings() with { Approach = "dsl" };
 
         var act = settings.ToRunConfigs;
 
         act.Should().Throw<NotSupportedException>().WithMessage("*dsl*");
+    }
+
+    [Theory]
+    [InlineData("text")]
+    [InlineData("Text")]
+    public void ToRunConfigs_TextApproach_IsAcceptedAndNormalised(string approach)
+    {
+        var settings = ValidSettings() with { Approach = approach };
+
+        var configs = settings.ToRunConfigs();
+
+        configs.Should().OnlyContain(config => config.Approach == Approaches.Text);
     }
 
     [Fact]

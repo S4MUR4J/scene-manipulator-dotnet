@@ -48,6 +48,7 @@ public static class CommandDispatcherFactory
             versionConflict,
             entityExists
         );
+        dispatcher.Register("ReplaceScene", new ReplaceSceneHandler(), versionConflict);
 
         return dispatcher;
     }

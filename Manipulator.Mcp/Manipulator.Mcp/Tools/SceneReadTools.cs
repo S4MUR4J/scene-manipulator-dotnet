@@ -12,11 +12,7 @@ public sealed class SceneReadTools(Scene scene)
 {
     [McpServerTool(Name = "get_scene", ReadOnly = true, Idempotent = true)]
     [Description(ToolDescriptions.GetScene)]
-    public string GetScene()
-    {
-        var data = new JsonObject { ["scene"] = JsonNode.Parse(SceneSerializer.Serialize(scene)) };
-        return McpJsonSerializer.Serialize(ManipulatorResult<JsonObject?>.Success(data));
-    }
+    public string GetScene() => SceneResponse(scene);
 
     [McpServerTool(Name = "get_entity", ReadOnly = true, Idempotent = true)]
     [Description(ToolDescriptions.GetEntity)]
@@ -35,6 +31,12 @@ public sealed class SceneReadTools(Scene scene)
         {
             ["entity"] = JsonNode.Parse(SceneSerializer.SerializeEntity(entity)),
         };
+        return McpJsonSerializer.Serialize(ManipulatorResult<JsonObject?>.Success(data));
+    }
+
+    internal static string SceneResponse(Scene scene)
+    {
+        var data = new JsonObject { ["scene"] = JsonNode.Parse(SceneSerializer.Serialize(scene)) };
         return McpJsonSerializer.Serialize(ManipulatorResult<JsonObject?>.Success(data));
     }
 }

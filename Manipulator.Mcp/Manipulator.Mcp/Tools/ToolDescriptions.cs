@@ -15,11 +15,15 @@ internal static class ToolDescriptions
         "Return one entity as JSON, by id. Use it to check a single object without reading the whole "
         + "scene.";
 
+    public const string PrimitiveSizes =
+        "Every primitive is 1 unit wide and 1 unit deep at scale [1, 1, 1] and is centred on its "
+        + "position; heights are 1 unit except Capsule (1.5), Plane (0), Torus (0.3) and Hemisphere "
+        + "(0.5).";
+
     public const string AddEntity =
-        "Add a new object to the scene and return its generated entity id. Every primitive is 1 unit "
-        + "wide and 1 unit deep at scale [1, 1, 1] and is centred on its position; heights are 1 unit "
-        + "except Capsule (1.5), Plane (0), Torus (0.3) and Hemisphere (0.5). Fields you omit fall "
-        + "back to their defaults.";
+        "Add a new object to the scene and return its generated entity id. "
+        + PrimitiveSizes
+        + " Fields you omit fall back to their defaults.";
 
     public const string MoveEntity =
         "Move an existing entity to an absolute world position. The position replaces the current "
@@ -41,6 +45,17 @@ internal static class ToolDescriptions
         "Change an existing entity's label. The entity id stays the same.";
 
     public const string RemoveEntity = "Delete an entity from the scene. This cannot be undone.";
+
+    public const string SubmitScene =
+        "Replace the whole scene with the scene you pass and return the new scene version. Send "
+        + "every entity the scene should contain, not only the ones you changed: any entity you "
+        + "leave out is deleted. Entity ids are yours to choose and must be unique; keep an id from "
+        + "get_scene to keep referring to the same object. "
+        + PrimitiveSizes
+        + " If the scene is rejected the error says why and the current scene stays unchanged, so "
+        + "fix the problem and submit again. Unknown components or fields are ignored, and missing "
+        + "components other than mesh_filter are filled with defaults; both are reported back as "
+        + "warnings.";
 
     // Parameters.
     public const string EntityIdParam =
@@ -93,4 +108,22 @@ internal static class ToolDescriptions
         + "roughness.";
 
     public const string NewNameParam = "New human-readable label for the entity.";
+
+    public const string SceneParam =
+        "The new scene as {\"entities\": [...]}. Each entity is {\"id\": string, \"components\": "
+        + "{...}} with these components: "
+        + "transform {position: [x, y, z], world position of the centre, Y is up, default [0, 0, 0]; "
+        + "rotation: [x, y, z] in degrees, default [0, 0, 0]; scale: [x, y, z], every value greater "
+        + "than 0, default [1, 1, 1]}; "
+        + "mesh_filter {geometry: one of "
+        + Geometries
+        + "} (required); "
+        + "mesh_renderer {color: hex string in #rrggbb form, default #ffffff; opacity: 0 to 1, "
+        + "default 1; metalness: 0 to 1, default 0; roughness: 0 to 1, default 0.5}; "
+        + "entity_name {value: human-readable label}. "
+        + "Example: {\"entities\": [{\"id\": \"table\", \"components\": {\"transform\": "
+        + "{\"position\": [0, 0.5, 0], \"rotation\": [0, 0, 0], \"scale\": [2, 1, 1]}, "
+        + "\"mesh_filter\": {\"geometry\": \"Cube\"}, \"mesh_renderer\": {\"color\": \"#8b5a2b\", "
+        + "\"opacity\": 1, \"metalness\": 0, \"roughness\": 0.8}, \"entity_name\": {\"value\": "
+        + "\"table\"}}}]}.";
 }

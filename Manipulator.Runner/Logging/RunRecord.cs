@@ -33,6 +33,8 @@ public sealed record RunConfigLog(
 
 public sealed record ToolErrorLog(string Tool, string Message, DateTimeOffset At);
 
+public sealed record ToolWarningLog(string Tool, string Message, DateTimeOffset At);
+
 public sealed record RequirementResultLog(string RequirementId, bool Passed, string Reason)
 {
     public static RequirementResultLog From(RequirementResult result) =>
@@ -54,7 +56,13 @@ public sealed record ScoringLog(
 }
 
 /// <summary>Arguments are logged as raw JSON text, not parsed - keeps this a plain log record.</summary>
-public sealed record ToolCallLog(string Tool, string ArgumentsJson, bool IsError, string? Error);
+public sealed record ToolCallLog(
+    string Tool,
+    string ArgumentsJson,
+    bool IsError,
+    string? Error,
+    IReadOnlyList<string> Warnings
+);
 
 public sealed record StepRecord(
     string RunId,
@@ -98,6 +106,7 @@ public sealed record RunRecord(
     int SceneReads,
     int SceneWrites,
     IReadOnlyList<ToolErrorLog> ToolErrors,
+    IReadOnlyList<ToolWarningLog> ToolWarnings,
     string FinalSceneJson,
     ScoringLog? Scoring = null
 )
@@ -128,6 +137,7 @@ public sealed record RunRecord(
             metrics.SceneReads,
             metrics.SceneWrites,
             metrics.ToolErrors,
+            metrics.ToolWarnings,
             finalSceneJson
         );
 }

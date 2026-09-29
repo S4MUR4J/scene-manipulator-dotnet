@@ -1,5 +1,5 @@
-using System.Text.Json.Nodes;
 using Manipulator.Runner.Logging;
+using Manipulator.Runner.Mcp;
 using Manipulator.Runner.Models;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
@@ -20,7 +20,12 @@ static class ToolCallExecutor
         {
             metrics.RecordToolCall(toolCall.Name);
             var execution = await ExecuteAsync(mcpClient, toolCall, cancellationToken);
-            metrics.RecordToolResult(toolCall.Name, execution.ErrorMessage, execution.IsError);
+            metrics.RecordToolResult(
+                toolCall.Name,
+                execution.ErrorMessage,
+                execution.IsError,
+                execution.Warnings
+            );
             executions.Add(execution);
         }
 
@@ -43,15 +48,18 @@ static class ToolCallExecutor
                 cancellationToken: cancellationToken
             );
             var resultText = result.Content.OfType<TextContentBlock>().FirstOrDefault()?.Text ?? "";
-            var envelope = resultText.Length > 0 ? JsonNode.Parse(resultText) : null;
-            var errorMessage = envelope?["error"]?.GetValue<string>();
+            var envelope = ToolEnvelope.TryParse(resultText);
+            var isError = result.IsError == true || envelope?["error"] is not null;
+            var errorMessage =
+                envelope?["error"]?.GetValue<string>() ?? (isError ? resultText : null);
             return new ToolCallExecution(
                 toolCall.Id,
                 toolCall.Name,
                 toolCall.Arguments.GetRawText(),
                 resultText,
-                result.IsError == true || errorMessage is not null,
-                errorMessage
+                isError,
+                errorMessage,
+                ToolEnvelope.Warnings(envelope)
             );
         }
         catch (Exception ex)
@@ -62,7 +70,8 @@ static class ToolCallExecutor
                 toolCall.Arguments.GetRawText(),
                 $"Tool call failed: {ex.Message}",
                 true,
-                ex.Message
+                ex.Message,
+                []
             );
         }
     }
@@ -74,8 +83,10 @@ sealed record ToolCallExecution(
     string ArgumentsJson,
     string ResultText,
     bool IsError,
-    string? ErrorMessage
+    string? ErrorMessage,
+    IReadOnlyList<string> Warnings
 )
 {
-    public ToolCallLog ToLog() => new ToolCallLog(Name, ArgumentsJson, IsError, ErrorMessage);
+    public ToolCallLog ToLog() =>
+        new ToolCallLog(Name, ArgumentsJson, IsError, ErrorMessage, Warnings);
 }

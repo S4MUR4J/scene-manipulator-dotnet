@@ -67,8 +67,22 @@ Run the base configuration with:
 dotnet run --project Manipulator.Runner
 ```
 
-Only the `mcp` approach is implemented today. Future scenario-specific
-templates can use the same `Runner` configuration schema.
+Set `Runner:Approach` (for example `--Runner:Approach=text`) to pick which
+tools the model gets. Both approaches run through the same MCP host, agent loop
+and system prompt, so their results stay comparable:
+
+- `mcp` (default): per-entity command tools (`add_entity`, `move_entity`, ...)
+  plus `get_scene`, `get_entity` and `finish`.
+- `text`: a declarative, LayoutGPT-style approach with exactly `get_scene`,
+  `submit_scene` and `finish`. `submit_scene` takes a whole scene as a JSON
+  object and replaces the current one. Entity ids are kept as given and
+  duplicates are rejected. The scene must also pass the rules `add_entity`
+  applies: every entity needs a `mesh_filter`, and scale must be positive. A
+  rejected submission leaves the scene unchanged and returns the error so the
+  model can retry. Unknown components or fields, and missing components that
+  get filled with defaults, are reported back as warnings.
+
+`dsl` is not implemented yet.
 
 ## Outputs
 
@@ -77,7 +91,10 @@ included in filenames so concurrently evaluated models never overwrite each
 other:
 
 - `<model-name>.jsonl` contains per-step and completed-run telemetry, including
-  model token usage and tool errors.
+  model token usage, tool errors (`ToolErrors`, which include rejected
+  `submit_scene` calls) and tool warnings (`ToolWarnings`). Scene reads count
+  `get_scene`/`get_entity` calls. Scene writes count every mutating tool call,
+  including each `submit_scene` attempt, whether or not it was accepted.
 - `<scenario>_<approach>_<model-name>_<run-index>.json` contains the final serialized
   scene.
 
