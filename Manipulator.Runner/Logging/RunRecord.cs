@@ -13,7 +13,8 @@ public sealed record RunConfigLog(
     string Provider,
     string Model,
     int? Seed,
-    int RunIndex
+    int RunIndex,
+    string? Notes = null
 )
 {
     public static RunConfigLog From(RunConfig config) =>
@@ -25,7 +26,8 @@ public sealed record RunConfigLog(
             config.Provider.ToString(),
             config.Model,
             config.Seed,
-            config.RunIndex
+            config.RunIndex,
+            config.Notes
         );
 }
 

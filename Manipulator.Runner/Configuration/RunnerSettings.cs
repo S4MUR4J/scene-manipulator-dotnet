@@ -19,6 +19,7 @@ public sealed record RunnerSettings
     public string? Batch { get; init; }
     public int? MaxToolIterations { get; init; }
     public int? TimeoutSeconds { get; init; }
+    public string? Notes { get; init; }
     public IReadOnlyList<ModelSettings>? Models { get; init; }
 
     public IReadOnlyList<RunConfig> ToRunConfigs()
@@ -77,7 +78,8 @@ public sealed record RunnerSettings
                     Batch: Batch ?? "adhoc",
                     MaxToolIterations: MaxToolIterations
                         ?? RunnerConstants.DefaultMaxToolIterations,
-                    TimeoutSeconds: TimeoutSeconds
+                    TimeoutSeconds: TimeoutSeconds,
+                    Notes: Notes
                 );
             }),
         ];
