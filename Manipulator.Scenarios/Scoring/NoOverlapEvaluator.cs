@@ -16,12 +16,12 @@ public static class NoOverlapEvaluator
 
         var failures = new List<string>();
         for (var i = 0; i < subjects.Count; i++)
-        for (var j = i + 1; j < subjects.Count; j++)
-        {
-            var reason = CheckPair(subjects[i], subjects[j], minSeparationM);
-            if (reason is not null)
-                failures.Add(reason);
-        }
+            for (var j = i + 1; j < subjects.Count; j++)
+            {
+                var reason = CheckPair(subjects[i], subjects[j], minSeparationM);
+                if (reason is not null)
+                    failures.Add(reason);
+            }
 
         return failures.Count == 0
             ? new RequirementResult(
