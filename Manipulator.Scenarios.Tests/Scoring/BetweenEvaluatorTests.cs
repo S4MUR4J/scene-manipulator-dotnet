@@ -58,7 +58,7 @@ public class BetweenEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenSubjectIsBetweenReferences()
     {
-        // Arrange: sofa at z=0, wall at z=4, table at z=2 (midway)
+        // Arrange
         var scene = SceneWith(
             sofaPos: new Vector3(0, 0, 0),
             tablePos: new Vector3(0, 0, 2),
@@ -76,8 +76,8 @@ public class BetweenEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenBeyondReferenceByExactlyTheMargin()
     {
-        // Arrange: wall at z=4, margin 0.25, table at z=4.25 (boundary case; 0.25 is exact in
-        // binary floating point, unlike 0.3, so this isn't sensitive to float rounding)
+        // Arrange: 0.25 is exact in binary floating point, unlike 0.3, so the boundary isn't
+        // float-rounding sensitive
         var scene = SceneWith(
             sofaPos: new Vector3(0, 0, 0),
             tablePos: new Vector3(0, 0, 4.25f),
@@ -95,7 +95,7 @@ public class BetweenEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenBeyondReferenceByMoreThanMargin()
     {
-        // Arrange: wall at z=4, margin 0.3, table at z=5.5 (well past the margin)
+        // Arrange
         var scene = SceneWith(
             sofaPos: new Vector3(0, 0, 0),
             tablePos: new Vector3(0, 0, 5.5f),
@@ -113,7 +113,7 @@ public class BetweenEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenBeforeFirstReferenceByMoreThanMargin()
     {
-        // Arrange: sofa at z=0, margin 0.3, table at z=-1.5 (well before the sofa)
+        // Arrange
         var scene = SceneWith(
             sofaPos: new Vector3(0, 0, 0),
             tablePos: new Vector3(0, 0, -1.5f),

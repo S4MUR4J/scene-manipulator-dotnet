@@ -3,10 +3,6 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>
-/// Passes when every pair of pooled Subjects entities has a world-space AABB separation of at
-/// least Params.MinSeparationM (0 when the boxes overlap or touch).
-/// </summary>
 public static class NoOverlapEvaluator
 {
     public static RequirementResult Evaluate(

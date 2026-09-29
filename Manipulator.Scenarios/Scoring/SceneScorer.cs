@@ -3,7 +3,6 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>Scores a scene against every requirement in a scenario spec (MAN-76).</summary>
 public static class SceneScorer
 {
     public static ScoringResult Score(ScenarioSpec spec, Scene scene)

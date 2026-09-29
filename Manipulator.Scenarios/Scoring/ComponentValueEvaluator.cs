@@ -4,12 +4,6 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>
-/// Checks a single component field against a <see cref="ComponentValueConstraint"/> on every
-/// entity matching <see cref="ComponentValueRequirement.Role"/> (the "all" quantifier). Fields
-/// recognized: MeshRenderer "color" (ExpectedValue or HueMinDeg/MaxDeg), Transform "scale.x"/
-/// "scale.y"/"scale.z" (Min/Max), MeshRenderer "opacity"/"metalness"/"roughness" (Min/Max).
-/// </summary>
 public static class ComponentValueEvaluator
 {
     public static RequirementResult Evaluate(

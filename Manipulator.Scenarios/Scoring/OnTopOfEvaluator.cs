@@ -3,11 +3,6 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>
-/// Passes when every subject entity rests on some reference entity: their world-space AABBs
-/// overlap on the XZ plane, and the subject's bottom sits within Params.ToleranceM of the
-/// reference's top.
-/// </summary>
 public static class OnTopOfEvaluator
 {
     public static RequirementResult Evaluate(

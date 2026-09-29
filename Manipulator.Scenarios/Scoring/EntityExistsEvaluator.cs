@@ -3,10 +3,6 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>
-/// Passes when every role in <see cref="EntityExistsRequirement.Roles"/> is matched by exactly
-/// its declared <see cref="RoleSelector.Count"/> in the scene.
-/// </summary>
 public static class EntityExistsEvaluator
 {
     public static RequirementResult Evaluate(

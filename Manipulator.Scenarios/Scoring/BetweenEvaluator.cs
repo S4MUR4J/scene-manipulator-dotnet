@@ -5,9 +5,7 @@ using Manipulator.Scenarios.Specs;
 namespace Manipulator.Scenarios.Scoring;
 
 /// <summary>
-/// Passes when every subject's position projects onto the segment between the two references
-/// (References.Count == 2, enforced by RequirementDtoValidator), within Params.MarginM of either
-/// end. Uses entity centers, not bounding boxes - the spec format has no other param to define a
+/// Uses entity centers, not bounding boxes - the spec format has no other param to define a
 /// box-based "between" for this relation.
 /// </summary>
 public static class BetweenEvaluator

@@ -13,7 +13,7 @@ public class SceneScorerTests
     [Fact]
     public void Score_MixesEveryRequirementType_AndAggregatesCoverage()
     {
-        // Arrange: sofa exists and is red (both pass), but a stool count is wrong (fails)
+        // Arrange
         var roles = new Dictionary<string, RoleSelector>
         {
             ["sofa"] = new RoleSelector(["sofa"], Geometry: null, Count: 1),
@@ -58,7 +58,7 @@ public class SceneScorerTests
         // Act
         var result = SceneScorer.Score(spec, scene);
 
-        // Assert: R1 and R3 pass, R2 fails (only 1 of 2 stools) -> 2/3 coverage, not success
+        // Assert
         result.Requirements.Should().HaveCount(3);
         result
             .Requirements.Single(r => r.RequirementId == "R1-sofa-exists")
@@ -79,8 +79,7 @@ public class SceneScorerTests
     [Fact]
     public void Score_Scenario1FixtureAgainstAConformingScene_IsFullySuccessful()
     {
-        // Arrange: a scene satisfying every requirement in the real scenario 1 spec - proves the
-        // scorer, not just individual evaluators, handles a real spec end to end.
+        // Arrange: real scenario 1 spec, to cover the scorer end to end and not just single evaluators
         var spec = ScenarioSpecLoader.LoadFile("Fixtures/s1-new-gen-livingroom.json");
         var furnitureScale = new Vector3(0.3f, 0.5f, 0.3f);
 

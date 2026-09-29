@@ -89,7 +89,7 @@ public class ComponentValueEvaluatorTests
     [Fact]
     public void Evaluate_HueRange_HandlesWraparoundAcrossZeroDegrees()
     {
-        // Arrange: red (hue 0) inside a [350, 10] wraparound range
+        // Arrange
         var scene = SceneWithSofa(e => e.WithComponent(new MeshRenderer(Color: "#ff0000")));
         var spec = SpecWith(Roles);
         var requirement = new ComponentValueRequirement(
@@ -110,7 +110,7 @@ public class ComponentValueEvaluatorTests
     [Fact]
     public void Evaluate_HueRange_Fails_WhenOutsideRange()
     {
-        // Arrange: green (hue 120) outside [0, 30]
+        // Arrange
         var scene = SceneWithSofa(e => e.WithComponent(new MeshRenderer(Color: "#00ff00")));
         var spec = SpecWith(Roles);
         var requirement = new ComponentValueRequirement(

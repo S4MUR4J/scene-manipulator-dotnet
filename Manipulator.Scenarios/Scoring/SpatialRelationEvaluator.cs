@@ -3,7 +3,6 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>Dispatches a spatial_relation requirement to its relation-specific evaluator.</summary>
 public static class SpatialRelationEvaluator
 {
     public static RequirementResult Evaluate(

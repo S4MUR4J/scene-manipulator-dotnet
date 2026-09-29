@@ -54,7 +54,7 @@ public class OnTopOfEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenSubjectRestsExactlyOnReference()
     {
-        // Arrange: unit-cube floor top face at y=0.5, stool bottom face at y=0.5 (resting flush)
+        // Arrange
         var scene = new SceneBuilder()
             .WithEntity(SceneBuilder.Id(1, "floor"), Cube("floor", new Vector3(0, 0, 0)))
             .WithEntity(SceneBuilder.Id(2, "stool"), Cube("stool", new Vector3(0, 1, 0)))
@@ -71,7 +71,7 @@ public class OnTopOfEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenGapIsExactlyAtTolerance()
     {
-        // Arrange: gap of exactly 0.05m, tolerance 0.05m (boundary case)
+        // Arrange
         var scene = new SceneBuilder()
             .WithEntity(SceneBuilder.Id(1, "floor"), Cube("floor", new Vector3(0, 0, 0)))
             .WithEntity(SceneBuilder.Id(2, "stool"), Cube("stool", new Vector3(0, 1.05f, 0)))
@@ -88,7 +88,7 @@ public class OnTopOfEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenGapExceedsTolerance()
     {
-        // Arrange: gap of 0.2m, tolerance 0.05m
+        // Arrange
         var scene = new SceneBuilder()
             .WithEntity(SceneBuilder.Id(1, "floor"), Cube("floor", new Vector3(0, 0, 0)))
             .WithEntity(SceneBuilder.Id(2, "stool"), Cube("stool", new Vector3(0, 1.2f, 0)))
@@ -105,7 +105,7 @@ public class OnTopOfEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenNoHorizontalOverlap()
     {
-        // Arrange: vertically aligned but shifted far away on X, no XZ overlap with the floor
+        // Arrange
         var scene = new SceneBuilder()
             .WithEntity(SceneBuilder.Id(1, "floor"), Cube("floor", new Vector3(0, 0, 0)))
             .WithEntity(SceneBuilder.Id(2, "stool"), Cube("stool", new Vector3(10, 1, 0)))

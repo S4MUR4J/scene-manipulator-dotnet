@@ -55,7 +55,7 @@ public class NoOverlapEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenBoxesOverlap()
     {
-        // Arrange: unit cubes centered 0.5m apart - well within overlap
+        // Arrange
         var scene = SceneWithTwoItems(new Vector3(0, 0, 0), new Vector3(0.5f, 0, 0));
         var requirement = RequirementWithMinSeparation(0.4);
 
@@ -69,9 +69,8 @@ public class NoOverlapEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenSeparationIsExactlyTheMinimum()
     {
-        // Arrange: unit cubes (half-extent 0.5) with a gap of exactly 0.5m -> centers 1.5m apart.
-        // 0.5 and 1.5 are exact in binary floating point, unlike 0.4/1.4, so this isn't sensitive
-        // to float rounding.
+        // Arrange: 0.5 and 1.5 are exact in binary floating point, unlike 0.4/1.4, so the boundary
+        // isn't float-rounding sensitive
         var scene = SceneWithTwoItems(new Vector3(0, 0, 0), new Vector3(1.5f, 0, 0));
         var requirement = RequirementWithMinSeparation(0.5);
 
@@ -85,7 +84,7 @@ public class NoOverlapEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenSeparationIsBelowMinimum()
     {
-        // Arrange: gap of 0.1m (centers 1.1m apart), min separation 0.4m
+        // Arrange
         var scene = SceneWithTwoItems(new Vector3(0, 0, 0), new Vector3(1.1f, 0, 0));
         var requirement = RequirementWithMinSeparation(0.4);
 

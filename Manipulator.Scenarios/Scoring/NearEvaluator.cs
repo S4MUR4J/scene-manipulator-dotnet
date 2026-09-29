@@ -4,10 +4,6 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>
-/// Passes when every subject entity is within Params.MaxDistanceM of some reference entity,
-/// measuring center-to-center distance on Params.Plane ("xz", "xy", or full 3D when unset).
-/// </summary>
 public static class NearEvaluator
 {
     public static RequirementResult Evaluate(

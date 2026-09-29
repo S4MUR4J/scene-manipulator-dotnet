@@ -70,7 +70,7 @@ public class NearEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenDistanceIsExactlyAtMax()
     {
-        // Arrange: distance exactly 1.0m, max 1.0m (boundary case)
+        // Arrange
         var scene = new SceneBuilder()
             .WithEntity(SceneBuilder.Id(1, "table"), Cube("table", new Vector3(0, 0, 0)))
             .WithEntity(SceneBuilder.Id(2, "stool"), Cube("stool", new Vector3(1.0f, 0, 0)))
@@ -87,7 +87,7 @@ public class NearEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenDistanceExceedsMax()
     {
-        // Arrange: distance 1.5m, max 1.0m
+        // Arrange
         var scene = new SceneBuilder()
             .WithEntity(SceneBuilder.Id(1, "table"), Cube("table", new Vector3(0, 0, 0)))
             .WithEntity(SceneBuilder.Id(2, "stool"), Cube("stool", new Vector3(1.5f, 0, 0)))
@@ -104,7 +104,7 @@ public class NearEvaluatorTests
     [Fact]
     public void Evaluate_XzPlane_IgnoresVerticalDistance()
     {
-        // Arrange: 2m apart on Y only - ignored on the xz plane, so effective distance is 0
+        // Arrange: Y-only offset is ignored on the xz plane
         var scene = new SceneBuilder()
             .WithEntity(SceneBuilder.Id(1, "table"), Cube("table", new Vector3(0, 0, 0)))
             .WithEntity(SceneBuilder.Id(2, "stool"), Cube("stool", new Vector3(0, 2, 0)))
