@@ -98,4 +98,19 @@ public class ScaleOrderEvaluatorTests
         // Assert
         result.Passed.Should().BeFalse();
     }
+
+    [Fact]
+    public void Evaluate_DoesNotThrow_WhenAGroupHasNoEntity()
+    {
+        // Arrange
+        var scene = new SceneBuilder()
+            .WithEntity(SceneBuilder.Id(1, "small"), Cube("small", Vector3.One))
+            .Build();
+
+        // Act
+        var result = SpatialRelationEvaluator.Evaluate(Requirement(), SpecWith(Roles), scene);
+
+        // Assert
+        result.Passed.Should().BeTrue();
+    }
 }

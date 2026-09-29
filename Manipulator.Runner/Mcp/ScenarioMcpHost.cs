@@ -1,9 +1,9 @@
-using System.Text.Json.Nodes;
 using Manipulator.Core.Commands;
 using Manipulator.Core.Ecs;
 using Manipulator.Core.Events;
 using Manipulator.Core.Serialization;
 using Manipulator.Mcp;
+using Manipulator.Runner.Configuration;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using Serilog;
@@ -14,7 +14,11 @@ namespace Manipulator.Runner.Mcp;
 /// <summary>Creates the isolated MCP server used by one research scenario run.</summary>
 static class ScenarioMcpHost
 {
-    public static WebApplication Build(Scene? startingScene, string? runId = null)
+    public static WebApplication Build(
+        Scene? startingScene,
+        string approach = Approaches.Mcp,
+        string? runId = null
+    )
     {
         var builder = WebApplication.CreateBuilder();
         var diagnosticLogName = runId ?? Guid.NewGuid().ToString("n");
@@ -26,10 +30,7 @@ static class ScenarioMcpHost
                     .MinimumLevel.Information()
                     .Enrich.FromLogContext()
                     .WriteTo.Console()
-                    .WriteTo.File(
-                        new CompactJsonFormatter(),
-                        diagnosticLogPath
-                    )
+                    .WriteTo.File(new CompactJsonFormatter(), diagnosticLogPath)
         );
 
         var scene = CloneOrCreateScene(startingScene);
@@ -54,10 +55,11 @@ static class ScenarioMcpHost
                     var result = await next(context, cancellationToken);
 
                     var text = result.Content.OfType<TextContentBlock>().FirstOrDefault()?.Text;
-                    var envelope = text is null ? null : JsonNode.Parse(text);
+                    var envelope = ToolEnvelope.TryParse(text);
                     var code =
                         envelope?["code"]?.GetValue<int>() ?? (result.IsError == true ? 500 : 200);
                     var error = envelope?["error"]?.GetValue<string>();
+                    var warnings = ToolEnvelope.Warnings(envelope);
 
                     logger.Log(
                         code >= 400 ? LogLevel.Warning : LogLevel.Information,
@@ -67,13 +69,23 @@ static class ScenarioMcpHost
                         stopwatch.ElapsedMilliseconds,
                         error
                     );
+                    if (warnings.Count > 0)
+                        logger.LogWarning(
+                            "{ToolName} warnings: {@Warnings}",
+                            context.Params.Name,
+                            warnings
+                        );
 
                     return result;
                 }
             );
         });
 
-        builder.Services.AddManipulatorMcp().WithTools<FinishTool>();
+        var mcpServer =
+            approach == Approaches.Text
+                ? builder.Services.AddManipulatorTextMcp()
+                : builder.Services.AddManipulatorMcp();
+        mcpServer.WithTools<FinishTool>();
 
         var app = builder.Build();
 

@@ -25,10 +25,11 @@ public sealed record RunnerSettings
     public IReadOnlyList<RunConfig> ToRunConfigs()
     {
         var scenarioFile = Require(ScenarioFile, "Runner:ScenarioFile");
-        var approach = Approach ?? "mcp";
-        if (!string.Equals(approach, "mcp", StringComparison.OrdinalIgnoreCase))
+        var approach = (Approach ?? Approaches.Mcp).ToLowerInvariant();
+        if (!Approaches.Implemented.Contains(approach))
             throw new NotSupportedException(
-                $"Approach '{approach}' is not implemented yet; only 'mcp' runs end-to-end today."
+                $"Approach '{approach}' is not implemented yet; supported approaches: "
+                    + $"{string.Join(", ", Approaches.Implemented)}."
             );
 
         var models = Models?.Where(model => model.Enabled).ToList() ?? [];

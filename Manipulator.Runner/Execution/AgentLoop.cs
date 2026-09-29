@@ -24,7 +24,7 @@ public enum StopReason
 }
 
 /// <summary>
-/// Orchestrates an MCP-based run: hosts the scenario MCP server, gets model responses through
+/// Orchestrates a run of any approach: hosts the scenario MCP server, gets model responses through
 /// an <see cref="IModelStrategy"/>, and stops when the model finishes, reaches a limit, times out,
 /// or fails. Tool execution and run telemetry are delegated to dedicated execution types.
 /// </summary>
@@ -41,7 +41,7 @@ public sealed class AgentLoop(IModelStrategy modelStrategy)
         var startTime = DateTimeOffset.UtcNow;
         var stopwatch = Stopwatch.StartNew();
 
-        var app = ScenarioMcpHost.Build(spec.StartingScene, runId);
+        var app = ScenarioMcpHost.Build(spec.StartingScene, config.Approach, runId);
         app.Urls.Add("http://127.0.0.1:0");
         await app.StartAsync(cancellationToken);
 
