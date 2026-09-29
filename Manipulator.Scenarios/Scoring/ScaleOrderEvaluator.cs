@@ -4,12 +4,7 @@ using Manipulator.Scenarios.Specs;
 
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>
-/// Passes when Params.Order's role-groups have non-decreasing AABB volume: every entity in
-/// group i has volume <= every entity in group i+1. Checking only adjacent groups is sufficient
-/// since <= is transitive across the whole chain. Params.Metric is validated to be "aabb_volume"
-/// by RequirementDtoValidator; no other metric exists yet.
-/// </summary>
+/// <summary>Checking only adjacent groups is sufficient since &lt;= is transitive across the chain.</summary>
 public static class ScaleOrderEvaluator
 {
     public static RequirementResult Evaluate(

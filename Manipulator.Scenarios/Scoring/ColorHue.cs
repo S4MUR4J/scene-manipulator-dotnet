@@ -1,6 +1,5 @@
 namespace Manipulator.Scenarios.Scoring;
 
-/// <summary>Extracts HSL hue (degrees, [0, 360)) from a "#rrggbb" color, for hue-range constraints.</summary>
 public static class ColorHue
 {
     /// <summary>Grey (R == G == B) has no defined hue; this returns 0 by convention.</summary>

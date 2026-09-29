@@ -3,9 +3,8 @@ using Manipulator.Core.Ecs.Components;
 namespace Manipulator.Core.Ecs;
 
 /// <summary>
-/// World-space axis-aligned bounding box of an entity: <see cref="Transform.Position"/> is the
-/// entity's center, so the box extends by half of <see cref="GeometryBounds"/> (scaled by
-/// <see cref="Transform.Scale"/>) on each side.
+/// <see cref="Transform.Position"/> is the entity's center, so the box extends half of the scaled
+/// <see cref="GeometryBounds"/> on each side.
 /// </summary>
 public static class WorldBounds
 {

@@ -63,7 +63,7 @@ public class ScaleOrderEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenEarlierGroupIsSmaller()
     {
-        // Arrange: small cube (volume 1) vs big cube (volume 8)
+        // Arrange
         var scene = SceneWith(smallScale: Vector3.One, bigScale: new Vector3(2, 2, 2));
 
         // Act
@@ -76,7 +76,7 @@ public class ScaleOrderEvaluatorTests
     [Fact]
     public void Evaluate_Passes_WhenVolumesAreEqual()
     {
-        // Arrange: equal volumes (boundary case, <=)
+        // Arrange
         var scene = SceneWith(smallScale: Vector3.One, bigScale: Vector3.One);
 
         // Act
@@ -89,7 +89,7 @@ public class ScaleOrderEvaluatorTests
     [Fact]
     public void Evaluate_Fails_WhenEarlierGroupIsLarger()
     {
-        // Arrange: "small" role's entity has the bigger volume - order is violated
+        // Arrange
         var scene = SceneWith(smallScale: new Vector3(3, 3, 3), bigScale: Vector3.One);
 
         // Act
