@@ -2,6 +2,15 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Workflow
+
+Project layout is in `README.md`. For a Linear ticket (`MAN-NN`):
+
+1. Write a short plan first: files to touch and, if the change is bigger than one reviewable PR, the proposed slices. Wait for approval when there is more than one slice, then implement slice 1 only.
+2. Branch `man-NN-short-slug`. Commits use Conventional Commits, `type(scope): subject`.
+3. PR title carries `MAN-NN`. Fill in `.github/pull_request_template.md`: ticket and slice, a hand-written description, an AI summary, and what was tested beyond CI.
+4. Use the `unit-test-generator` skill for new tests.
+
 ## Architecture
 
 **Entity Component System (ECS)** for managing 3D scenes. Three main layers:
