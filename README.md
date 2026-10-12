@@ -46,6 +46,8 @@ dotnet run --project Manipulator.Runner
 
 `appsettings.json` is only a template. Launch profiles pick a full configuration: **Scenario One** loads `appsettings.ScenarioOne.json`, **Scenario One Cheap** loads `appsettings.ScenarioOneCheap.json` (Claude Haiku and GPT-5 mini). Override any setting with environment variables or arguments, e.g. `--Runner:Batch=development`.
 
+`Runner:Approach` picks the toolset; both go through the same MCP host, agent loop and system prompt. `mcp` (default) gives per-entity command tools plus `get_scene`, `get_entity` and `finish`. `text` gives only `get_scene`, `submit_scene` (replaces the whole scene, a rejected scene leaves it unchanged) and `finish`.
+
 Output goes to `runs/<batch>/`:
 
 | File                                            | Content                                       |
