@@ -71,9 +71,3 @@ scenarios. It starts an isolated, in-process MCP host for each run, records
 tool calls and model metrics, and saves the resulting scene. See
 [Manipulator.Runner/README.md](Manipulator.Runner/README.md) for setup and
 usage.
-
-## Docs
-
-- [docs/architecture.md](docs/architecture.md) — system overview and diagrams
-- [docs/api.md](docs/api.md) — endpoints, auth, versioning, scene content JSON contract
-- [docs/adr/](docs/adr/) — architectural decision records
