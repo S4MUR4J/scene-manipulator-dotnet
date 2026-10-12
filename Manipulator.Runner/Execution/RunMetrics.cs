@@ -15,10 +15,12 @@ sealed class RunMetrics
         "set_material",
         "rename_entity",
         "remove_entity",
+        "submit_scene",
     ];
 
     public Dictionary<string, int> ToolCallsByTool { get; } = [];
     public List<ToolErrorLog> ToolErrors { get; } = [];
+    public List<ToolWarningLog> ToolWarnings { get; } = [];
     public long LlmCalls { get; private set; }
     public long InputTokens { get; private set; }
     public long OutputTokens { get; private set; }
@@ -42,15 +44,19 @@ sealed class RunMetrics
             SceneWrites++;
     }
 
-    public void RecordToolResult(string toolName, string? errorMessage, bool isError)
+    public void RecordToolResult(
+        string toolName,
+        string? errorMessage,
+        bool isError,
+        IReadOnlyList<string> warnings
+    )
     {
+        var at = DateTimeOffset.UtcNow;
         if (isError)
-            ToolErrors.Add(
-                new ToolErrorLog(
-                    toolName,
-                    errorMessage ?? "tool call failed",
-                    DateTimeOffset.UtcNow
-                )
-            );
+            ToolErrors.Add(new ToolErrorLog(toolName, errorMessage ?? "tool call failed", at));
+
+        ToolWarnings.AddRange(
+            warnings.Select(warning => new ToolWarningLog(toolName, warning, at))
+        );
     }
 }
