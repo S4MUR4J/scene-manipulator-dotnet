@@ -45,6 +45,10 @@ public static class ScaleOrderEvaluator
         IReadOnlyList<Entity> larger
     )
     {
+        // An empty group has nothing to compare; entity_exists already reports the missing role.
+        if (smaller.Count == 0 || larger.Count == 0)
+            return null;
+
         var smallerVolumes = new List<(string Id, double Volume)>();
         foreach (var entity in smaller)
         {
