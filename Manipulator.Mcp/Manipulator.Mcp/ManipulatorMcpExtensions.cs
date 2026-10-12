@@ -13,6 +13,11 @@ public static class ManipulatorMcpExtensions
             .WithTools<SceneWriteTools>();
     }
 
+    public static IMcpServerBuilder AddManipulatorTextMcp(this IServiceCollection services)
+    {
+        return services.AddMcpServer().WithHttpTransport().WithTools<SceneTextTools>();
+    }
+
     public static IEndpointRouteBuilder MapManipulatorMcp(this IEndpointRouteBuilder app)
     {
         app.MapMcp("/mcp");
