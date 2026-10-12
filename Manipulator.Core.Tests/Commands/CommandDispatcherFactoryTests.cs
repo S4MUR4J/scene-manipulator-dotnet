@@ -1,6 +1,7 @@
 using FluentAssertions;
 using Manipulator.Core.Commands;
 using Manipulator.Core.Ecs;
+using Manipulator.Core.Ecs.Components;
 using Manipulator.Core.Events;
 using Manipulator.Core.Tests.Helpers;
 
@@ -106,6 +107,21 @@ public class CommandDispatcherFactoryTests
 
         // Act
         var result = _dispatcher.Dispatch(new RemoveEntityCommand(SceneBuilder.Id(1)));
+
+        // Assert
+        result.IsSuccess.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Create_ReplaceScene_IsDispatchable()
+    {
+        // Arrange
+        var replacement = new SceneBuilder()
+            .WithEntity(e => e.WithComponent(new MeshFilter(GeometryType.Cube, null)))
+            .Build();
+
+        // Act
+        var result = _dispatcher.Dispatch(new ReplaceSceneCommand(replacement));
 
         // Assert
         result.IsSuccess.Should().BeTrue();
