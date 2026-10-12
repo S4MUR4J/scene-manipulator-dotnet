@@ -127,4 +127,22 @@ public class BetweenEvaluatorTests
         // Assert
         result.Passed.Should().BeFalse();
     }
+
+    [Fact]
+    public void Evaluate_Fails_WhenAReferenceRoleHasNoEntity()
+    {
+        // Arrange
+        var scene = new SceneBuilder()
+            .WithEntity(SceneBuilder.Id(1, "sofa"), Cube("sofa", Vector3.Zero))
+            .WithEntity(SceneBuilder.Id(2, "table"), Cube("table", new Vector3(0, 0, 2)))
+            .Build();
+        var requirement = RequirementWithMargin(0.3);
+
+        // Act
+        var result = SpatialRelationEvaluator.Evaluate(requirement, SpecWith(Roles), scene);
+
+        // Assert
+        result.Passed.Should().BeFalse();
+        result.Reason.Should().Contain("found 1");
+    }
 }

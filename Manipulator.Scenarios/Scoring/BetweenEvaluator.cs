@@ -20,6 +20,13 @@ public static class BetweenEvaluator
         var references = RoleResolver.ResolveAll(scene, spec.Roles, requirement.References);
         var marginM = requirement.Params.MarginM!.Value;
 
+        if (references.Count < 2)
+            return new RequirementResult(
+                requirement.Id,
+                Passed: false,
+                Reason: $"expected two reference entities, found {references.Count}"
+            );
+
         var a = references[0];
         var b = references[1];
 
