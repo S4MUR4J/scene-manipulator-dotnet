@@ -1,61 +1,59 @@
 # scene-manipulator-dotnet
 
-ECS-based scene data library with a unified command interface for manipulating 3D
-objects — configurable to work with LLMs, keyboard input, GUIs, or any other
-controller. The repo is a REST API (`Manipulator.Api`) backed by PostgreSQL for
-scene persistence, a pure C# ECS core (`Manipulator.Core`) that owns the scene
-model and command/event pipeline, and a research runner (`Manipulator.Runner`)
-that evaluates AI agents against isolated in-memory MCP scenes using
-`Manipulator.Mcp`. See [docs/architecture.md](docs/architecture.md) for the
-full component breakdown and diagrams.
+ECS-based 3D scene library with a unified command interface, so the same scene can be driven by an LLM (via MCP), a REST API, or any other controller. Includes a research runner that benchmarks AI models on scene-building scenarios and scores the results against declarative requirements.
 
 > Under active development.
+
+## Features
+
+- **ECS core** — entities and data-only components, read-only public queries, internal mutation
+- **Command pipeline** — string-typed commands, validators (version conflict, entity exists), handlers and an event bus
+- **REST API** — scene CRUD and commands over HTTP, PostgreSQL persistence, API-key auth ([OpenAPI spec](docs/openapi.json))
+- **MCP tools** — scene read and write tools for LLM agents
+- **Scenario scoring** — JSON scenarios with roles and requirements (entity exists, on top of, between, near, no overlap, scale order, component value)
+- **Model evaluation runner** — runs scenarios against Anthropic and OpenAI models concurrently, writes JSONL telemetry and the final scene JSON
 
 ## Requirements
 
 - .NET 10+ SDK
-- Docker + Docker Compose (for running the API and Postgres locally)
+- Docker + Docker Compose (API and Postgres)
+- Anthropic and OpenAI API keys (Runner)
 
-## Run locally
+## Build & Run
 
-`docker compose up --build` starts `Manipulator.Api` and a Postgres database.
-
-The API refuses to start without an `Authentication:ApiKey` value — every request
-must send it back as the `X-Api-Key` header (see [docs/api.md](docs/api.md)).
-Set it via the `AUTHENTICATION_API_KEY` environment variable before starting
-Compose, e.g. in a `.env` file next to `compose.yaml`:
-
-```
-AUTHENTICATION_API_KEY=dev-api-key
-```
-
-If unset, Compose falls back to `dev-api-key` for local convenience — do not rely
-on that default outside local development.
+### API
 
 ```bash
 docker compose up --build
 ```
 
-- `Manipulator.Api` → http://localhost:8000
-
-On first run, apply the EF Core migrations against the Postgres container (the
-API does not apply them automatically):
+The API does not apply migrations on startup. With the database running, apply them from the host (needs `dotnet tool install --global dotnet-ef`):
 
 ```bash
-dotnet tool install --global dotnet-ef   # if not already installed
 dotnet ef database update --project Manipulator.Api \
   --connection "Host=localhost;Port=5432;Database=manipulator;Username=admin;Password=password"
 ```
 
-Verify the API is up:
+Requests are authorized with a preconfigured API key sent as the `X-Api-Key` header (`dev-api-key` by default, override with `AUTHENTICATION_API_KEY`).
+
+### Runner
 
 ```bash
-curl -H "X-Api-Key: dev-api-key" http://localhost:8000/api/v1/scenes/
+dotnet user-secrets set Anthropic:ApiKey <key> --project Manipulator.Runner
+dotnet user-secrets set OpenAI:ApiKey <key> --project Manipulator.Runner
+dotnet run --project Manipulator.Runner
 ```
 
-## Tests and format check
+`appsettings.json` is only a template. Launch profiles pick a full configuration: **Scenario One** loads `appsettings.ScenarioOne.json`, **Scenario One Cheap** loads `appsettings.ScenarioOneCheap.json` (Claude Haiku and GPT-5 mini). Override any setting with environment variables or arguments, e.g. `--Runner:Batch=development`.
 
-These are the same commands CI runs (`.github/workflows/ci.yml`):
+Output goes to `runs/<batch>/`:
+
+| File                                            | Content                                       |
+|-------------------------------------------------|-----------------------------------------------|
+| `<model-name>.jsonl`                            | per-step telemetry, token usage, tool errors  |
+| `<scenario>_<approach>_<model-name>_<index>.json` | final serialized scene                      |
+
+## Tests
 
 ```bash
 dotnet restore Manipulator.slnx
@@ -64,10 +62,15 @@ dotnet format Manipulator.slnx --verify-no-changes --no-restore
 dotnet test Manipulator.slnx --configuration Release --no-build
 ```
 
-## Running research scenarios
+## Project layout
 
-`Manipulator.Runner` evaluates configured AI models against scene-manipulation
-scenarios. It starts an isolated, in-process MCP host for each run, records
-tool calls and model metrics, and saves the resulting scene. See
-[Manipulator.Runner/README.md](Manipulator.Runner/README.md) for setup and
-usage.
+| Project                | Role                                                       |
+|------------------------|------------------------------------------------------------|
+| `Manipulator.Core`     | ECS scene model, command and event pipeline                |
+| `Manipulator.Api`      | REST API with PostgreSQL persistence                       |
+| `Manipulator.Mcp`      | MCP tools over a scene                                     |
+| `Manipulator.Scenarios`| scenario loading, validation and scoring                   |
+| `Manipulator.Runner`   | model evaluation executable                                |
+| `Manipulator.Examples` | small programs building scenes with the core library       |
+
+Each project has a matching `.Tests` project.
